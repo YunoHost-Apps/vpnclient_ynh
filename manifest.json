@@ -1,0 +1,63 @@
+{
+  "name": "VPN Client",
+  "id": "vpnclient",
+  "description": {
+    "en": "VPN Client",
+    "fr": "Client VPN"
+  },
+  "license": "AGPL-3",
+  "developer": {
+    "name": "Julien Vaubourg",
+    "email": "julien@vaubourg.com",
+    "url": "http://julien.vaubourg.com"
+  },
+  "multi_instance": "false",
+  "arguments": {
+    "install" : [
+      {
+        "name": "Server name",
+        "ask": {
+            "en": "Select a VPN server"
+        },
+        "example": "access.ldn-fai.net",
+        "default": "access.ldn-fai.net"
+      },
+      {
+        "name": "Client certificate",
+        "ask": {
+            "en": "Select your client certificate"
+        },
+        "example": "-----BEGIN CERTIFICATE-----"
+      },
+      {
+        "name": "Client certificate key",
+        "ask": {
+            "en": "Select your client certificate key"
+        },
+        "example": "-----BEGIN PRIVATE KEY-----"
+      },
+      {
+        "name": "Server CA",
+        "ask": {
+            "en": "Select your server certificate authority"
+        },
+        "example": "-----BEGIN CERTIFICATE-----"
+      },
+      {
+        "name": "IPv6 network",
+        "ask": {
+            "en": "Select your IPv6 delegated network (netmask number must be <= 64)"
+        },
+        "example": "2001:db8:42::/48"
+      },
+      {
+        "name": "IPv6 interco",
+        "ask": {
+            "en": "Select your IPv6 interco (server side)"
+        },
+        "example": "2001:db8:1337::42",
+	"default": "2001:db8:1337::42"
+      }
+    ]
+  }
+}

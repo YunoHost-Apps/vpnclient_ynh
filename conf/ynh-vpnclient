@@ -1,0 +1,125 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides: ynh-vpnclient
+# Required-Start:    $network $remote_fs $syslog
+# Required-Stop:     $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start VPN client.
+# Description:       Start VPN client.
+### END INIT INFO
+
+has_nativeip6() {
+  ip -6 r | grep -q default\ via
+}
+
+is_ip6addr_set() {
+  yunohost app list -f hotspot --json | grep -q '"installed": true'\
+  || ip a s dev tun0 | grep -q <TPL:IP6_ADDR>/128
+}
+
+is_ip6interco_set() {
+  ip -6 r | grep -q <TPL:IP6_INTERCO>/
+}
+
+is_openvpn_running() {
+  service openvpn status &> /dev/null
+}
+
+is_running() {
+  ((has_nativeip6 && is_ip6interco_set) || ! has_nativeip6) && is_openvpn_running
+}
+
+gw6=$(ip -6 r | grep default\ via | awk '{ print $3 }')
+
+case "$1" in
+  start)
+    if is_running; then
+      echo "Already correctly set"
+    else
+      if ! is_openvpn_running; then
+        echo "Run openvpn"
+
+        proto=udp
+        [ ! -z "${gw6}" ] && proto=udp6
+        sed "s|<TPL:PROTO>|${proto}|" /etc/openvpn/client.conf.tpl > /etc/openvpn/client.conf
+        sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
+
+        service openvpn start
+
+        false || while [ $? -ne 0 ]; do
+          sleep 1
+          ip l sh dev tun0 &> /dev/null
+        done
+
+        sleep 2
+      fi
+
+      if has_nativeip6 && ! is_ip6interco_set; then
+        echo "Set IPv6 interco route"
+        ip r a <TPL:IP6_INTERCO>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+      fi
+
+      if ! is_ip6addr_set; then
+        echo "Set IPv6 address"
+        ip a a <TPL:IP6_ADDR>/128 dev tun0
+      fi
+    fi
+  ;;
+  stop)
+    if is_ip6addr_set; then
+      echo "Unset IPv6 address"
+      ip a d <TPL:IP6_ADDR>/128 dev tun0
+    fi
+
+    if is_ip6interco_set; then
+      echo "Unset IPv6 interco route"
+      ip r d <TPL:IP6_INTERCO>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+    fi
+  
+    if is_openvpn_running; then
+      echo "Stop openvpn"
+      service openvpn stop
+    fi
+  ;;
+  restart)
+    $0 stop
+    $0 start
+  ;;
+  status)
+    exitcode=0
+
+    if is_ip6addr_set; then
+      echo "IPv6 address is correctly set"
+    else
+      echo "IPv6 address is NOT set"
+      exitcode=1
+    fi
+
+    if has_nativeip6; then
+      if is_ip6interco_set; then
+        echo "IPv6 interco route is correctly set"
+      else
+        echo "IPv6 interco route is NOT set"
+        exitcode=1
+      fi
+    else
+      echo "No native IPv6 detected"
+    fi
+
+    if is_openvpn_running; then
+      echo "Openvpn is running"
+    else
+      echo "Openvpn is NOT running"
+      exitcode=1
+    fi
+
+    exit ${exitcode}
+  ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+  ;;
+esac
+
+exit 0
