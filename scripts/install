@@ -38,7 +38,7 @@ sudo yunohost app setting vpnclient crt_server_ca -v ${crt_server_ca}
 sudo install -b -o root -g root -m 0644 ../conf/client.conf.tpl /etc/openvpn/
 
 # Create certificates
-mkdir -pm 0700 /etc/openvpn/keys/
+sudo mkdir -pm 0700 /etc/openvpn/keys/
 
 sudo cat << EOF > /etc/openvpn/keys/user.crt
 ${crt_client}
@@ -50,7 +50,7 @@ sudo cat << EOF > /etc/openvpn/keys/ca-server.crt
 ${crt_server_ca}
 EOF
 
-sudo chown root: /etc/openvpn/keys/*
+sudo chown -R root: /etc/openvpn/keys/
 sudo chmod 0600 /etc/openvpn/keys/*
 
 # Fix confs
@@ -67,8 +67,8 @@ sudo sed "s|<TPL:IP6_INTERCO>|${ip6_interco}|g" -i /etc/init.d/ynh-vpnclient
 sudo sed "s|<TPL:WIRED_DEVICE>|${wired_device}|g" -i /etc/init.d/ynh-vpnclient
 
 # Set default inits
-# The boot order of these services are important, so they are disabled by default
-# and the ynh-vpnclient service handles them.
+# The openvpn configuration is modified before the start, so the service is disabled by default
+# and the ynh-vpnclient service handles it.
 # All services are registred by yunohost in order to prevent conflicts after the uninstall.
 sudo yunohost service add openvpn
 sudo yunohost service stop openvpn
