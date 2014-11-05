@@ -2,11 +2,10 @@
 
 # Retrieve arguments
 server_name=$1
-crt_client=$2
-crt_client_key=$3
-crt_server_ca=$4
+crt_client_path=$2
+crt_client_key_path=$3
+crt_server_ca_path=$4
 ip6_net=$5
-ip6_interco=$6
 
 # Check arguments
 # TODO
@@ -19,39 +18,31 @@ sudo apt-get --assume-yes --force-yes install sipcalc
 
 # Compute extra arguments
 wired_device=$(ip r | awk '/default via/ { print $NF; }')
-ip6_interco=$(sipcalc ${ip6_interco} | grep Compressed | awk '{ print $NF; }')
 ip6_expanded_net=$(sipcalc ${ip6_net} | grep Expanded | awk '{ print $NF; }')
 ip6_net=$(sipcalc ${ip6_net} | grep Compressed | awk '{ print $NF; }')
-ip6_addr=$(echo "$(echo ${ip6_expanded_net} | cut -d: -f1-7):42")
+ip6_addr=$(echo "$(echo ${ip6_expanded_net} | cut -d: -f1-7):1")
 ip6_addr=$(sipcalc ${ip6_addr} | grep Compressed | awk '{ print $NF; }')
+server_ip6=$(host ${server_name} | awk '/IPv6/ { print $NF; }')
 
 # Save arguments for future upgrades
 sudo yunohost app setting vpnclient wired_device -v ${wired_device}
 sudo yunohost app setting vpnclient ip6_addr -v ${ip6_addr}
 sudo yunohost app setting vpnclient ip6_net -v ${ip6_net}
-sudo yunohost app setting vpnclient ip6_interco -v ${ip6_interco}
-sudo yunohost app setting vpnclient crt_client -v ${crt_client}
-sudo yunohost app setting vpnclient crt_client_key -v ${crt_client_key}
-sudo yunohost app setting vpnclient crt_server_ca -v ${crt_server_ca}
+sudo yunohost app setting vpnclient server_name -v ${server_name}
+sudo yunohost app setting vpnclient server_ip6 -v ${server_ip6}
 
 # Copy confs
 sudo install -b -o root -g root -m 0644 ../conf/client.conf.tpl /etc/openvpn/
 
-# Create certificates
+# Copy certificates
 sudo mkdir -pm 0700 /etc/openvpn/keys/
+sudo chown root: /etc/openvpn/keys/
 
-sudo cat << EOF > /etc/openvpn/keys/user.crt
-${crt_client}
-EOF
-sudo cat << EOF > /etc/openvpn/keys/user.key
-${crt_client_key}
-EOF
-sudo cat << EOF > /etc/openvpn/keys/ca-server.crt
-${crt_server_ca}
-EOF
+sudo install -b -o root -g root -m 0600 ${crt_client_path} /etc/openvpn/keys/user.crt
+sudo install -b -o root -g root -m 0600 ${crt_client_key_path} /etc/openvpn/keys/user.key
+sudo install -b -o root -g root -m 0600 ${crt_server_ca_path} /etc/openvpn/keys/ca-server.crt
 
-sudo chown -R root: /etc/openvpn/keys/
-sudo chmod 0600 /etc/openvpn/keys/*
+sudo rm -f ${crt_client_path} ${crt_client_key_path} ${crt_server_ca_path}
 
 # Fix confs
 ## openvpn
@@ -63,7 +54,7 @@ sudo install -b -o root -g root -m 0755 ../conf/ynh-vpnclient /etc/init.d/
 # Fix init script
 ## ynh-vpnclient
 sudo sed "s|<TPL:IP6_ADDR>|${ip6_addr}|g" -i /etc/init.d/ynh-vpnclient
-sudo sed "s|<TPL:IP6_INTERCO>|${ip6_interco}|g" -i /etc/init.d/ynh-vpnclient
+sudo sed "s|<TPL:SERVER_IP6>|${server_ip6}|g" -i /etc/init.d/ynh-vpnclient
 sudo sed "s|<TPL:WIRED_DEVICE>|${wired_device}|g" -i /etc/init.d/ynh-vpnclient
 
 # Set default inits
@@ -78,5 +69,12 @@ sudo yunohost service disable openvpn
 sudo yunohost service add ynh-vpnclient
 sudo yunohost service enable ynh-vpnclient
 sudo yunohost service start ynh-vpnclient
+
+# Restart hotspot service if installed to change NAT configuration (now on tun0)
+sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
+if [ "$?" -eq 0 ]; then
+  sudo yunohost service stop ynh-hotspot
+  sudo yunohost service start ynh-hotspot
+fi
 
 exit 0

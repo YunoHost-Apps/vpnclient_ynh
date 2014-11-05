@@ -25,23 +25,26 @@
       {
         "name": "Client certificate",
         "ask": {
-            "en": "Select your client certificate"
+            "en": "Select the path of your client certificate (will be moved)"
         },
-        "example": "-----BEGIN CERTIFICATE-----"
+        "example": "/tmp/user.crt",
+        "default": "/tmp/user.crt"
       },
       {
         "name": "Client certificate key",
         "ask": {
-            "en": "Select your client certificate key"
+            "en": "Select the path of your client certificate key (will be moved)"
         },
-        "example": "-----BEGIN PRIVATE KEY-----"
+        "example": "/tmp/user.key",
+        "default": "/tmp/user.key"
       },
       {
         "name": "Server CA",
         "ask": {
-            "en": "Select your server certificate authority"
+            "en": "Select the path of your server certificate authority (will be moved)"
         },
-        "example": "-----BEGIN CERTIFICATE-----"
+        "example": "/tmp/ca-server.crt",
+        "default": "/tmp/ca-server.crt"
       },
       {
         "name": "IPv6 network",
@@ -49,14 +52,6 @@
             "en": "Select your IPv6 delegated network (netmask number must be <= 64)"
         },
         "example": "2001:db8:42::/48"
-      },
-      {
-        "name": "IPv6 interco",
-        "ask": {
-            "en": "Select your IPv6 interco (server side)"
-        },
-        "example": "2001:db8:1337::42",
-	"default": "2001:db8:1337::42"
       }
     ]
   }

@@ -11,8 +11,6 @@ keepalive 10 30
 comp-lzo adaptive
 
 # UDP only
-<TPL:UDP_COMMENT>mssfix
-<TPL:UDP_COMMENT>fragment 1300
 <TPL:UDP_COMMENT>explicit-exit-notify
 
 # TLS

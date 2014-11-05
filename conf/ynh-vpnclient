@@ -15,19 +15,20 @@ has_nativeip6() {
 
 is_ip6addr_set() {
   yunohost app list -f hotspot --json | grep -q '"installed": true'\
-  || ip a s dev tun0 | grep -q <TPL:IP6_ADDR>/128
+  || ip a s dev tun0 2> /dev/null | grep -q <TPL:IP6_ADDR>/128
 }
 
-is_ip6interco_set() {
-  ip -6 r | grep -q <TPL:IP6_INTERCO>/
+is_serverip6route_set() {
+  ip -6 r | grep -q <TPL:SERVER_IP6>/
 }
 
 is_openvpn_running() {
-  service openvpn status &> /dev/null
+  # service openvpn status seems to be a joke
+  ip l sh dev tun0 &> /dev/null
 }
 
 is_running() {
-  ((has_nativeip6 && is_ip6interco_set) || ! has_nativeip6) && is_openvpn_running
+  ((has_nativeip6 && is_serverip6route_set) || ! has_nativeip6) && is_openvpn_running
 }
 
 gw6=$(ip -6 r | grep default\ via | awk '{ print $3 }')
@@ -45,7 +46,7 @@ case "$1" in
         sed "s|<TPL:PROTO>|${proto}|" /etc/openvpn/client.conf.tpl > /etc/openvpn/client.conf
         sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
 
-        service openvpn start
+        service openvpn start client
 
         false || while [ $? -ne 0 ]; do
           sleep 1
@@ -55,9 +56,9 @@ case "$1" in
         sleep 2
       fi
 
-      if has_nativeip6 && ! is_ip6interco_set; then
-        echo "Set IPv6 interco route"
-        ip r a <TPL:IP6_INTERCO>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+      if has_nativeip6 && ! is_serverip6route_set; then
+        echo "Set IPv6 server route"
+        ip r a <TPL:SERVER_IP6>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
       fi
 
       if ! is_ip6addr_set; then
@@ -69,12 +70,13 @@ case "$1" in
   stop)
     if is_ip6addr_set; then
       echo "Unset IPv6 address"
-      ip a d <TPL:IP6_ADDR>/128 dev tun0
+      # Not useful if hotspot is installed
+      ip a d <TPL:IP6_ADDR>/128 dev tun0 2> /dev/null
     fi
 
-    if is_ip6interco_set; then
-      echo "Unset IPv6 interco route"
-      ip r d <TPL:IP6_INTERCO>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+    if is_serverip6route_set; then
+      echo "Unset IPv6 server route"
+      ip r d <TPL:SERVER_IP6>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
     fi
   
     if is_openvpn_running; then
@@ -97,10 +99,10 @@ case "$1" in
     fi
 
     if has_nativeip6; then
-      if is_ip6interco_set; then
-        echo "IPv6 interco route is correctly set"
+      if is_serverip6route_set; then
+        echo "IPv6 server route is correctly set"
       else
-        echo "IPv6 interco route is NOT set"
+        echo "IPv6 server route is NOT set"
         exitcode=1
       fi
     else
