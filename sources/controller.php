@@ -1,15 +1,21 @@
 <?php
 
 
-dispatch('/', 'hello_world');
-function hello_world() {
-    flash('success', T_('This is a notification'));
-    set('title', T_('Hello World !'));
-    return render('homepage.html.php');
-}
+dispatch('/', function() {
+    set('title', T_('Configure your VPN client'));
+    return render('settings.html.php');
+});
 
-dispatch('/lang/:locale', 'changeLocale');
-function changeLocale ($locale = 'en') {
+dispatch_put('/settings', function() {
+    $success_message = "";
+    foreach ($_POST as $key => $value) {
+        $success_message = $success_message.T_("Parameter ").$key.": ".$value."<br>";
+    }
+    flash('success', $success_message);
+    redirect_to('/');
+});
+
+dispatch('/lang/:locale', function($locale = 'en') {
     switch ($locale) {
         case 'fr':
             $_SESSION['locale'] = 'fr';
@@ -22,5 +28,5 @@ function changeLocale ($locale = 'en') {
         redirect_to($_GET['redirect_to']);
     else
         redirect_to('/');
-}
+});
 
