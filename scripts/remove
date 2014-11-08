@@ -28,10 +28,9 @@ sudo rm -rf /var/www/vpnadmin/
 sudo userdel -f vpnadmin
 
 # Restart hotspot service if installed to change NAT configuration
+# A new start will fix the interface without unsetting all stuff
 sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
 if [ "$?" -eq 0 ]; then
-  sleep 2
-  sudo yunohost service stop ynh-hotspot
   sudo yunohost service start ynh-hotspot
 fi
 

@@ -9,79 +9,200 @@
 # Description:       Start VPN client.
 ### END INIT INFO
 
+# Functions
+## State functions
+
 has_nativeip6() {
-  ip -6 r | grep -q default\ via
+  ip -6 route | grep -q default\ via
+}
+
+has_hotspot_app() {
+  yunohost app list -f hotspot --json | grep -q '"installed": true'
 }
 
 is_ip6addr_set() {
-  yunohost app list -f hotspot --json | grep -q '"installed": true'\
-  || ip a s dev tun0 2> /dev/null | grep -q <TPL:IP6_ADDR>/128
+  ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/128"
 }
 
 is_serverip6route_set() {
-  ip -6 r | grep -q <TPL:SERVER_IP6>/
+  server_ip6=$1
+
+  ip -6 route | grep -q "${server_ip6}/"
 }
 
 is_openvpn_running() {
   # service openvpn status seems to be a joke
-  ip l sh dev tun0 &> /dev/null
+  ip link show dev tun0 &> /dev/null
 }
 
 is_running() {
-  ((has_nativeip6 && is_serverip6route_set) || ! has_nativeip6) && is_openvpn_running
+  ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
+  && ((! has_hotspot_app && is_ip6addr_set) || has_hotspot_app)\
+  && is_openvpn_running
 }
 
-gw6=$(ip -6 r | grep default\ via | awk '{ print $3 }')
+## Setters
+
+set_ip6addr() {
+  ip address add "${ynh_ip6_addr}/128" dev tun0
+}
+
+set_serverip6route() {
+  server_ip6=$1
+  ip6_gw=$2
+  wired_device=$3
+
+  ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+}
+
+start_openvpn() {
+  ip6_gw=$1
+  server_ip6=$2
+  proto=udp
+
+  [ ! -z "${ip6_gw}" -a ! -z "${server_ip6}" ] && proto=udp6
+  cp /etc/openvpn/client.conf{.tpl,}
+
+  sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/openvpn/client.conf
+  sed "s|<TPL:PROTO>|${proto}|" -i /etc/openvpn/client.conf
+  sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
+
+  service openvpn start client
+}
+
+## Unsetters
+
+unset_ip6addr() {
+  ip address delete "${ynh_ip6_addr}/128" dev tun0
+}
+
+unset_serverip6route() {
+  server_ip6=$1
+  ip6_gw=$2
+  wired_device=$3
+
+  ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+}
+
+stop_openvpn() {
+  service openvpn stop
+}
+
+## Tools
+
+moulinette_get() {
+  var=$1
+
+  value=$(yunohost app setting vpnclient "${var}")
+
+  if [[ "${value}" =~ "An instance is already running" ]]; then
+    echo "${value}" >&2
+    exit 1
+  fi
+
+  echo "${value}"
+} 
+
+moulinette_set() {
+  var=$1
+  value=$2
+
+  msg=$(yunohost app setting vpnclient "${var}" -v "${value}")
+
+  if [ ! $? -eq 0 ]; then
+    echo "${msg}" >&2
+    exit 1
+  fi
+}
+
+# Variables
+
+echo -n "Retrieving Yunohost settings... "
+
+ynh_server_name=$(moulinette_get server_name)
+ynh_ip6_addr=$(moulinette_get ip6_addr)
+
+old_ip6_gw=$(moulinette_get ip6_gw)
+old_wired_device=$(moulinette_get wired_device)
+old_server_ip6=$(moulinette_get server_ip6)
+
+new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
+new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
+new_server_ip6=$(host "${ynh_server_name}" | awk '/IPv6/ { print $NF; }')
+
+if [ -z "${new_server_ip6}" ]; then
+  new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 | awk '/IPv6/ { print $NF; }')
+fi
+
+echo "OK"
+
+# Script
 
 case "$1" in
   start)
     if is_running; then
-      echo "Already correctly set"
+      echo "Already started"
     else
+      echo "Starting..."
+
+      # Run openvpn
       if ! is_openvpn_running; then
         echo "Run openvpn"
 
-        proto=udp
-        [ ! -z "${gw6}" ] && proto=udp6
-        sed "s|<TPL:PROTO>|${proto}|" /etc/openvpn/client.conf.tpl > /etc/openvpn/client.conf
-        sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
+        start_openvpn "${new_ip6_gw}" "${new_server_ip6}"
 
-        service openvpn start client
-
+        i=0
         false || while [ $? -ne 0 ]; do
+          (( i++ ))
+          [ $i -gt 15 ] && exit 1
           sleep 1
-          ip l sh dev tun0 &> /dev/null
-        done
-
-        sleep 2
+          ip link show dev tun0 &> /dev/null
+        done && sleep 2
       fi
 
-      if has_nativeip6 && ! is_serverip6route_set; then
+      # Check old state of the server ipv6 route
+      if [ ! -z "${old_server_ip6}" -a ! -z "${new_ip6_gw}" -a ! -z "${old_wired_device}"\
+           -a \( "${new_server_ip6}" != "${old_server_ip6}" -o "${new_ip6_gw}" != "${old_ip6_gw}"\
+           -o "${new_wired_device}" != "${old_wired_device}" \) ]\
+         && is_serverip6route_set "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"; then
+
+        unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
+      fi
+
+      # Set the new server ipv6 route
+      if has_nativeip6 && ! is_serverip6route_set "${new_server_ip6}"; then
         echo "Set IPv6 server route"
-        ip r a <TPL:SERVER_IP6>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+
+        set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
       fi
 
-      if ! is_ip6addr_set; then
+      # Set the ipv6 address
+      if ! has_hotspot_app && ! is_ip6addr_set; then
         echo "Set IPv6 address"
-        ip a a <TPL:IP6_ADDR>/128 dev tun0
+        set_ip6addr
       fi
     fi
+
+    moulinette_set server_ip6 "${new_server_ip6}"
+    moulinette_set ip6_gw "${new_ip6_gw}"
+    moulinette_set wired_device "${new_wired_device}"
   ;;
   stop)
-    if is_ip6addr_set; then
+    echo "Stopping..."
+
+    if ! has_hotspot_app && is_ip6addr_set; then
       echo "Unset IPv6 address"
-      # Not useful if hotspot is installed
-      ip a d <TPL:IP6_ADDR>/128 dev tun0 2> /dev/null
+      unset_ip6addr
     fi
 
-    if is_serverip6route_set; then
+    if is_serverip6route_set "${old_server_ip6}"; then
       echo "Unset IPv6 server route"
-      ip r d <TPL:SERVER_IP6>/128 via ${gw6} dev <TPL:WIRED_DEVICE>
+      unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
     fi
   
     if is_openvpn_running; then
       echo "Stop openvpn"
-      service openvpn stop
+      stop_openvpn
     fi
   ;;
   restart)
@@ -91,15 +212,19 @@ case "$1" in
   status)
     exitcode=0
 
-    if is_ip6addr_set; then
-      echo "IPv6 address is correctly set"
+    if ! has_hotspot_app; then
+      if is_ip6addr_set; then
+        echo "IPv6 address is correctly set"
+      else
+        echo "IPv6 address is NOT set"
+        exitcode=1
+      fi
     else
-      echo "IPv6 address is NOT set"
-      exitcode=1
+      echo "Hotspot app detected"
     fi
 
     if has_nativeip6; then
-      if is_serverip6route_set; then
+      if is_serverip6route_set "${new_server_ip6}"; then
         echo "IPv6 server route is correctly set"
       else
         echo "IPv6 server route is NOT set"
