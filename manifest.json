@@ -15,6 +15,21 @@
   "arguments": {
     "install" : [
       {
+        "name": "Domain",
+        "ask": {
+            "en": "Choose a domain for your VPN web administration"
+        },
+        "example": "domain.org"
+      },
+      {
+        "name": "URL Path",
+        "ask": {
+            "en": "Choose a path for your VPN web administration"
+        },
+        "example": "/vpnadmin",
+        "example": "/vpnadmin"
+      },
+      {
         "name": "Server name",
         "ask": {
             "en": "Select a VPN server"
