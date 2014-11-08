@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>YunoHost <? echo (isset($title)) ? "| ".$title : "" ?></title>
+    <title>VPN Client <? echo (isset($title)) ? "| ".$title : "" ?></title>
     <meta name="viewport" content="width=device-width">
     <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
