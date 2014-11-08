@@ -27,7 +27,7 @@
             "en": "Choose a path for your VPN web administration"
         },
         "example": "/vpnadmin",
-        "example": "/vpnadmin"
+        "default": "/vpnadmin"
       },
       {
         "name": "Server name",

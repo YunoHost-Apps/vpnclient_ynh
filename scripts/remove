@@ -1,15 +1,31 @@
 #!/bin/bash
 
+# Retrieve arguments
+domain=$(sudo yunohost app setting vpnclient domain)
+
 # The End
 sudo yunohost service stop ynh-vpnclient
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/init.d/ynh-vpnclient
 
 # Remove confs
-sudo rm -f /etc/openvpn/client.conf* 
+sudo rm -f /etc/openvpn/client.conf{.tpl,}
+sudo rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
+sudo rm -f /etc/php5/fpm/pool.d/vpnadmin.conf
 
 # Remove certificates
 sudo rm -rf /etc/openvpn/keys/
+
+# Restart services
+sudo yunohost service stop php5-fpm
+sudo yunohost service start php5-fpm
+sudo service nginx reload
+
+# Remove sources
+sudo rm -rf /var/www/vpnadmin/
+
+# Remove user
+sudo userdel -f vpnadmin
 
 # Restart hotspot service if installed to change NAT configuration
 sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
@@ -21,7 +37,7 @@ fi
 
 # Remove packets
 # The yunohost policy is currently to not uninstall packets (dependency problems)
-## sudo apt-get --assume-yes --force-yes remove openvpn
+## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm
 ## sudo apt-get --assume-yes --force-yes remove sipcalc
 
 exit 0

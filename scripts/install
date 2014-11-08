@@ -4,10 +4,10 @@
 domain=$1
 url_path=$2
 server_name=$3
-crt_client_path=$2
-crt_client_key_path=$3
-crt_server_ca_path=$4
-ip6_net=$5
+crt_client_path=$4
+crt_client_key_path=$5
+crt_server_ca_path=$6
+ip6_net=$7
 
 # Check arguments
 # TODO
@@ -32,6 +32,10 @@ ip6_addr=$(echo "$(echo ${ip6_expanded_net} | cut -d: -f1-7):1")
 ip6_addr=$(sipcalc ${ip6_addr} | grep Compressed | awk '{ print $NF; }')
 server_ip6=$(host ${server_name} | awk '/IPv6/ { print $NF; }')
 
+if [ -z "${server_ip6}" ]; then
+  server_ip6=$(host ${server_name} 80.67.188.188 | awk '/IPv6/ { print $NF; }')
+fi
+
 # Save arguments for future upgrades
 sudo yunohost app setting vpnclient wired_device -v ${wired_device}
 sudo yunohost app setting vpnclient ip6_addr -v ${ip6_addr}
@@ -47,7 +51,7 @@ sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/f
 # Copy web sources
 sudo mkdir -pm 0755 /var/www/vpnadmin/
 
-sudo cp -a ../conf/sources/* /var/www/vpnadmin/
+sudo cp -a ../sources/* /var/www/vpnadmin/
 
 sudo chown -R root: /var/www/vpnadmin/
 sudo chmod -R 0644 /var/www/vpnadmin/*
@@ -72,12 +76,14 @@ sudo sed "s|<TPL:SERVER_NAME>|${server_name}|g" -i /etc/openvpn/client.conf.tpl
 
 ## nginx
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
-sudo sed 's|<TPL:NGINX_ALIAS>|/var/www/vpnadmin/|g' -i /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
+sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
+sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
 
 # php-fpm
 sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_USER>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_GROUP>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 
 # Copy init script
 sudo install -b -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/ynh-vpnclient
