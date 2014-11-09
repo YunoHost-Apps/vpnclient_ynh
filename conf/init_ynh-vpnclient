@@ -58,14 +58,26 @@ set_serverip6route() {
 start_openvpn() {
   ip6_gw=$1
   server_ip6=$2
-  proto=udp
 
-  [ ! -z "${ip6_gw}" -a ! -z "${server_ip6}" ] && proto=udp6
+  if [ ! -z "${ip6_gw}" -a ! -z "${server_ip6}" ]; then
+    proto=udp6
+    [ "${ynh_server_proto}" == tcp ] && proto=tcp6-client
+  else
+    proto=udp
+    [ "${ynh_server_proto}" == tcp ] && proto=tcp-client
+  else
+
   cp /etc/openvpn/client.conf{.tpl,}
 
   sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/openvpn/client.conf
-  sed "s|<TPL:PROTO>|${proto}|" -i /etc/openvpn/client.conf
-  sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
+  sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/openvpn/client.conf
+  sed "s|<TPL:PROTO>|${proto}|g" -i /etc/openvpn/client.conf
+
+  if [ "${proto}" =~ udp ]
+    sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
+  else
+    sed 's|^<TPL:UDP_COMMENT>|;|' -i /etc/openvpn/client.conf
+  fi
 
   service openvpn start client
 }
@@ -120,6 +132,8 @@ moulinette_set() {
 echo -n "Retrieving Yunohost settings... "
 
 ynh_server_name=$(moulinette_get server_name)
+ynh_server_port=$(moulinette_get server_port)
+ynh_server_proto=$(moulinette_get server_proto)
 ynh_ip6_addr=$(moulinette_get ip6_addr)
 
 old_ip6_gw=$(moulinette_get ip6_gw)
@@ -183,6 +197,7 @@ case "$1" in
       fi
     fi
 
+    # Update dynamic settings
     moulinette_set server_ip6 "${new_server_ip6}"
     moulinette_set ip6_gw "${new_ip6_gw}"
     moulinette_set wired_device "${new_wired_device}"

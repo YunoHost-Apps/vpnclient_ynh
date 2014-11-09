@@ -30,8 +30,10 @@ ip6_net=$(sipcalc "${ip6_net}" | grep Compressed | awk '{ print $NF; }')
 ip6_addr=$(echo "$(echo "${ip6_expanded_net}" | cut -d: -f1-7):1")
 ip6_addr=$(sipcalc "${ip6_addr}" | grep Compressed | awk '{ print $NF; }')
 
-# Save arguments for future upgrades
+# Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
+sudo yunohost app setting vpnclient server_port -v 1194
+sudo yunohost app setting vpnclient server_proto -v udp
 sudo yunohost app setting vpnclient ip6_addr -v "${ip6_addr}"
 sudo yunohost app setting vpnclient ip6_net -v "${ip6_net}"
 

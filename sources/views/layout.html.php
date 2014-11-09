@@ -13,6 +13,7 @@
     <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/css/style.css" rel="stylesheet">
     <script src="<?= PUBLIC_DIR ?>/jquery/jquery-2.1.1.min.js"></script>
     <script src="<?= PUBLIC_DIR ?>/bootstrap/js/bootstrap.min.js"></script>
+    <script src="<?= PUBLIC_DIR ?>/js/custom.js"></script>
 </head>
 <body>
     <div class="container">

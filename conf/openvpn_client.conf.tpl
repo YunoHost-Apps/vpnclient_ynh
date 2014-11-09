@@ -9,6 +9,7 @@ dev tun
 tun-ipv6
 keepalive 10 30
 comp-lzo adaptive
+port <TPL:SERVER_PORT>
 
 # UDP only
 <TPL:UDP_COMMENT>explicit-exit-notify
