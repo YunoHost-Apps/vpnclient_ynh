@@ -16,8 +16,6 @@ function restart_service() {
 }
 
 dispatch('/', function() {
-  set('title', T_('VPN client'));
-
   set('server_name', moulinette_get('server_name'));
   set('server_port', moulinette_get('server_port'));
   set('server_proto', moulinette_get('server_proto'));
