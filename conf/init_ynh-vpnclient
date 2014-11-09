@@ -25,7 +25,7 @@ is_ip6addr_set() {
 }
 
 is_serverip6route_set() {
-  server_ip6=$1
+  server_ip6=${1}
 
   ip -6 route | grep -q "${server_ip6}/"
 }
@@ -47,16 +47,16 @@ set_ip6addr() {
 }
 
 set_serverip6route() {
-  server_ip6=$1
-  ip6_gw=$2
-  wired_device=$3
+  server_ip6=${1}
+  ip6_gw=${2}
+  wired_device=${3}
 
   ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
 }
 
 start_openvpn() {
-  ip6_gw=$1
-  server_ip6=$2
+  ip6_gw=${1}
+  server_ip6=${2}
 
   if [ ! -z "${ip6_gw}" -a ! -z "${server_ip6}" ]; then
     proto=udp6
@@ -88,9 +88,9 @@ unset_ip6addr() {
 }
 
 unset_serverip6route() {
-  server_ip6=$1
-  ip6_gw=$2
-  wired_device=$3
+  server_ip6=${1}
+  ip6_gw=${2}
+  wired_device=${3}
 
   ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
 }
@@ -102,7 +102,7 @@ stop_openvpn() {
 ## Tools
 
 moulinette_get() {
-  var=$1
+  var=${1}
 
   value=$(yunohost app setting vpnclient "${var}")
 
@@ -115,8 +115,8 @@ moulinette_get() {
 } 
 
 moulinette_set() {
-  var=$1
-  value=$2
+  var=${1}
+  value=${2}
 
   msg=$(yunohost app setting vpnclient "${var}" -v "${value}")
 
@@ -151,7 +151,7 @@ echo "OK"
 
 # Script
 
-case "$1" in
+case "${1}" in
   start)
     if is_running; then
       echo "Already started"

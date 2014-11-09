@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Retrieve arguments
-domain=$1
-url_path=$2
-server_name=$3
-crt_client_path=$4
-crt_client_key_path=$5
-crt_server_ca_path=$6
-ip6_net=$7
+domain=${1}
+url_path=${2}
+server_name=${3}
+crt_client_path=${4}
+crt_client_key_path=${5}
+crt_server_ca_path=${6}
+ip6_net=${7}
 
 # Check arguments
 # TODO
@@ -44,7 +44,6 @@ sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/f
 
 # Copy web sources
 sudo mkdir -pm 0755 /var/www/vpnadmin/
-
 sudo cp -a ../sources/* /var/www/vpnadmin/
 
 sudo chown -R root: /var/www/vpnadmin/
@@ -109,7 +108,7 @@ sudo yunohost app ssowatconf
 # A new start will fix the interface without unsetting all stuff
 sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
 if [ $? -eq 0 ]; then
-  sudo yunohost service start ynh-hotspot
+  sudo service ynh-hotspot start
 fi
 
 exit 0

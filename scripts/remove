@@ -4,7 +4,7 @@
 domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
-sudo yunohost service stop ynh-vpnclient
+sudo service ynh-vpnclient stop
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/init.d/ynh-vpnclient
 
@@ -31,7 +31,7 @@ sudo userdel -f vpnadmin
 # A new start will fix the interface without unsetting all stuff
 sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
 if [ "$?" -eq 0 ]; then
-  sudo yunohost service start ynh-hotspot
+  sudo service ynh-hotspot start
 fi
 
 # Remove packets
