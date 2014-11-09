@@ -31,8 +31,7 @@ is_serverip6route_set() {
 }
 
 is_openvpn_running() {
-  # service openvpn status seems to be a joke
-  ip link show dev tun0 &> /dev/null
+  service openvpn status client &> /dev/null
 }
 
 is_running() {
@@ -65,7 +64,7 @@ start_openvpn() {
   else
     proto=udp
     [ "${ynh_server_proto}" == tcp ] && proto=tcp-client
-  else
+  fi
 
   cp /etc/openvpn/client.conf{.tpl,}
 
@@ -73,7 +72,7 @@ start_openvpn() {
   sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/openvpn/client.conf
   sed "s|<TPL:PROTO>|${proto}|g" -i /etc/openvpn/client.conf
 
-  if [ "${proto}" =~ udp ]
+  if [[ "${proto}" =~ udp ]]; then
     sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
   else
     sed 's|^<TPL:UDP_COMMENT>|;|' -i /etc/openvpn/client.conf
@@ -165,6 +164,10 @@ case "$1" in
 
         start_openvpn "${new_ip6_gw}" "${new_server_ip6}"
 
+        if [ ! $? -eq 0 ]; then
+          exit 1
+        fi
+
         i=0
         false || while [ $? -ne 0 ]; do
           (( i++ ))
@@ -220,10 +223,6 @@ case "$1" in
       stop_openvpn
     fi
   ;;
-  restart)
-    $0 stop
-    $0 start
-  ;;
   status)
     exitcode=0
 
@@ -259,7 +258,7 @@ case "$1" in
     exit ${exitcode}
   ;;
   *)
-    echo "Usage: $0 {start|stop|restart|status}"
+    echo "Usage: $0 {start|stop|status}"
     exit 1
   ;;
 esac

@@ -52,12 +52,12 @@ sudo chmod -R 0644 /var/www/vpnadmin/*
 sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
 
 # Copy certificates
-sudo mkdir -pm 0700 /etc/openvpn/keys/
-sudo chown root: /etc/openvpn/keys/
+sudo mkdir -pm 0770 /etc/openvpn/keys/
+sudo chown root:admins /etc/openvpn/keys/
 
-sudo install -b -o root -g root -m 0600 "${crt_client_path}" /etc/openvpn/keys/user.crt
-sudo install -b -o root -g root -m 0600 "${crt_client_key_path}" /etc/openvpn/keys/user.key
-sudo install -b -o root -g root -m 0600 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
+sudo install -b -o root -g admins -m 0660 "${crt_client_path}" /etc/openvpn/keys/user.crt
+sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/keys/user.key
+sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
 
 sudo rm -f "${crt_client_path}" "${crt_client_key_path}" "${crt_server_ca_path}"
 
@@ -72,19 +72,16 @@ sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i "/etc/nginx/conf.d/${domain}.d/vpnadmi
 
 ## php-fpm
 sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|<TPL:PHP_USER>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|<TPL:PHP_GROUP>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo sed 's|<TPL:PHP_USER>|admin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo sed 's|<TPL:PHP_GROUP>|admins|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo sed 's|^;\?\s*max_execution_time.\+|max_execution_time = 600|' -i /etc/php5/fpm/php.ini
 
 # Fix sources
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
 
 # Copy init script
 sudo install -b -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/ynh-vpnclient
-
-# Allow vpnadmin web interface to manage rights
-sudo chmod 0470 /etc/yunohost/apps/vpnclient/settings.yml
-sudo chown root:vpnadmin /etc/yunohost/apps/vpnclient/settings.yml
 
 # Set default inits
 # The openvpn configuration is modified before the start, so the service is disabled by default
@@ -101,7 +98,6 @@ sudo yunohost service start php5-fpm
 
 sudo yunohost service add ynh-vpnclient
 sudo yunohost service enable ynh-vpnclient
-#sudo yunohost service start ynh-vpnclient
 sudo service ynh-vpnclient start
 
 sudo service nginx reload
