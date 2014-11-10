@@ -70,7 +70,7 @@
       {
         "name": "ip6_net",
         "ask": {
-            "en": "Select your IPv6 delegated network (netmask number provided must be greater or equal to 64)",
+            "en": "Select your IPv6 delegated prefix (netmask number provided must be lesser or equal to 64)",
             "fr": "Sélectionnez votre préfixe IPv6 délégué (le masque de sous-réseau fourni doit être plus petit ou égal à 64)"
         },
         "example": "2001:db8:42::/48"
