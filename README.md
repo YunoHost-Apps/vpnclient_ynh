@@ -3,7 +3,7 @@
 
 **Warning: work in progress**
 
-**Warning: currently, there is no checking on input parameters**
+**Warning: currently, there is no checking on input parameters, so be careful**
 
 VPN Client app for [YunoHost](http://yunohost.org/).
 
