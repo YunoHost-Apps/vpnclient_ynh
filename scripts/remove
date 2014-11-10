@@ -37,6 +37,5 @@ fi
 # Remove packets
 # The yunohost policy is currently to not uninstall packets (dependency problems)
 ## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm
-## sudo apt-get --assume-yes --force-yes remove sipcalc
 
 exit 0

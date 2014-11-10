@@ -8,8 +8,11 @@ function moulinette_set($var, $value) {
   return exec("sudo yunohost app setting vpnclient ".escapeshellarg($var)." -v ".escapeshellarg($value));
 }
 
-function restart_service() {
+function stop_service() {
   exec('sudo service ynh-vpnclient stop');
+}
+
+function start_service() {
   exec('sudo service ynh-vpnclient start', $output, $retcode);
 
   return $retcode;
@@ -31,6 +34,8 @@ dispatch('/', function() {
 
 dispatch_put('/settings', function() {
   $ip6_net = empty($_POST['ip6_net']) ? 'none' : $_POST['ip6_net'];
+
+  stop_service();
 
   moulinette_set('server_name', $_POST['server_name']);
   moulinette_set('server_port', $_POST['server_port']);
@@ -59,7 +64,7 @@ dispatch_put('/settings', function() {
     move_uploaded_file($_FILES['crt_server_ca']['tmp_name'], '/etc/openvpn/keys/ca-server.crt');
   }
 
-  $retcode = restart_service();
+  $retcode = start_service();
 
   if($retcode == 0) {
     flash('success', T_('Configuration updated and service successfully reloaded'));

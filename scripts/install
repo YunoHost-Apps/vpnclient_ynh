@@ -22,9 +22,6 @@ fi
 # Install packages
 sudo apt-get --assume-yes --force-yes install openvpn php5-fpm
 
-# Install extra packages
-sudo apt-get --assume-yes --force-yes install sipcalc
-
 # Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
 sudo yunohost app setting vpnclient server_port -v 1194

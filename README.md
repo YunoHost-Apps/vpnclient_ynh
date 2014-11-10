@@ -2,6 +2,7 @@
 ## Overview
 
 **Warning: work in progress**
+**Warning: currently, there is no checking on input parameters**
 
 VPN Client app for [YunoHost](http://yunohost.org/).
 
@@ -11,13 +12,12 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 * Useful to easily move your server anywhere.
 * With the [Hotspot app for YunoHost](https://github.com/jvaubourg/hotspot_ynh), you can broadcast your VPN access by Wifi for using a clean internet connection (depending on your VPN provider) on your laptop (or those of your friends) without have to configure it.
 
-Small computers like [Olimex](https://www.olimex.com) or [Raspberry PI](http://www.raspberrypi.org/) boxes and an USB Wifi dongle like [this one](https://www.olimex.com/Products/USB-Modules/MOD-WIFI-R5370-ANT/) are perfect for a nomade access with low power consumption.
-
 ## Features
 
-* IPv6 compliant (with a delegated prefix)
 * Port selection, with UDP or TCP
-* Use native IPv6 if available for creating the tunnel
+* Authentication based on certificates (and an optional login)
+* IPv6 compliant (with a delegated prefix)
 * Set an IPv6 from your delegated prefix (*prefix::1*) on the server, to use for the AAAA records
+* Use native IPv6 if available for creating the tunnel
 * The internet provider can be a 3/4G connection with tethering
 * Web interface ([screenshot](https://raw.githubusercontent.com/jvaubourg/vpnclient_ynh/master/screenshot.png))

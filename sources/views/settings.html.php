@@ -51,7 +51,7 @@
           <div class="form-group">
             <label for="ip6_net" class="col-sm-3 control-label"><?= T_('Delegated prefix') ?></label>
             <div class="col-sm-9">
-              <input type="text" data-toggle="tooltip" data-title="<?= T_('Leave empty if your internet provider is a dirty provider that does not give you a delegated prefix') ?>" class="form-control" name="ip6_net" id="ip6_net" placeholder="2001:db8:42::" value="<?= $ip6_net ?>" />
+              <input type="text" data-toggle="tooltip" data-title="<?= T_('Leave empty if your Internet Service Provider does not give you a delegated prefix') ?>" class="form-control" name="ip6_net" id="ip6_net" placeholder="2001:db8:42::" value="<?= $ip6_net ?>" />
             </div>
           </div>
         </div>
