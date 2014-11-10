@@ -7,7 +7,8 @@ server_name=${3}
 crt_client_path=${4}
 crt_client_key_path=${5}
 crt_server_ca_path=${6}
-ip6_net=${7}
+login_user=${7}
+login_passphrase=${8}
 
 # Check arguments
 # TODO
@@ -24,18 +25,14 @@ sudo apt-get --assume-yes --force-yes install openvpn php5-fpm
 # Install extra packages
 sudo apt-get --assume-yes --force-yes install sipcalc
 
-# Compute extra arguments
-ip6_expanded_net=$(sipcalc "${ip6_net}" | grep Expanded | awk '{ print $NF; }')
-ip6_net=$(sipcalc "${ip6_net}" | grep Compressed | awk '{ print $NF; }')
-ip6_addr=$(echo "$(echo "${ip6_expanded_net}" | cut -d: -f1-7):1")
-ip6_addr=$(sipcalc "${ip6_addr}" | grep Compressed | awk '{ print $NF; }')
-
 # Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
 sudo yunohost app setting vpnclient server_port -v 1194
 sudo yunohost app setting vpnclient server_proto -v udp
-sudo yunohost app setting vpnclient ip6_addr -v "${ip6_addr}"
-sudo yunohost app setting vpnclient ip6_net -v "${ip6_net}"
+sudo yunohost app setting vpnclient ip6_addr -v none
+sudo yunohost app setting vpnclient ip6_net -v none
+sudo yunohost app setting vpnclient login_user -v "${login_user}"
+sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
 
 # Copy confs
 sudo install -b -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
@@ -59,6 +56,15 @@ sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/
 sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
 
 sudo rm -f "${crt_client_path}" "${crt_client_key_path}" "${crt_server_ca_path}"
+
+# Credentials file for (optional) login
+sudo cat << EOF > /etc/openvpn/keys/credentials
+${login_user}
+${login_passphrase}
+EOF
+
+sudo chown -R root:admins /etc/openvpn/keys/credentials
+sudo chmod 0460 /etc/openvpn/keys/credentials
 
 # Create user for the web admin
 sudo useradd -MUr vpnadmin
@@ -85,9 +91,7 @@ sudo install -b -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/y
 # Set default inits
 # The openvpn configuration is modified before the start, so the service is disabled by default
 # and the ynh-vpnclient service handles it.
-# All services are registred by yunohost in order to prevent conflicts after the uninstall.
-sudo yunohost service add openvpn
-sudo yunohost service stop openvpn
+sudo service openvpn stop &> /dev/null
 sudo yunohost service disable openvpn
 
 sudo yunohost service add php5-fpm

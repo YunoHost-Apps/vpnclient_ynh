@@ -20,6 +20,10 @@ has_hotspot_app() {
   yunohost app list -f hotspot --json | grep -q '"installed": true'
 }
 
+has_ip6delegatedprefix() {
+  [ "${ynh_ip6_addr}" != none ]
+}
+
 is_ip6addr_set() {
   ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/128"
 }
@@ -27,7 +31,11 @@ is_ip6addr_set() {
 is_serverip6route_set() {
   server_ip6=${1}
 
-  ip -6 route | grep -q "${server_ip6}/"
+  if [ -z "${server_ip6}" ]; then
+    false
+  else
+    ip -6 route | grep -q "${server_ip6}/"
+  fi
 }
 
 is_openvpn_running() {
@@ -36,7 +44,7 @@ is_openvpn_running() {
 
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
-  && ((! has_hotspot_app && is_ip6addr_set) || has_hotspot_app)\
+  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app)\
   && is_openvpn_running
 }
 
@@ -76,6 +84,12 @@ start_openvpn() {
     sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
   else
     sed 's|^<TPL:UDP_COMMENT>|;|' -i /etc/openvpn/client.conf
+  fi
+
+  if [ -z "${ynh_login_user}" ]; then
+    sed 's|^<TPL:LOGIN_COMMENT>|;|' -i /etc/openvpn/client.conf
+  else
+    sed 's|^<TPL:LOGIN_COMMENT>||' -i /etc/openvpn/client.conf
   fi
 
   service openvpn start client
@@ -134,6 +148,7 @@ ynh_server_name=$(moulinette_get server_name)
 ynh_server_port=$(moulinette_get server_port)
 ynh_server_proto=$(moulinette_get server_proto)
 ynh_ip6_addr=$(moulinette_get ip6_addr)
+ynh_login_user=$(moulinette_get login_user)
 
 old_ip6_gw=$(moulinette_get ip6_gw)
 old_wired_device=$(moulinette_get wired_device)
@@ -167,21 +182,13 @@ case "${1}" in
         if [ ! $? -eq 0 ]; then
           exit 1
         fi
-
-        i=0
-        false || while [ $? -ne 0 ]; do
-          (( i++ ))
-          [ $i -gt 15 ] && exit 1
-          sleep 1
-          ip link show dev tun0 &> /dev/null
-        done && sleep 2
       fi
 
       # Check old state of the server ipv6 route
-      if [ ! -z "${old_server_ip6}" -a ! -z "${new_ip6_gw}" -a ! -z "${old_wired_device}"\
+      if [ ! -z "${old_server_ip6}" -a ! -z "${old_ip6_gw}" -a ! -z "${old_wired_device}"\
            -a \( "${new_server_ip6}" != "${old_server_ip6}" -o "${new_ip6_gw}" != "${old_ip6_gw}"\
            -o "${new_wired_device}" != "${old_wired_device}" \) ]\
-         && is_serverip6route_set "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"; then
+         && is_serverip6route_set "${old_server_ip6}"; then
 
         unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
       fi
@@ -189,13 +196,18 @@ case "${1}" in
       # Set the new server ipv6 route
       if has_nativeip6 && ! is_serverip6route_set "${new_server_ip6}"; then
         echo "Set IPv6 server route"
-
         set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
       fi
 
       # Set the ipv6 address
-      if ! has_hotspot_app && ! is_ip6addr_set; then
+      if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set; then
         echo "Set IPv6 address"
+
+        false || while [ $? -ne 0 ]; do
+          sleep 1
+          ip link show dev tun0 &> /dev/null
+        done
+
         set_ip6addr
       fi
     fi
@@ -208,7 +220,7 @@ case "${1}" in
   stop)
     echo "Stopping..."
 
-    if ! has_hotspot_app && is_ip6addr_set; then
+    if ! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set; then
       echo "Unset IPv6 address"
       unset_ip6addr
     fi
@@ -226,15 +238,17 @@ case "${1}" in
   status)
     exitcode=0
 
-    if ! has_hotspot_app; then
-      if is_ip6addr_set; then
-        echo "IPv6 address is correctly set"
+    if has_ip6delegatedprefix; then
+      if ! has_hotspot_app; then
+        if is_ip6addr_set; then
+          echo "IPv6 address is correctly set"
+        else
+          echo "IPv6 address is NOT set"
+          exitcode=1
+        fi
       else
-        echo "IPv6 address is NOT set"
-        exitcode=1
+        echo "Hotspot app detected"
       fi
-    else
-      echo "Hotspot app detected"
     fi
 
     if has_nativeip6; then

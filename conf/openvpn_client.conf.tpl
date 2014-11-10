@@ -11,6 +11,9 @@ keepalive 10 30
 comp-lzo adaptive
 port <TPL:SERVER_PORT>
 
+# Auth by credentials
+<TPL:LOGIN_COMMENT>auth-user-pass /etc/openvpn/keys/credentials
+
 # UDP only
 <TPL:UDP_COMMENT>explicit-exit-notify
 

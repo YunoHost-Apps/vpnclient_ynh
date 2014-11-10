@@ -68,12 +68,20 @@
         "default": "/tmp/ca-server.crt"
       },
       {
-        "name": "ip6_net",
+        "name": "credentials_user",
         "ask": {
-            "en": "Select your IPv6 delegated prefix (netmask number provided must be lesser or equal to 64)",
-            "fr": "Sélectionnez votre préfixe IPv6 délégué (le masque de sous-réseau fourni doit être plus petit ou égal à 64)"
+            "en": "Select your VPN username (leave empty if not necessary)",
+            "fr": "Sélectionnez votre nom d'utilisateur VPN (laisser vide si non-nécessaire)"
         },
-        "example": "2001:db8:42::/48"
+        "example": "michu"
+      },
+      {
+        "name": "credentials_passphrase",
+        "ask": {
+            "en": "Select your VPN password (leave empty if not necessary)",
+            "fr": "Sélectionnez votre mot de passe VPN (laisser vide si non-nécessaire)"
+        },
+        "example": "XVCwSbDkxnqQ"
       }
     ]
   }

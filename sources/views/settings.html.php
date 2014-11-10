@@ -28,7 +28,7 @@
           </div>
     
           <div class="form-group">
-            <label for="server_port" class="col-sm-3 control-label"><?= T_('Protocol') ?></label>
+            <label for="server_proto" class="col-sm-3 control-label"><?= T_('Protocol') ?></label>
             <div class="btn-group col-sm-9" data-toggle="buttons">
               <label class="btn btn-default <?= $server_proto == 'udp' ? 'active' : '' ?>">
                 <input type="radio" name="server_proto" value="udp" <?= $server_proto == 'udp' ? 'checked="cheked"' : '' ?> /> <?= T_('UDP') ?>
@@ -37,6 +37,21 @@
               <label class="btn btn-default <?= $server_proto == 'tcp' ? 'active' : '' ?>" data-toggle="tooltip" data-title="<?= T_('UDP is more efficient than TCP (but more filtered in case of restrictive access)') ?>">
                 <input type="radio" name="server_proto" value="tcp" <?= $server_proto == 'tcp' ? 'checked="cheked"' : '' ?> /> <?= T_('TCP') ?>
               </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title" data-toggle="tooltip" data-title="<?= T_('Real Internet') ?>"><?= T_("IPv6") ?></h3>
+        </div>
+
+        <div style="padding: 14px 14px 0 10px">
+          <div class="form-group">
+            <label for="ip6_net" class="col-sm-3 control-label"><?= T_('Delegated prefix') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= T_('Leave empty if your internet provider is a dirty provider that does not give you a delegated prefix') ?>" class="form-control" name="ip6_net" id="ip6_net" placeholder="2001:db8:42::" value="<?= $ip6_net ?>" />
             </div>
           </div>
         </div>
@@ -72,6 +87,28 @@
               <input id="crt_server_ca" name="crt_server_ca" type="file" style="display: none" />
               <input type="text" class="form-control fileinput" id="crt_server_ca_choosertxt" placeholder="-----BEGIN CERTIFICATE-----" readonly="readonly" />
               <a class="btn input-group-addon fileinput" id="crt_server_ca_chooserbtn"><?= T_('Browse') ?></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><?= T_("Login") ?></h3>
+        </div>
+
+        <div style="padding: 14px 14px 0 10px">
+          <div class="form-group">
+            <label for="login_user" class="col-sm-3 control-label"><?= T_('Username') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= T_('Leave empty if not necessary') ?>" class="form-control" name="login_user" id="login_user" placeholder="michu" value="<?= $login_user ?>" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="login_passphrase" class="col-sm-3 control-label"><?= T_('Password') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= T_('Leave empty if not necessary') ?>" class="form-control" name="login_passphrase" id="login_passphrase" placeholder="XVCwSbDkxnqQ" value="<?= $login_passphrase ?>" />
             </div>
           </div>
         </div>
