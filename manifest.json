@@ -15,56 +15,63 @@
   "arguments": {
     "install" : [
       {
-        "name": "Domain",
+        "name": "domain",
         "ask": {
-            "en": "Choose a domain for your VPN web administration"
+            "en": "Choose a domain for the web administration",
+            "fr": "Choisissez un domaine pour l'administration web"
         },
         "example": "domain.org"
       },
       {
-        "name": "URL Path",
+        "name": "path",
         "ask": {
-            "en": "Choose a path for your VPN web administration"
+            "en": "Choose a path for the web administration",
+            "fr": "Choissez un chemin pour l'administration web"
         },
         "example": "/vpnadmin",
         "default": "/vpnadmin"
       },
       {
-        "name": "Server name",
+        "name": "server_name",
         "ask": {
-            "en": "Select a VPN server"
+            "en": "Select a VPN server",
+            "fr": "Sélectionnez un serveur VPN"
         },
         "example": "access.ldn-fai.net",
         "default": "access.ldn-fai.net"
       },
       {
-        "name": "Client certificate",
+        "name": "crt_client",
         "ask": {
-            "en": "Select the path of your client certificate (will be moved)"
+            "en": "Select the local path of your client certificate (will be moved)",
+            "fr": "Sélectionnez le chemin local de votre certificat client (le fichier sera déplacé)"
         },
         "example": "/tmp/user.crt",
         "default": "/tmp/user.crt"
       },
       {
-        "name": "Client certificate key",
+        "name": "crt_client_key",
         "ask": {
-            "en": "Select the path of your client certificate key (will be moved)"
+            "en": "Select the local path of your client certificate key (will be moved)",
+            "fr": "Sélectionnez le chemin local de la clé de votre certificat client (le fichier sera déplacé)"
         },
         "example": "/tmp/user.key",
         "default": "/tmp/user.key"
       },
       {
-        "name": "Server CA",
+        "name": "crt_server_ca",
         "ask": {
-            "en": "Select the path of your server certificate authority (will be moved)"
+            "en": "Select the local path of the server CA (will be moved)",
+            "fr": "Sélectionnez le chemin local du CA du serveur (le fichier sera déplacé)"
         },
         "example": "/tmp/ca-server.crt",
         "default": "/tmp/ca-server.crt"
       },
       {
-        "name": "IPv6 network",
+        "name": "ip6_net",
         "ask": {
-            "en": "Select your IPv6 delegated network (netmask number must be <= 64)"
+            "en": "Select your IPv6 delegated network (netmask number provided must be greater or equal to 64)",
+            "fr": "Sélectionnez votre préfixe IPv6 délégué (le masque de sous-réseau fourni doit être plus petit ou égal à 64)"
         },
         "example": "2001:db8:42::/48"
       }
