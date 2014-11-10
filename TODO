@@ -1,0 +1,5 @@
+* Check input parameters
+** in bash install script (empty parameters, are certificates exist, are certificate contain BEGIN CERTIFICATE/PRIVATE)
+** in PHP controller (empty parameters, parameters format, compressed IPv6, are certificate contain BEGIN CERTIFICATE/PRIVATE)
+* Translate PHP interface in French
+* Support VPN without certificates (only login)
