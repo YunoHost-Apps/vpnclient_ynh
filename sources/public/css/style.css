@@ -1,0 +1,25 @@
+a.btn-danger span {
+  color: #eee;
+}
+
+a.btn-danger:hover span {
+  color: #fff;
+}
+
+a.not-allowed {
+  cursor: not-allowed;
+}
+
+input.allowed {
+  cursor: default;
+}
+
+a.btn-disabled, a.btn-disabled:hover, a.btn-disabled:active {
+  background-color: #999;
+  background-image: none;
+  border-color: #888;
+}
+
+a.btn-disabled:hover span {
+  color: #eee;
+}

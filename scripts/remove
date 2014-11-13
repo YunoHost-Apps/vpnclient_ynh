@@ -27,13 +27,6 @@ sudo rm -rf /var/www/vpnadmin/
 # Remove user
 sudo userdel -f vpnadmin
 
-# Restart hotspot service if installed to change NAT configuration
-# A new start will fix the interface without unsetting all stuff
-sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
-if [ "$?" -eq 0 ]; then
-  sudo service ynh-hotspot start
-fi
-
 # Remove packets
 # The yunohost policy is currently to not uninstall packets (dependency problems)
 ## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm

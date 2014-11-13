@@ -20,8 +20,8 @@ port <TPL:SERVER_PORT>
 # TLS
 tls-client
 remote-cert-tls server
-cert /etc/openvpn/keys/user.crt
-key /etc/openvpn/keys/user.key
+<TPL:CERT_COMMENT>cert /etc/openvpn/keys/user.crt
+<TPL:CERT_COMMENT>key /etc/openvpn/keys/user.key
 ca /etc/openvpn/keys/ca-server.crt
 
 # Logs

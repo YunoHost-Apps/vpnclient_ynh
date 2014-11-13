@@ -11,7 +11,44 @@ login_user=${7}
 login_passphrase=${8}
 
 # Check arguments
-# TODO
+if [ -z "${server_name}" ]; then
+  echo "ERROR: You need a VPN server name" >&2
+  exit 1
+fi
+
+if [ \( -z "${crt_client_path}" -a ! -z "${crt_client_key_path}" \)\
+    -o \( ! -z "${crt_client_path}" -a -z "${crt_client_key_path}" \) ]; then
+
+  echo "ERROR: A client certificate is needed when you suggest a key (or vice versa)" >&2
+  exit 1
+fi
+
+if [ ! -z "${crt_client_key_path}" -a -z "${crt_server_ca_path}" ]; then
+  echo "ERROR: If you can suggest a local path for the client certificates, you probably can suggest one other for the (mandatory) CA server" >&2
+  exit 1
+fi
+
+if [ \( -z "${login_user}" -a ! -z "${login_passphrase}" \)\
+    -o \( ! -z "${login_user}" -a -z "${login_passphrase}" \) ]; then
+
+  echo "ERROR: A login password is needed when you suggest a login user (or vice versa)" >&2
+  exit 1
+fi
+
+if [ ! -z "${crt_client_path}" -a ! -f "${crt_client_path}" ]; then
+  echo "ERROR: The local path <${crt_client_path}> does not exist" >&2
+  exit 1
+fi
+
+if [ ! -z "${crt_client_key_path}" -a ! -f "${crt_client_key_path}" ]; then
+  echo "ERROR: The local path <${crt_client_key_path}> does not exist" >&2
+  exit 1
+fi
+
+if [ ! -z "${crt_server_ca_path}" -a ! -f "${crt_server_ca_path}" ]; then
+  echo "ERROR: The local path <${crt_server_ca_path}> does not exist" >&2
+  exit 1
+fi
 
 # Check domain/path availability
 sudo yunohost app checkurl ${domain}${url_path} -a vpnclient
@@ -31,6 +68,10 @@ sudo yunohost app setting vpnclient ip6_net -v none
 sudo yunohost app setting vpnclient login_user -v "${login_user}"
 sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
 
+# Install IPv6 scripts
+sudo install -b -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
+sudo install -b -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
+
 # Copy confs
 sudo install -b -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
 sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
@@ -48,9 +89,14 @@ sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
 sudo mkdir -pm 0770 /etc/openvpn/keys/
 sudo chown root:admins /etc/openvpn/keys/
 
-sudo install -b -o root -g admins -m 0660 "${crt_client_path}" /etc/openvpn/keys/user.crt
-sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/keys/user.key
-sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
+[ ! -z "${crt_client_path}" ] &&\
+  sudo install -b -o root -g admins -m 0660 "${crt_client_path}" /etc/openvpn/keys/user.crt
+
+[ ! -z "${crt_client_key_path}" ] &&\
+  sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/keys/user.key
+
+[ ! -z "${crt_server_ca_path}" ] &&\
+  sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
 
 sudo rm -f "${crt_client_path}" "${crt_client_key_path}" "${crt_server_ca_path}"
 
@@ -98,7 +144,10 @@ sudo yunohost service start php5-fpm
 
 sudo yunohost service add ynh-vpnclient
 sudo yunohost service enable ynh-vpnclient
-sudo service ynh-vpnclient start
+
+if [ ! -z "${crt_server_ca_path}" ]; then
+  sudo service ynh-vpnclient start
+fi
 
 sudo service nginx reload
 
@@ -108,8 +157,18 @@ sudo yunohost app ssowatconf
 # Restart hotspot service if installed to change NAT configuration (now on tun0)
 # A new start will fix the interface without unsetting all stuff
 sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
-if [ $? -eq 0 ]; then
+if [ $? -eq 0 -a ! -z "${crt_server_ca_path}" ]; then
   sudo service ynh-hotspot start
+fi
+
+# Check configuration consistency
+
+if [ -z "${crt_server_ca_path}" ]; then
+  echo "WARNING: VPN Client is not started because you need to define a server CA through the web admin" >&2
+fi
+
+if [ -z "${crt_client_key_path}" -a -z "${login_user}" ]; then
+  echo "WARNING: VPN Client is not started because you need either a client certificate, either a username (or both)" >&2
 fi
 
 exit 0

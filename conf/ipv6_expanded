@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sipcalc "${1}" | grep Expanded | awk '{ print $NF; }'

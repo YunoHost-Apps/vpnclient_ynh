@@ -1,7 +1,7 @@
 #!/bin/bash
 ### BEGIN INIT INFO
 # Provides: ynh-vpnclient
-# Required-Start:    $network $remote_fs $syslog
+# Required-Start:    $network $remote_fs $syslog slapd
 # Required-Stop:     $network $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -80,6 +80,12 @@ start_openvpn() {
   sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/openvpn/client.conf
   sed "s|<TPL:PROTO>|${proto}|g" -i /etc/openvpn/client.conf
 
+  if [ -e /etc/openvpn/keys/user.key ]; then
+    sed 's|^<TPL:CERT_COMMENT>||' -i /etc/openvpn/client.conf
+  else
+    sed 's|^<TPL:CERT_COMMENT>|;|' -i /etc/openvpn/client.conf
+  fi
+
   if [[ "${proto}" =~ udp ]]; then
     sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
   else
@@ -139,6 +145,21 @@ moulinette_set() {
     exit 1
   fi
 }
+
+# Check configuration consistency
+
+if [[ ! "${1}" =~ stop ]]; then
+  if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
+    echo "DISABLED SERVICE: You need a CA server (you can add it through the web admin)" >&2
+    exit 1
+  fi
+
+  find /etc/openvpn/keys/ -empty -name credentials &> /dev/null
+  if [ $? -eq 0 -a ! -e /etc/openvpn/keys/user.key ]; then
+    echo "DISABLED SERVICE: You need either a client certificate, either a username, or both (you can add one through the web admin)" >&2
+    exit 1
+  fi
+fi
 
 # Variables
 
@@ -217,6 +238,9 @@ case "${1}" in
     moulinette_set ip6_gw "${new_ip6_gw}"
     moulinette_set wired_device "${new_wired_device}"
   ;;
+  litestop)
+    litestop=1
+  ;&
   stop)
     echo "Stopping..."
 
@@ -233,6 +257,13 @@ case "${1}" in
     if is_openvpn_running; then
       echo "Stop openvpn"
       stop_openvpn
+    fi
+
+    if [ -z "${litestop}" ]; then
+      yunohost app list -f hotspot --json | grep -q '"installed": true'
+      if [ $? -eq 0 ]; then
+        service ynh-hotspot start
+      fi
     fi
   ;;
   status)
@@ -272,7 +303,7 @@ case "${1}" in
     exit ${exitcode}
   ;;
   *)
-    echo "Usage: $0 {start|stop|status}"
+    echo "Usage: $0 {start|stop|litestop|status}"
     exit 1
   ;;
 esac

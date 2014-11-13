@@ -43,29 +43,26 @@
       {
         "name": "crt_client",
         "ask": {
-            "en": "Select the local path of your client certificate (will be moved)",
-            "fr": "Sélectionnez le chemin local de votre certificat client (le fichier sera déplacé)"
+            "en": "Select the local path of your client certificate (will be moved ; leave empty if not necessary or if you want to upload it later through the web admin)",
+            "fr": "Sélectionnez le chemin local de votre certificat client (le fichier sera déplacé ; laisser vide si non-nécessaire ou que vous souhaitez le téléverser plus tard via l'admin web)"
         },
-        "example": "/tmp/user.crt",
-        "default": "/tmp/user.crt"
+        "example": "/tmp/user.crt"
       },
       {
         "name": "crt_client_key",
         "ask": {
-            "en": "Select the local path of your client certificate key (will be moved)",
-            "fr": "Sélectionnez le chemin local de la clé de votre certificat client (le fichier sera déplacé)"
+            "en": "Select the local path of your client certificate key (will be moved ; leave empty if not necessary or if you want to upload it later through the web admin)",
+            "fr": "Sélectionnez le chemin local de la clé de votre certificat client (le fichier sera déplacé ; laisser vide si non-nécessaire ou que vous souhaitez le téléverser plus tard via l'admin web)"
         },
-        "example": "/tmp/user.key",
-        "default": "/tmp/user.key"
+        "example": "/tmp/user.key"
       },
       {
         "name": "crt_server_ca",
         "ask": {
-            "en": "Select the local path of the server CA (will be moved)",
-            "fr": "Sélectionnez le chemin local du CA du serveur (le fichier sera déplacé)"
+            "en": "Select the local path of the server CA (will be moved ; leave empty for uploading it later through the web admin)",
+            "fr": "Sélectionnez le chemin local du CA du serveur (le fichier sera déplacé ; laisser vide pour le téléverser plus tard via l'admin web)"
         },
-        "example": "/tmp/ca-server.crt",
-        "default": "/tmp/ca-server.crt"
+        "example": "/tmp/ca-server.crt"
       },
       {
         "name": "credentials_user",
