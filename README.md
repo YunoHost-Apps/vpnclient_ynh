@@ -3,8 +3,6 @@
 
 **Warning: work in progress**
 
-**Warning: currently, there is no checking on input parameters, so be careful**
-
 VPN Client app for [YunoHost](http://yunohost.org/).
 
 * Install a VPN connection on your self-hosted server.
@@ -16,7 +14,7 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 ## Features
 
 * Port selection, with UDP or TCP
-* Authentication based on certificates (and an optional login)
+* Authentication based on certificates or login (or both)
 * IPv6 compliant (with a delegated prefix)
 * Set an IPv6 from your delegated prefix (*prefix::1*) on the server, to use for the AAAA records
 * Use native IPv6 if available for creating the tunnel
