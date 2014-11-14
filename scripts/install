@@ -57,7 +57,7 @@ if [ ! $? -eq 0 ]; then
 fi
 
 # Install packages
-sudo apt-get --assume-yes --force-yes install openvpn php5-fpm
+sudo apt-get --assume-yes --force-yes install openvpn php5-fpm sipcalc
 
 # Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"

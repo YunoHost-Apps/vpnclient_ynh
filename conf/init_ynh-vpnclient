@@ -206,6 +206,7 @@ case "${1}" in
 
         (i=0 && false) || while [ $? -ne 0 ]; do
           sleep 1 && (( i++ ))
+          [ ${i} -gt 20 ] && stop_openvpn
           [ ${i} -gt 20 ] && exit 1
           ip link show dev tun0 &> /dev/null
         done
