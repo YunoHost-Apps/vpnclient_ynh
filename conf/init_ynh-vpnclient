@@ -154,8 +154,8 @@ if [[ ! "${1}" =~ stop ]]; then
     exit 1
   fi
 
-  find /etc/openvpn/keys/ -empty -name credentials &> /dev/null
-  if [ $? -eq 0 -a ! -e /etc/openvpn/keys/user.key ]; then
+  empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
+  if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
     echo "DISABLED SERVICE: You need either a client certificate, either a username, or both (you can add one through the web admin)" >&2
     exit 1
   fi
