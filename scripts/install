@@ -134,7 +134,8 @@ sudo install -b -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/y
 # Set default inits
 # The openvpn configuration is modified before the start, so the service is disabled by default
 # and the ynh-vpnclient service handles it.
-sudo service openvpn stop &> /dev/null
+sudo yunohost service add openvpn
+sudo yunohost service stop openvpn
 sudo yunohost service disable openvpn
 
 sudo yunohost service add php5-fpm
