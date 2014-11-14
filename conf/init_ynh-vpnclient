@@ -203,6 +203,12 @@ case "${1}" in
         if [ ! $? -eq 0 ]; then
           exit 1
         fi
+
+        (i=0 && false) || while [ $? -ne 0 ]; do
+          sleep 1 && (( i++ ))
+          [ ${i} -gt 20 ] && exit 1
+          ip link show dev tun0 &> /dev/null
+        done
       fi
 
       # Check old state of the server ipv6 route
@@ -223,12 +229,6 @@ case "${1}" in
       # Set the ipv6 address
       if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set; then
         echo "Set IPv6 address"
-
-        false || while [ $? -ne 0 ]; do
-          sleep 1
-          ip link show dev tun0 &> /dev/null
-        done
-
         set_ip6addr
       fi
     fi

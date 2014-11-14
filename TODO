@@ -1,3 +1,4 @@
 * Translate PHP interface in French
+* Add connect-retry-max=3 in openvpn conf
 * Support VPN without certificates (only login) -- added need just tests
 ** Add require for slapd for the service start -- added need just tests
