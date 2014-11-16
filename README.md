@@ -16,7 +16,6 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 * Port selection, with UDP or TCP
 * Authentication based on certificates or login (or both)
 * IPv6 compliant (with a delegated prefix)
-* Set an IPv6 from your delegated prefix (*prefix::1*) on the server, to use for the AAAA records
+* Set an IPv6 from your delegated prefix (*prefix::42*) on the server, to use for the AAAA records
 * Use native IPv6 if available for creating the tunnel
-* The internet provider can be a 3/4G connection with tethering
 * Web interface ([screenshot](https://raw.githubusercontent.com/jvaubourg/vpnclient_ynh/master/screenshot.png))

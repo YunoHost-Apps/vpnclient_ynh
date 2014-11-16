@@ -7,6 +7,7 @@ domain=$(sudo yunohost app setting vpnclient domain)
 sudo service ynh-vpnclient stop
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/init.d/ynh-vpnclient
+sudo rm -f /tmp/.ynh-vpnclient-boot
 
 # Remove confs
 sudo rm -f /etc/openvpn/client.conf{.tpl,}
@@ -29,6 +30,7 @@ sudo userdel -f vpnadmin
 
 # Remove packets
 # The yunohost policy is currently to not uninstall packets (dependency problems)
-## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm sipcalc
+## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm
+## sudo apt-get --assume-yes --force-yes remove sipcalc
 
 exit 0

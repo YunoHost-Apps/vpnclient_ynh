@@ -1,7 +1,7 @@
 #!/bin/bash
 ### BEGIN INIT INFO
 # Provides: ynh-vpnclient
-# Required-Start:    $network $remote_fs $syslog slapd
+# Required-Start:    $network $remote_fs $syslog $all
 # Required-Stop:     $network $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -16,12 +16,23 @@ has_nativeip6() {
   ip -6 route | grep -q default\ via
 }
 
-has_hotspot_app() {
-  yunohost app list -f hotspot --json | grep -q '"installed": true'
-}
-
 has_ip6delegatedprefix() {
   [ "${ynh_ip6_addr}" != none ]
+}
+
+has_hotspot_app() {
+  [ -e /tmp/.ynh-hotspot-started ]
+}
+
+is_hotspot_knowme() {
+  value=$(yunohost app setting hotspot vpnclient)
+
+  if [[ "${value}" =~ "An instance is already running" ]]; then
+    echo "${value}" >&2
+    exit 1
+  fi
+
+  [ "${value}" == yes ]
 }
 
 is_ip6addr_set() {
@@ -192,7 +203,8 @@ case "${1}" in
     if is_running; then
       echo "Already started"
     else
-      echo "Starting..."
+      echo "[vpnclient] Starting..."
+      touch /tmp/.ynh-vpnclient-started
 
       # Run openvpn
       if ! is_openvpn_running; then
@@ -204,7 +216,7 @@ case "${1}" in
           exit 1
         fi
 
-        (i=0 && false) || while [ $? -ne 0 ]; do
+        i=0; false || while [ $? -ne 0 ]; do
           sleep 1 && (( i++ ))
           [ ${i} -gt 20 ] && stop_openvpn
           [ ${i} -gt 20 ] && exit 1
@@ -232,18 +244,27 @@ case "${1}" in
         echo "Set IPv6 address"
         set_ip6addr
       fi
+
+      # Update dynamic settings
+      moulinette_set server_ip6 "${new_server_ip6}"
+      moulinette_set ip6_gw "${new_ip6_gw}"
+      moulinette_set wired_device "${new_wired_device}"
+
+      # Restart hotspot if needed
+      if has_hotspot_app && ! is_hotspot_knowme; then
+        service ynh-hotspot start
+      fi
     fi
 
-    # Update dynamic settings
-    moulinette_set server_ip6 "${new_server_ip6}"
-    moulinette_set ip6_gw "${new_ip6_gw}"
-    moulinette_set wired_device "${new_wired_device}"
+    # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
+    if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
+      touch /tmp/.ynh-vpnclient-boot
+      service php5-fpm restart
+    fi
   ;;
-  litestop)
-    litestop=1
-  ;&
   stop)
-    echo "Stopping..."
+    echo "[vpnclient] Stopping..."
+    rm /tmp/.ynh-vpnclient-started
 
     if ! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set; then
       echo "Unset IPv6 address"
@@ -260,11 +281,8 @@ case "${1}" in
       stop_openvpn
     fi
 
-    if [ -z "${litestop}" ]; then
-      yunohost app list -f hotspot --json | grep -q '"installed": true'
-      if [ $? -eq 0 ]; then
-        service ynh-hotspot start
-      fi
+    if has_hotspot_app && ! is_hotspot_knowme; then
+      service ynh-hotspot start
     fi
   ;;
   status)

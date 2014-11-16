@@ -57,7 +57,11 @@ if [ ! $? -eq 0 ]; then
 fi
 
 # Install packages
-sudo apt-get --assume-yes --force-yes install openvpn php5-fpm sipcalc
+#sudo apt-get update
+sudo apt-get --assume-yes --force-yes install openvpn php5-fpm
+
+# Extra packages
+sudo apt-get --assume-yes --force-yes install sipcalc
 
 # Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
@@ -69,8 +73,8 @@ sudo yunohost app setting vpnclient login_user -v "${login_user}"
 sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
 
 # Install IPv6 scripts
-sudo install -b -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
-sudo install -b -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
+sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
+sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
 # Copy confs
 sudo install -b -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
@@ -155,10 +159,9 @@ sudo service nginx reload
 # Update SSO for vpnadmin
 sudo yunohost app ssowatconf
 
-# Restart hotspot service if installed to change NAT configuration (now on tun0)
+# Restart hotspot service if installed (and started) to change NAT configuration (now on tun0)
 # A new start will fix the interface without unsetting all stuff
-sudo yunohost app list -f hotspot --json | grep -q '"installed": true'
-if [ $? -eq 0 -a ! -z "${crt_server_ca_path}" ]; then
+if [ -e /tmp/.ynh-hotspot-started ]; then
   sudo service ynh-hotspot start
 fi
 

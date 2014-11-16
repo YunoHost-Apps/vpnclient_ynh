@@ -9,7 +9,7 @@ function moulinette_set($var, $value) {
 }
 
 function stop_service() {
-  exec('sudo service ynh-vpnclient litestop');
+  exec('sudo service ynh-vpnclient stop');
 }
 
 function start_service() {
@@ -94,7 +94,7 @@ dispatch_put('/settings', function() {
       }
   
       $ip6_blocs = explode(':', $ip6_net);
-      $ip6_addr = "${ip6_blocs[0]}:${ip6_blocs[1]}:${ip6_blocs[2]}:${ip6_blocs[3]}:${ip6_blocs[4]}:${ip6_blocs[5]}:${ip6_blocs[6]}:1";
+      $ip6_addr = "${ip6_blocs[0]}:${ip6_blocs[1]}:${ip6_blocs[2]}:${ip6_blocs[3]}:${ip6_blocs[4]}:${ip6_blocs[5]}:${ip6_blocs[6]}:42";
   
       $ip6_net = ipv6_compressed($ip6_net);
       $ip6_addr = ipv6_compressed($ip6_addr);
