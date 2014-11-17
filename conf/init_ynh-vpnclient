@@ -55,7 +55,7 @@ is_openvpn_running() {
 
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
-  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app)\
+  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
   && is_openvpn_running
 }
 
@@ -157,19 +157,29 @@ moulinette_set() {
   fi
 }
 
+# Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
+if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
+  touch /tmp/.ynh-vpnclient-boot
+  service php5-fpm restart
+fi
+
 # Check configuration consistency
 
 if [[ ! "${1}" =~ stop ]]; then
+  exitcode=0
+
   if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
-    echo "DISABLED SERVICE: You need a CA server (you can add it through the web admin)" >&2
-    exit 1
+    echo "[WARN] You need a CA server (you can add it through the web admin)"
+    exitcode=1
   fi
 
   empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
   if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
-    echo "DISABLED SERVICE: You need either a client certificate, either a username, or both (you can add one through the web admin)" >&2
-    exit 1
+    echo "[WARN] You need either a client certificate, either a username, or both (you can add one through the web admin)"
+    exitcode=1
   fi
+
+  [ "${exitcode}" -ne 0 ] && exit ${exitcode}
 fi
 
 # Variables
@@ -255,12 +265,6 @@ case "${1}" in
         service ynh-hotspot start
       fi
     fi
-
-    # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
-    if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
-      touch /tmp/.ynh-vpnclient-boot
-      service php5-fpm restart
-    fi
   ;;
   stop)
     echo "[vpnclient] Stopping..."
@@ -289,33 +293,43 @@ case "${1}" in
     exitcode=0
 
     if has_ip6delegatedprefix; then
+      echo "[INFO] IPv6 delegated prefix found"
+
       if ! has_hotspot_app; then
+        echo "[INFO] No Hotspot app detected"
+
         if is_ip6addr_set; then
-          echo "IPv6 address is correctly set"
+          echo "[OK] IPv6 address correctly set"
         else
-          echo "IPv6 address is NOT set"
+          echo "[ERR] No IPv6 address set"
           exitcode=1
         fi
       else
-        echo "Hotspot app detected"
+        echo "[INFO] Hotspot app detected"
+        echo "[INFO] No IPv6 address to set"
       fi
+    else
+      echo "[INFO] No IPv6 delegated prefix found"
     fi
 
     if has_nativeip6; then
+      echo "[INFO] Native IPv6 detected"
+
       if is_serverip6route_set "${new_server_ip6}"; then
-        echo "IPv6 server route is correctly set"
+        echo "[OK] IPv6 server route correctly set"
       else
-        echo "IPv6 server route is NOT set"
+        echo "[ERR] No IPv6 server route set"
         exitcode=1
       fi
     else
-      echo "No native IPv6 detected"
+      echo "[INFO] No native IPv6 detected"
+      echo "[INFO] No IPv6 server route to set"
     fi
 
     if is_openvpn_running; then
-      echo "Openvpn is running"
+      echo "[OK] Openvpn is running"
     else
-      echo "Openvpn is NOT running"
+      echo "[ERR] Openvpn is not running"
       exitcode=1
     fi
 

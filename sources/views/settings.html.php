@@ -1,4 +1,16 @@
 <h2><?= T_("VPN Client Configuration") ?></h2>
+<?php if($faststatus): ?>
+  <span class="label label-success" data-toggle="tooltip" data-title="<?= T_('This is a fast status. Click on More details to show the complete status.') ?>"><?= T_('Running') ?></span>
+<?php else: ?>
+  <span class="label label-danger" data-toggle="tooltip" data-title="<?= T_('This is a fast status. Click on More details to show the complete status.') ?>"><?= T_('Not Running') ?></span>
+<?php endif; ?>
+
+ &nbsp; <img src="public/img/loading.gif" id="status-loading" alt="Loading..." /><a href="#" id="statusbtn" data-toggle="tooltip" data-title="<?= T_('Loading complete status may take a few minutes. Be patient.') ?>"><?= T_('More details') ?></a>
+
+<div id="status" class="alert alert-dismissible alert-info fade in" style="margin-top: 10px" role="alert">
+  <button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <div id="status-text"></div>
+</div>
 
 <hr />
 
@@ -142,7 +154,7 @@
 
       <div class="form-group">
         <div style="text-align: center">
-          <button type="submit" class="btn btn-default" data-toggle="tooltip" data-title="<?= T_('Reloading may take a few minutes. Be patient.') ?>"><?= T_('Save and reload') ?></button>
+          <button type="submit" class="btn btn-default" data-toggle="tooltip" id="save" data-title="<?= T_('Reloading may take a few minutes. Be patient.') ?>"><?= T_('Save and reload') ?></button> <img src="public/img/loading.gif" id="save-loading" alt="Loading..." />
         </div>
       </div>
     </form>

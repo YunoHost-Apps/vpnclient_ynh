@@ -7,7 +7,7 @@ domain=$(sudo yunohost app setting vpnclient domain)
 sudo service ynh-vpnclient stop
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/init.d/ynh-vpnclient
-sudo rm -f /tmp/.ynh-vpnclient-boot
+sudo rm -f /tmp/.ynh-vpnclient-*
 
 # Remove confs
 sudo rm -f /etc/openvpn/client.conf{.tpl,}

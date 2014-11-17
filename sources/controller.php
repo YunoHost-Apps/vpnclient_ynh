@@ -18,6 +18,18 @@ function start_service() {
   return $retcode;
 }
 
+function service_status() {
+  exec('sudo service ynh-vpnclient status', $output);
+
+  return $output;
+}
+
+function service_faststatus() {
+  exec('ip link show tun0', $output, $retcode);
+
+  return $retcode;
+}
+
 function ipv6_expanded($ip) {
   exec('ipv6_expanded '.escapeshellarg($ip), $output);
 
@@ -43,6 +55,7 @@ dispatch('/', function() {
   set('crt_client_exists', file_exists('/etc/openvpn/keys/user.crt'));
   set('crt_client_key_exists', file_exists('/etc/openvpn/keys/user.key'));
   set('crt_server_ca_exists', file_exists('/etc/openvpn/keys/ca-server.crt'));
+  set('faststatus', service_faststatus() == 0);
 
   return render('settings.html.php');
 });
@@ -147,6 +160,28 @@ dispatch_put('/settings', function() {
 
   redirect:
   redirect_to('/');
+});
+
+dispatch('/status', function() {
+  $status_lines = service_status();
+  $status_list = '';
+
+  foreach($status_lines AS $status_line) {
+    if(preg_match('/^\[INFO\]/', $status_line)) {
+      $status_list .= "<li class='status-info'>${status_line}</li>";
+    }
+    elseif(preg_match('/^\[OK\]/', $status_line)) {
+      $status_list .= "<li class='status-success'>${status_line}</li>";
+    }
+    elseif(preg_match('/^\[WARN\]/', $status_line)) {
+      $status_list .= "<li class='status-warning'>${status_line}</li>";
+    }
+    elseif(preg_match('/^\[ERR\]/', $status_line)) {
+      $status_list .= "<li class='status-danger'>${status_line}</li>";
+    }
+  }
+
+  echo $status_list;
 });
 
 dispatch('/lang/:locale', function($locale = 'en') {

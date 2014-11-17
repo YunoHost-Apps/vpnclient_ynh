@@ -39,4 +39,25 @@ $(document).ready(function() {
 
     $(choosertxtid).val($(this).val());
   });
+
+  $('#save').click(function() {
+    $(this).prop('disabled', true);
+    $('#save-loading').show();
+  });
+
+  $('#status .close').click(function() {
+    $(this).parent().hide();
+  });
+
+  $('#statusbtn').click(function() {
+    $('#status-loading').show();
+
+    $.ajax({
+      url: '?/status',
+    }).done(function(data) {
+      $('#status-loading').hide();
+      $('#status-text').html('<ul>' + data + '</ul>');
+      $('#status').show('slow');
+    });
+  });
 });

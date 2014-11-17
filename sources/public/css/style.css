@@ -1,3 +1,40 @@
+li.status-info {
+  color: #5BC0DE;
+}
+
+li.status-warning {
+  color: #D9534F;
+}
+
+li.status-danger {
+  color: #D9534F;
+}
+
+li.status-success {
+  color: #5CB85C;
+}
+
+img#status-loading {
+  display: none;
+  margin-right: 5px;
+}
+
+img#save-loading {
+  display: none;
+  margin-left: 5px;
+}
+
+div#status {
+  display: none;
+  margin-top: 10px;
+}
+
+div#status ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
 a.btn-danger span {
   color: #eee;
 }

@@ -144,15 +144,10 @@ sudo yunohost service disable openvpn
 
 sudo yunohost service add php5-fpm
 sudo yunohost service enable php5-fpm
-sudo yunohost service stop php5-fpm
-sudo yunohost service start php5-fpm
 
 sudo yunohost service add ynh-vpnclient
 sudo yunohost service enable ynh-vpnclient
-
-if [ ! -z "${crt_server_ca_path}" ]; then
-  sudo service ynh-vpnclient start
-fi
+sudo service ynh-vpnclient start
 
 sudo service nginx reload
 
