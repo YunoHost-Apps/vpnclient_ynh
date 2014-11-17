@@ -11,6 +11,8 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 * Useful to easily move your server anywhere.
 * With the [Hotspot app for YunoHost](https://github.com/jvaubourg/hotspot_ynh), you can broadcast your VPN access by Wifi for using a clean internet connection (depending on your VPN provider) on your laptop (or those of your friends) without have to configure it.
 
+See the <a href="https://raw.githubusercontent.com/jvaubourg/hotspot_ynh/master/docs/box-project_french.pdf">box project</a> explanations (box for a ready-made and nomad self-hosting with YunoHost+VPN, a VPN access through a wifi hotspot, and/or a <a href="https://en.wikipedia.org/wiki/Customer-premises_equipment">CPE</a> for non-profit ISP) in French. An example of hardware associated is the <a href="https://www.olimex.com/Products/OLinuXino/A20/A20-OLinuXino-LIME/open-source-hardware">A20-OLinuXino-LIME</a> with the <a href="https://www.olimex.com/Products/USB-Modules/MOD-WIFI-R5370-ANT/">MOD-WIFI-R5370-ANT</a>. See also the <a href="https://github.com/bleuchtang/olinuxino-a20-lime">YunoHost image project</a> for OLinuXino.
+
 ## Features
 
 * Port selection, with UDP or TCP

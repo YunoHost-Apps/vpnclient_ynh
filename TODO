@@ -1,2 +1,3 @@
 * Translate PHP interface in French
 * Support VPN without certificates (only login) -- need tests
+* Add service status on the interface
