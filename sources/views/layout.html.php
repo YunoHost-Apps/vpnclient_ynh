@@ -17,23 +17,27 @@
 </head>
 <body>
   <div class="container">
-    <? if (isset($flash['error'])) { ?>
+    <? if(isset($flash['error'])): ?>
       <div class="alert alert-dismissible alert-danger fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <strong><?= T_('Error') ?>:</strong> <?= $flash['error'] ?>
       </div>
-    <? } elseif (isset($flash['notice'])) { ?>
+    <? elseif(isset($flash['notice'])): ?>
       <div class="alert alert-dismissible alert-info fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <strong><?= T_('Notice') ?>:</strong> <?= $flash['notice'] ?>
       </div>
-    <? } elseif (isset($flash['success'])) { ?>
+    <? elseif(isset($flash['success'])): ?>
       <div class="alert alert-dismissible alert-success fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <?= $flash['success'] ?>
       </div>
-    <? } ?>
+    <? endif; ?>
 
-    <?= $content?>
+    <?= $content ?>
+
+    <hr />
+    <div id="github"><a href="https://github.com/jvaubourg/vpnclient_ynh"><?= T_('Any problem? Contribute!') ?></a> - AGPL 3.0</div>
+  </div>
 </body>
 </html>
