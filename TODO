@@ -1,2 +1,7 @@
 * Translate PHP interface in French
 * Support VPN without certificates (only login) -- need tests
+* Add advanced configuration (raw openvpn conf edition)
+* Add "More details" security (just one click)
+* Add more [INFO] in status with autodetected variables
+* Check YunoHost IPv6 firewalling
+* Fix YunoHost IPv6 in bind
