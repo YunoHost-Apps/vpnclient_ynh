@@ -45,6 +45,7 @@ function ipv6_compressed($ip) {
 dispatch('/', function() {
   $ip6_net = moulinette_get('ip6_net');
   $ip6_net = ($ip6_net == 'none') ? '' : $ip6_net;
+  $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
 
   set('server_name', moulinette_get('server_name'));
   set('server_port', moulinette_get('server_port'));
@@ -56,6 +57,7 @@ dispatch('/', function() {
   set('crt_client_key_exists', file_exists('/etc/openvpn/keys/user.key'));
   set('crt_server_ca_exists', file_exists('/etc/openvpn/keys/ca-server.crt'));
   set('faststatus', service_faststatus() == 0);
+  set('raw_openvpn', $raw_openvpn);
 
   return render('settings.html.php');
 });
@@ -114,7 +116,7 @@ dispatch_put('/settings', function() {
     }
 
   } catch(Exception $e) {
-    flash('error', $e->getMessage().T_(' (configuration not updated).'));
+    flash('error', $e->getMessage().' ('.T_('configuration not updated').').');
     goto redirect;
   }
   
@@ -128,6 +130,8 @@ dispatch_put('/settings', function() {
   moulinette_set('ip6_net', $ip6_net);
   moulinette_set('ip6_addr', $ip6_addr);
   
+  file_put_contents('/etc/openvpn/client.conf.tpl', $_POST['raw_openvpn']);
+
   if($_FILES['crt_client']['error'] == UPLOAD_ERR_OK) {
     move_uploaded_file($_FILES['crt_client']['tmp_name'], '/etc/openvpn/keys/user.crt');
   } elseif($_POST['crt_client_delete'] == 1) {
@@ -168,16 +172,16 @@ dispatch('/status', function() {
 
   foreach($status_lines AS $status_line) {
     if(preg_match('/^\[INFO\]/', $status_line)) {
-      $status_list .= "<li class='status-info'>${status_line}</li>";
+      $status_list .= '<li class="status-info">'.htmlspecialchars($status_line).'</li>';
     }
     elseif(preg_match('/^\[OK\]/', $status_line)) {
-      $status_list .= "<li class='status-success'>${status_line}</li>";
+      $status_list .= '<li class="status-success">'.htmlspecialchars($status_line).'</li>';
     }
     elseif(preg_match('/^\[WARN\]/', $status_line)) {
-      $status_list .= "<li class='status-warning'>${status_line}</li>";
+      $status_list .= '<li class="status-warning">'.htmlspecialchars($status_line).'</li>';
     }
     elseif(preg_match('/^\[ERR\]/', $status_line)) {
-      $status_list .= "<li class='status-danger'>${status_line}</li>";
+      $status_list .= '<li class="status-danger">'.htmlspecialchars($status_line).'</li>';
     }
   }
 

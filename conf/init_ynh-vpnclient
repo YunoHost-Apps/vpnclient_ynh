@@ -292,8 +292,12 @@ case "${1}" in
   status)
     exitcode=0
 
+    echo "[INFO] Autodetected internet interface: ${new_wired_device} (last start: ${old_wired_device})"
+    echo "[INFO] Autodetected IPv6 address for the VPN server: ${new_server_ip6} (last start: ${old_server_ip6})"
+
     if has_ip6delegatedprefix; then
       echo "[INFO] IPv6 delegated prefix found"
+      echo "[INFO] IPv6 address computed from the delegated prefix: ${ynh_ip6_addr}"
 
       if ! has_hotspot_app; then
         echo "[INFO] No Hotspot app detected"
@@ -314,6 +318,7 @@ case "${1}" in
 
     if has_nativeip6; then
       echo "[INFO] Native IPv6 detected"
+      echo "[INFO] Autodetected native IPv6 gateway: ${new_ip6_gw} (last start: ${old_ip6_gw})"
 
       if is_serverip6route_set "${new_server_ip6}"; then
         echo "[OK] IPv6 server route correctly set"

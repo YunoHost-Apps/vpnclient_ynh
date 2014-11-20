@@ -10,7 +10,7 @@ sudo rm -f /etc/init.d/ynh-vpnclient
 sudo rm -f /tmp/.ynh-vpnclient-*
 
 # Remove confs
-sudo rm -f /etc/openvpn/client.conf{.tpl,}
+sudo rm -f /etc/openvpn/client.conf{.tpl,.tpl.restore,}
 sudo rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
 sudo rm -f /etc/php5/fpm/pool.d/vpnadmin.conf
 

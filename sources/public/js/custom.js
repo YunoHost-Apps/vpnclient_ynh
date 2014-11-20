@@ -50,14 +50,22 @@ $(document).ready(function() {
   });
 
   $('#statusbtn').click(function() {
-    $('#status-loading').show();
+    if($('#status-loading').is(':hidden')) {
+      $('#status').hide();
+      $('#status-loading').show();
 
-    $.ajax({
-      url: '?/status',
-    }).done(function(data) {
-      $('#status-loading').hide();
-      $('#status-text').html('<ul>' + data + '</ul>');
-      $('#status').show('slow');
-    });
+      $.ajax({
+        url: '?/status',
+      }).done(function(data) {
+        $('#status-loading').hide();
+        $('#status-text').html('<ul>' + data + '</ul>');
+        $('#status').show('slow');
+      });
+    }
+  });
+
+  $('#raw_openvpn_btn').click(function() {
+    $('#raw_openvpn_btnpanel').hide();
+    $('#raw_openvpn_panel').show('low');
   });
 });

@@ -51,6 +51,20 @@
               </label>
             </div>
           </div>
+
+          <div class="form-group" id="raw_openvpn_btnpanel">
+            <label class="col-sm-3 control-label"></label>
+            <div class="col-sm-9">
+              <span class="glyphicon glyphicon-cog"></span> <a href="#" id="raw_openvpn_btn" data-toggle="tooltip" data-title="<?= T_('Edit the raw configuration only if you know what you do!') ?>"><?= T_('Advanced') ?></a>
+            </div>
+          </div>
+
+          <div class="form-group" id="raw_openvpn_panel">
+            <label for="raw_openvpn" class="col-sm-3 control-label"><?= T_('Advanced') ?></label>
+            <div class="col-sm-9">
+              <pre><textarea class="form-control" name="raw_openvpn" id="raw_openvpn"><?= $raw_openvpn ?></textarea></pre>
+            </div>
+          </div>
         </div>
       </div>
 

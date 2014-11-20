@@ -1,7 +1,12 @@
-remote <TPL:SERVER_NAME>
+# [WARN] Edit this raw configuration ONLY IF YOU KNOW what
+#        you do!
+# [WARN] Continue to use the placeholders <TPL:*> and keep
+#        update their value on the web admin (they are not
+#        only used for this file).
 
-# proto [ udp6 | udp | tcp6-client | tcp-client ]
+remote <TPL:SERVER_NAME>
 proto <TPL:PROTO>
+port <TPL:SERVER_PORT>
 
 pull
 nobind
@@ -9,9 +14,8 @@ dev tun
 tun-ipv6
 keepalive 10 30
 comp-lzo adaptive
-port <TPL:SERVER_PORT>
 
-# Auth by credentials
+# Authentication by login
 <TPL:LOGIN_COMMENT>auth-user-pass /etc/openvpn/keys/credentials
 
 # UDP only
@@ -20,9 +24,9 @@ port <TPL:SERVER_PORT>
 # TLS
 tls-client
 remote-cert-tls server
+ca /etc/openvpn/keys/ca-server.crt
 <TPL:CERT_COMMENT>cert /etc/openvpn/keys/user.crt
 <TPL:CERT_COMMENT>key /etc/openvpn/keys/user.key
-ca /etc/openvpn/keys/ca-server.crt
 
 # Logs
 verb 3

@@ -6,7 +6,7 @@ li.status-warning {
   color: #D9534F;
 }
 
-li.status-danger {
+li.status-danger, div#raw_openvpn_panel {
   color: #D9534F;
 }
 
@@ -68,4 +68,13 @@ div#github {
 
 div#github a {
   margin-left: 17px;
+}
+
+div#raw_openvpn_panel {
+  display: none;
+}
+
+textarea#raw_openvpn {
+  height: 300px;
+  border: 1px solid #D9534F;
 }
