@@ -4,11 +4,17 @@
 domain=${1}
 url_path=${2}
 server_name=${3}
-crt_client_path=${4}
-crt_client_key_path=${5}
-crt_server_ca_path=${6}
-login_user=${7}
-login_passphrase=${8}
+
+##
+## These arguments are optional but YunoHost is not yet able to handle them with the web installer
+## See manifest.json.options
+##
+#
+#crt_client_path=${4}
+#crt_client_key_path=${5}
+#crt_server_ca_path=${6}
+#login_user=${7}
+#login_passphrase=${8}
 
 # Check arguments
 if [ -z "${server_name}" ]; then
@@ -16,39 +22,39 @@ if [ -z "${server_name}" ]; then
   exit 1
 fi
 
-if [ \( -z "${crt_client_path}" -a ! -z "${crt_client_key_path}" \)\
-    -o \( ! -z "${crt_client_path}" -a -z "${crt_client_key_path}" \) ]; then
-
-  echo "ERROR: A client certificate is needed when you suggest a key (or vice versa)" >&2
-  exit 1
-fi
-
-if [ ! -z "${crt_client_key_path}" -a -z "${crt_server_ca_path}" ]; then
-  echo "ERROR: If you can suggest a local path for the client certificates, you probably can suggest one other for the (mandatory) CA server" >&2
-  exit 1
-fi
-
-if [ \( -z "${login_user}" -a ! -z "${login_passphrase}" \)\
-    -o \( ! -z "${login_user}" -a -z "${login_passphrase}" \) ]; then
-
-  echo "ERROR: A login password is needed when you suggest a login user (or vice versa)" >&2
-  exit 1
-fi
-
-if [ ! -z "${crt_client_path}" -a ! -f "${crt_client_path}" ]; then
-  echo "ERROR: The local path <${crt_client_path}> does not exist" >&2
-  exit 1
-fi
-
-if [ ! -z "${crt_client_key_path}" -a ! -f "${crt_client_key_path}" ]; then
-  echo "ERROR: The local path <${crt_client_key_path}> does not exist" >&2
-  exit 1
-fi
-
-if [ ! -z "${crt_server_ca_path}" -a ! -f "${crt_server_ca_path}" ]; then
-  echo "ERROR: The local path <${crt_server_ca_path}> does not exist" >&2
-  exit 1
-fi
+#if [ \( -z "${crt_client_path}" -a ! -z "${crt_client_key_path}" \)\
+#    -o \( ! -z "${crt_client_path}" -a -z "${crt_client_key_path}" \) ]; then
+#
+#  echo "ERROR: A client certificate is needed when you suggest a key (or vice versa)" >&2
+#  exit 1
+#fi
+#
+#if [ ! -z "${crt_client_key_path}" -a -z "${crt_server_ca_path}" ]; then
+#  echo "ERROR: If you can suggest a local path for the client certificates, you probably can suggest one other for the (mandatory) CA server" >&2
+#  exit 1
+#fi
+#
+#if [ \( -z "${login_user}" -a ! -z "${login_passphrase}" \)\
+#    -o \( ! -z "${login_user}" -a -z "${login_passphrase}" \) ]; then
+#
+#  echo "ERROR: A login password is needed when you suggest a login user (or vice versa)" >&2
+#  exit 1
+#fi
+#
+#if [ ! -z "${crt_client_path}" -a ! -f "${crt_client_path}" ]; then
+#  echo "ERROR: The local path <${crt_client_path}> does not exist" >&2
+#  exit 1
+#fi
+#
+#if [ ! -z "${crt_client_key_path}" -a ! -f "${crt_client_key_path}" ]; then
+#  echo "ERROR: The local path <${crt_client_key_path}> does not exist" >&2
+#  exit 1
+#fi
+#
+#if [ ! -z "${crt_server_ca_path}" -a ! -f "${crt_server_ca_path}" ]; then
+#  echo "ERROR: The local path <${crt_server_ca_path}> does not exist" >&2
+#  exit 1
+#fi
 
 # Check domain/path availability
 sudo yunohost app checkurl ${domain}${url_path} -a vpnclient
@@ -57,11 +63,13 @@ if [ ! $? -eq 0 ]; then
 fi
 
 # Install packages
-#sudo apt-get update
-sudo apt-get --assume-yes --force-yes install openvpn php5-fpm
+packages='php5-fpm sipcalc openvpn'
+sudo apt-get --assume-yes --force-yes install ${packages}
 
-# Extra packages
-sudo apt-get --assume-yes --force-yes install sipcalc
+if [ $? -ne 0 ]; then
+  sudo apt-get update
+  sudo apt-get --assume-yes --force-yes install ${packages}
+fi
 
 # Save arguments
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
@@ -97,28 +105,25 @@ sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
 sudo mkdir -pm 0770 /etc/openvpn/keys/
 sudo chown root:admins /etc/openvpn/keys/
 
-[ ! -z "${crt_client_path}" ] &&\
-  sudo install -b -o root -g admins -m 0660 "${crt_client_path}" /etc/openvpn/keys/user.crt
-
-[ ! -z "${crt_client_key_path}" ] &&\
-  sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/keys/user.key
-
-[ ! -z "${crt_server_ca_path}" ] &&\
-  sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
-
-sudo rm -f "${crt_client_path}" "${crt_client_key_path}" "${crt_server_ca_path}"
+#[ ! -z "${crt_client_path}" ] &&\
+#  sudo install -b -o root -g admins -m 0660 "${crt_client_path}" /etc/openvpn/keys/user.crt
+#
+#[ ! -z "${crt_client_key_path}" ] &&\
+#  sudo install -b -o root -g admins -m 0660 "${crt_client_key_path}" /etc/openvpn/keys/user.key
+#
+#[ ! -z "${crt_server_ca_path}" ] &&\
+#  sudo install -b -o root -g admins -m 0660 "${crt_server_ca_path}" /etc/openvpn/keys/ca-server.crt
+#
+#sudo rm -f "${crt_client_path}" "${crt_client_key_path}" "${crt_server_ca_path}"
 
 # Credentials file for (optional) login
-sudo cat << EOF > /etc/openvpn/keys/credentials
-${login_user}
-${login_passphrase}
-EOF
-
-sudo chown -R root:admins /etc/openvpn/keys/credentials
-sudo chmod 0460 /etc/openvpn/keys/credentials
-
-# Create user for the web admin
-sudo useradd -MUr vpnadmin
+#sudo cat << EOF > /etc/openvpn/keys/credentials
+#${login_user}
+#${login_passphrase}
+#EOF
+#
+#sudo chown -R root:admins /etc/openvpn/keys/credentials
+#sudo chmod 0460 /etc/openvpn/keys/credentials
 
 # Fix confs
 ## nginx

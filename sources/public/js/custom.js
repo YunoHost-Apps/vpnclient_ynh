@@ -37,12 +37,13 @@ $(document).ready(function() {
   $('input[type="file"]').change(function() {
     var choosertxtid = '#' + $(this).attr('id') + '_choosertxt';
 
-    $(choosertxtid).val($(this).val());
+    $(choosertxtid).val($(this).val().replace(/^.*[\/\\]/, ''));
   });
 
   $('#save').click(function() {
     $(this).prop('disabled', true);
     $('#save-loading').show();
+    $('#form').submit();
   });
 
   $('#status .close').click(function() {

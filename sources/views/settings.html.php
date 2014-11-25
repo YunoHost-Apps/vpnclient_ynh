@@ -16,7 +16,7 @@
 
 <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
-    <form method="post" enctype="multipart/form-data" action="?/settings" class="form-horizontal" role="form">
+    <form method="post" enctype="multipart/form-data" action="?/settings" class="form-horizontal" role="form" id="form">
       <input type="hidden" name="_method" value="put" />
 
       <div class="panel panel-default">

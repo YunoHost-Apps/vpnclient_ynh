@@ -1,0 +1,85 @@
+{
+  "name": "VPN Client",
+  "id": "vpnclient",
+  "description": {
+    "en": "VPN Client",
+    "fr": "Client VPN"
+  },
+  "license": "AGPL-3",
+  "developer": {
+    "name": "Julien Vaubourg",
+    "email": "julien@vaubourg.com",
+    "url": "http://julien.vaubourg.com"
+  },
+  "multi_instance": "false",
+  "arguments": {
+    "install" : [
+      {
+        "name": "domain",
+        "ask": {
+            "en": "Choose a domain for the web administration",
+            "fr": "Choisissez un domaine pour l'administration web"
+        },
+        "example": "domain.org"
+      },
+      {
+        "name": "path",
+        "ask": {
+            "en": "Choose a path for the web administration",
+            "fr": "Choissez un chemin pour l'administration web"
+        },
+        "example": "/vpnadmin",
+        "default": "/vpnadmin"
+      },
+      {
+        "name": "server_name",
+        "ask": {
+            "en": "Select a VPN server",
+            "fr": "Sélectionnez un serveur VPN"
+        },
+        "example": "access.ldn-fai.net",
+        "default": "access.ldn-fai.net"
+      },
+      {
+        "name": "crt_client",
+        "ask": {
+            "en": "Select the local path of your client certificate (will be moved ; leave empty if not necessary or if you want to upload it later through the web admin)",
+            "fr": "Sélectionnez le chemin local de votre certificat client (le fichier sera déplacé ; laisser vide si non-nécessaire ou que vous souhaitez le téléverser plus tard via l'admin web)"
+        },
+        "example": "/tmp/user.crt"
+      },
+      {
+        "name": "crt_client_key",
+        "ask": {
+            "en": "Select the local path of your client certificate key (will be moved ; leave empty if not necessary or if you want to upload it later through the web admin)",
+            "fr": "Sélectionnez le chemin local de la clé de votre certificat client (le fichier sera déplacé ; laisser vide si non-nécessaire ou que vous souhaitez le téléverser plus tard via l'admin web)"
+        },
+        "example": "/tmp/user.key"
+      },
+      {
+        "name": "crt_server_ca",
+        "ask": {
+            "en": "Select the local path of the server CA (will be moved ; leave empty for uploading it later through the web admin)",
+            "fr": "Sélectionnez le chemin local du CA du serveur (le fichier sera déplacé ; laisser vide pour le téléverser plus tard via l'admin web)"
+        },
+        "example": "/tmp/ca-server.crt"
+      },
+      {
+        "name": "credentials_user",
+        "ask": {
+            "en": "Select your VPN username (leave empty if not necessary)",
+            "fr": "Sélectionnez votre nom d'utilisateur VPN (laisser vide si non-nécessaire)"
+        },
+        "example": "michu"
+      },
+      {
+        "name": "credentials_passphrase",
+        "ask": {
+            "en": "Select your VPN password (leave empty if not necessary)",
+            "fr": "Sélectionnez votre mot de passe VPN (laisser vide si non-nécessaire)"
+        },
+        "example": "XVCwSbDkxnqQ"
+      }
+    ]
+  }
+}
