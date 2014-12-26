@@ -1,3 +1,22 @@
+<!--
+  VPN Client app for YunoHost 
+  Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
+  Contribute at https://github.com/jvaubourg/vpnclient_ynh
+  
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+  
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <h2><?= T_("VPN Client Configuration") ?></h2>
 <?php if($faststatus): ?>
   <span class="label label-success" data-toggle="tooltip" data-title="<?= T_('This is a fast status. Click on More details to show the complete status.') ?>"><?= T_('Running') ?></span>
