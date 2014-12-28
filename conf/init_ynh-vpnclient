@@ -174,54 +174,58 @@ moulinette_set() {
   fi
 }
 
-# Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
-if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
-  touch /tmp/.ynh-vpnclient-boot
-  service php5-fpm restart
-fi
+if [ "$1" != restart ]; then
 
-# Check configuration consistency
-
-if [[ ! "${1}" =~ stop ]]; then
-  exitcode=0
-
-  if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
-    echo "[WARN] You need a CA server (you can add it through the web admin)"
-    exitcode=1
+  # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
+  if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
+    touch /tmp/.ynh-vpnclient-boot
+    service php5-fpm restart
   fi
-
-  empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
-  if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
-    echo "[WARN] You need either a client certificate, either a username, or both (you can add one through the web admin)"
-    exitcode=1
+  
+  # Check configuration consistency
+  
+  if [[ ! "${1}" =~ stop ]]; then
+    exitcode=0
+  
+    if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
+      echo "[WARN] You need a CA server (you can add it through the web admin)"
+      exitcode=1
+    fi
+  
+    empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
+    if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
+      echo "[WARN] You need either a client certificate, either a username, or both (you can add one through the web admin)"
+      exitcode=1
+    fi
+  
+    [ "${exitcode}" -ne 0 ] && exit ${exitcode}
   fi
+  
+  # Variables
+  
+  echo -n "Retrieving Yunohost settings... "
+  
+  ynh_server_name=$(moulinette_get server_name)
+  ynh_server_port=$(moulinette_get server_port)
+  ynh_server_proto=$(moulinette_get server_proto)
+  ynh_ip6_addr=$(moulinette_get ip6_addr)
+  ynh_login_user=$(moulinette_get login_user)
+  
+  old_ip6_gw=$(moulinette_get ip6_gw)
+  old_wired_device=$(moulinette_get wired_device)
+  old_server_ip6=$(moulinette_get server_ip6)
+  
+  new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
+  new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
+  new_server_ip6=$(host "${ynh_server_name}" | awk '/IPv6/ { print $NF; }')
+  
+  if [ -z "${new_server_ip6}" ]; then
+    new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 | awk '/IPv6/ { print $NF; }')
+  fi
+  
+  echo "OK"
 
-  [ "${exitcode}" -ne 0 ] && exit ${exitcode}
 fi
-
-# Variables
-
-echo -n "Retrieving Yunohost settings... "
-
-ynh_server_name=$(moulinette_get server_name)
-ynh_server_port=$(moulinette_get server_port)
-ynh_server_proto=$(moulinette_get server_proto)
-ynh_ip6_addr=$(moulinette_get ip6_addr)
-ynh_login_user=$(moulinette_get login_user)
-
-old_ip6_gw=$(moulinette_get ip6_gw)
-old_wired_device=$(moulinette_get wired_device)
-old_server_ip6=$(moulinette_get server_ip6)
-
-new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
-new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
-new_server_ip6=$(host "${ynh_server_name}" | awk '/IPv6/ { print $NF; }')
-
-if [ -z "${new_server_ip6}" ]; then
-  new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 | awk '/IPv6/ { print $NF; }')
-fi
-
-echo "OK"
 
 # Script
 
@@ -306,6 +310,10 @@ case "${1}" in
       service ynh-hotspot start
     fi
   ;;
+  restart)
+    $0 stop
+    $0 start
+  ;;
   status)
     exitcode=0
 
@@ -358,7 +366,7 @@ case "${1}" in
     exit ${exitcode}
   ;;
   *)
-    echo "Usage: $0 {start|stop|litestop|status}"
+    echo "Usage: $0 {start|stop|litestop|restart|status}"
     exit 1
   ;;
 esac
