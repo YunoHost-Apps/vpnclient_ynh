@@ -135,9 +135,9 @@
                 <a class="btn btn-danger input-group-addon deletefile" id="crt_client_key_deletebtn" data-toggle="tooltip" data-title="<?= T_('Delete this certificate') ?>"><span class="glyphicon glyphicon-remove"></span></a>
                 <input id="crt_client_key_delete" name="crt_client_key_delete" type="checkbox" value="1" style="display: none" />
               <?php endif; ?>
-              <input type="text" class="form-control fileinput" id="crt_client_key_choosertxt" placeholder="-----BEGIN PRIVATE KEY-----" readonly="readonly" />
+              <input type="text" class="form-control fileinput" id="crt_client_key_choosertxt" data-toggle="tooltip" data-title="<?= T_('Make sure your browser is able to read the key file before uploading') ?>" placeholder="-----BEGIN PRIVATE KEY-----" readonly="readonly" />
               <input id="crt_client_key" name="crt_client_key" type="file" style="display: none" />
-              <a class="btn input-group-addon fileinput" id="crt_client_key_chooserbtn" data-toggle="tooltip" data-title="<?= T_('Browse') ?>"><span class="glyphicon glyphicon-search"></span></a>
+              <a class="btn input-group-addon fileinput" id="crt_client_key_chooserbtn" data-toggle="tooltip" data-title="<?= T_('Browse') ?> (<?= T_('make sure your browser is able to read the key file before uploading') ?>)"><span class="glyphicon glyphicon-search"></span></a>
             </div>
           </div>
 
