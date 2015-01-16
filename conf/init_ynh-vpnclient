@@ -253,6 +253,8 @@ case "${1}" in
           [ ${i} -gt 20 ] && exit 1
           ip link show dev tun0 &> /dev/null
         done
+
+        service dnsmasq restart
       fi
 
       # Check old state of the server ipv6 route

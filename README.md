@@ -3,6 +3,8 @@
 
 **Warning: work in progress**
 
+**Warning: use the dev branch with the daily version of yunohost (compatibility with dnsmasq)**
+
 VPN Client app for [YunoHost](http://yunohost.org/).
 
 * Install a VPN connection on your self-hosted server.
