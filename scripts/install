@@ -81,6 +81,8 @@ fi
 
 # Install packages
 packages='php5-fpm sipcalc openvpn'
+export DEBIAN_FRONTEND=noninteractive
+
 sudo apt-get --assume-yes --force-yes install ${packages}
 
 if [ $? -ne 0 ]; then
@@ -102,6 +104,7 @@ sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
 sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
 # Copy confs
+sudo mkdir -pm 0755 /var/log/nginx/
 sudo chown root:admins /etc/openvpn/
 sudo chmod 775 /etc/openvpn/
 
