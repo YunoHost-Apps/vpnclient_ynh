@@ -205,6 +205,7 @@ if [ "$1" != restart ]; then
   
   echo -n "Retrieving Yunohost settings... "
   
+  ynh_service_enabled=$(moulinette_get service_enabled)
   ynh_server_name=$(moulinette_get server_name)
   ynh_server_port=$(moulinette_get server_port)
   ynh_server_proto=$(moulinette_get server_proto)
@@ -233,6 +234,8 @@ case "${1}" in
   start)
     if is_running; then
       echo "Already started"
+    elif [ "${ynh_service_enabled}" -eq 0 ]; then
+      echo "Disabled service"
     else
       echo "[vpnclient] Starting..."
       touch /tmp/.ynh-vpnclient-started
@@ -253,8 +256,6 @@ case "${1}" in
           [ ${i} -gt 20 ] && exit 1
           ip link show dev tun0 &> /dev/null
         done
-
-        service dnsmasq restart
       fi
 
       # Check old state of the server ipv6 route
@@ -283,6 +284,10 @@ case "${1}" in
       moulinette_set ip6_gw "${new_ip6_gw}"
       moulinette_set wired_device "${new_wired_device}"
 
+      # Restart dhcpd
+      service bind9 stop &> /dev/null
+      service dnsmasq restart
+
       # Restart hotspot if needed
       if has_hotspot_app && ! is_hotspot_knowme; then
         service ynh-hotspot start
@@ -306,11 +311,19 @@ case "${1}" in
     if is_openvpn_running; then
       echo "Stop openvpn"
       stop_openvpn
+
+      i=0; true && while [ $? -eq 0 ]; do
+        sleep 1 && (( i++ ))
+        [ ${i} -gt 20 ] && exit 1
+        ip link show dev tun0 &> /dev/null
+      done
     fi
 
-    if has_hotspot_app && ! is_hotspot_knowme; then
+    if has_hotspot_app && is_hotspot_knowme; then
       service ynh-hotspot start
     fi
+
+    service dnsmasq restart
   ;;
   restart)
     $0 stop
@@ -318,6 +331,11 @@ case "${1}" in
   ;;
   status)
     exitcode=0
+
+    if [ "${ynh_service_enabled}" -eq 0 ]; then
+      echo "[ERR] VPN Client Service disabled"
+      exitcode=1
+    fi
 
     echo "[INFO] Autodetected internet interface: ${new_wired_device} (last start: ${old_wired_device})"
     echo "[INFO] Autodetected IPv6 address for the VPN server: ${new_server_ip6} (last start: ${old_server_ip6})"

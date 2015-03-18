@@ -91,6 +91,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Save arguments
+sudo yunohost app setting vpnclient service_enabled -v 1
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
 sudo yunohost app setting vpnclient server_port -v 1194
 sudo yunohost app setting vpnclient server_proto -v udp

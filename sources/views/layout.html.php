@@ -32,10 +32,12 @@
 
   <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+  <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/css/bootstrap-toggle.min.css" rel="stylesheet">
   <link media="all" type="text/css" href="<?= PUBLIC_DIR ?>/css/style.css" rel="stylesheet">
 
   <script src="<?= PUBLIC_DIR ?>/jquery/jquery-2.1.1.min.js"></script>
   <script src="<?= PUBLIC_DIR ?>/bootstrap/js/bootstrap.min.js"></script>
+  <script src="<?= PUBLIC_DIR ?>/js/bootstrap-toggle.min.js"></script>
   <script src="<?= PUBLIC_DIR ?>/js/custom.js"></script>
 </head>
 
