@@ -20,6 +20,8 @@ $(document).ready(function() {
   $('.btn-group').button();
   $('[data-toggle="tooltip"]').tooltip();
 
+  $('.switch').bootstrapToggle();
+
   $('.fileinput').click(function() {
     if(!$(this).hasClass('btn-danger')) {
       var realinputid = '#' + $(this).attr('id').replace(/_chooser.*/, '');
@@ -86,5 +88,13 @@ $(document).ready(function() {
   $('#raw_openvpn_btn').click(function() {
     $('#raw_openvpn_btnpanel').hide();
     $('#raw_openvpn_panel').show('low');
+  });
+
+  $('#service_enabled').change(function() {
+    if($('#service_enabled').parent().hasClass('off')) {
+      $('.enabled').hide('slow');
+    } else {
+      $('.enabled').show('slow');
+    }
   });
 });

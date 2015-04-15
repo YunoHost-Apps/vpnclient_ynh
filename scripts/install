@@ -81,6 +81,8 @@ fi
 
 # Install packages
 packages='php5-fpm sipcalc openvpn'
+export DEBIAN_FRONTEND=noninteractive
+
 sudo apt-get --assume-yes --force-yes install ${packages}
 
 if [ $? -ne 0 ]; then
@@ -89,6 +91,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Save arguments
+sudo yunohost app setting vpnclient service_enabled -v 1
 sudo yunohost app setting vpnclient server_name -v "${server_name}"
 sudo yunohost app setting vpnclient server_port -v 1194
 sudo yunohost app setting vpnclient server_proto -v udp
@@ -102,6 +105,7 @@ sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
 sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
 # Copy confs
+sudo mkdir -pm 0755 /var/log/nginx/
 sudo chown root:admins /etc/openvpn/
 sudo chmod 775 /etc/openvpn/
 
@@ -153,7 +157,6 @@ sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_USER>|admin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_GROUP>|admins|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|^;\?\s*max_execution_time.\+|max_execution_time = 600|' -i /etc/php5/fpm/php.ini
 
 # Fix sources
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php

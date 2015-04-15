@@ -40,6 +40,23 @@
 
       <div class="panel panel-default">
         <div class="panel-heading">
+          <h3 class="panel-title"><?= T_("Service") ?></h3>
+        </div>
+
+        <div style="padding: 14px 14px 0 10px">
+          <div class="form-group">
+            <label for="wifi_secure" class="col-sm-3 control-label"><?= T_('VPN Enabled') ?></label>
+            <div class="col-sm-9 input-group-btn">
+              <div class="input-group">
+                <input type="checkbox" class="form-control switch" name="service_enabled" id="service_enabled" value="1" <?= $service_enabled == 1 ? 'checked="checked"' : '' ?> />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
+        <div class="panel-heading">
           <h3 class="panel-title"><?= T_("VPN") ?></h3>
         </div>
 
@@ -87,7 +104,7 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
+      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
         <div class="panel-heading">
           <h3 class="panel-title"><?= T_("IPv6") ?></h3>
         </div>
@@ -103,13 +120,13 @@
       </div>
 
       <?php if(!$crt_client_key_exists && empty($login_user)): ?>
-        <div class="alert alert-dismissible alert-warning fade in" style="margin: 2px 0px 17px" role="alert">
+        <div class="alert alert-dismissible alert-warning fade in enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?> style="margin: 2px 0px 17px" role="alert">
           <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
           <strong><?= T_('Notice') ?>:</strong> <?= T_("You need to upload a Client Certificate, or define a Username (or both) for starting your VPN Client.") ?>
         </div>
       <?php endif; ?>
 
-      <div class="panel panel-default">
+      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
         <div class="panel-heading">
           <h3 class="panel-title"><?= T_("Certificates") ?></h3>
         </div>
@@ -163,7 +180,7 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
+      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
         <div class="panel-heading">
           <h3 class="panel-title"><?= T_("Login") ?></h3>
         </div>
