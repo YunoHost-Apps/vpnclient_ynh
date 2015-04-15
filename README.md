@@ -3,8 +3,6 @@
 
 **Warning: work in progress**
 
-**Warning: use the dev branch with the daily version of yunohost (compatibility with dnsmasq)**
-
 VPN Client app for [YunoHost](http://yunohost.org/).
 
 * Install a VPN connection on your self-hosted server.
@@ -23,3 +21,13 @@ See the <a href="https://raw.githubusercontent.com/jvaubourg/hotspot_ynh/master/
 * Set an IPv6 from your delegated prefix (*prefix::42*) on the server, to use for the AAAA records
 * Use native IPv6 if available for creating the tunnel
 * Web interface ([screenshot](https://raw.githubusercontent.com/jvaubourg/vpnclient_ynh/master/screenshot.png))
+
+## Prerequisites
+
+This app works with a non-stable version of YunoHost.
+
+Until this version is available (coming soon!) as an official stable release, you need to execute some commands before installing this app:
+
+    # service bind9 stop
+    # update-rc.d bind9 remove
+    # apt-get install dnsmasq
