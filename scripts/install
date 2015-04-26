@@ -158,6 +158,9 @@ sudo sed 's|<TPL:PHP_USER>|admin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_GROUP>|admins|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 
+## dnsmasq
+sudo sed 's|#except-interface=|except-interface=tun0|g' -i /etc/dnsmasq.conf
+
 # Fix sources
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
 
