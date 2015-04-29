@@ -1,7 +1,7 @@
 #!/bin/bash
 ### BEGIN INIT INFO
 # Provides: ynh-vpnclient
-# Required-Start:    $network $remote_fs $syslog $all
+# Required-Start:    $network $remote_fs $syslog ynh-hostspot
 # Required-Stop:     $network $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
