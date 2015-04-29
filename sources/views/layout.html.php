@@ -63,7 +63,7 @@
     <?= $content ?>
 
     <hr />
-    <div id="github"><a href="https://github.com/jvaubourg/vpnclient_ynh"><?= T_('Any problem? Contribute!') ?></a> - AGPL 3.0</div>
+    <div id="github"><a href="https://github.com/labriqueinternet/vpnclient_ynh"><?= T_('Any problem? Contribute!') ?></a> - AGPL 3.0</div>
   </div>
 </body>
 
