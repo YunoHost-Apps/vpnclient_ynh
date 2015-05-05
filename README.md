@@ -9,7 +9,7 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 * Useful for hosting your server behind a filtered (and/or non-neutral) internet access.
 * Useful to have static IP addresses (IPv6 and IPv4).
 * Useful to easily move your server anywhere.
-* With the [Hotspot app for YunoHost](https://github.com/jvaubourg/hotspot_ynh), you can broadcast your VPN access by Wifi for using a clean internet connection (depending on your VPN provider) on your laptop (or those of your friends) without have to configure it.
+* With the [Hotspot app for YunoHost](https://github.com/jvaubourg/hotspot_ynh), you can broadcast your VPN access by wifi to use a clean internet connection (depending on your VPN provider) on your laptop (or those of your friends) without having to configure it.
 
 This YunoHost app is a part of the "[La Brique Internet](http://labriqueinter.net)" project but can be used independently.
 
