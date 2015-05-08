@@ -45,7 +45,7 @@
 
         <div style="padding: 14px 14px 0 10px">
           <div class="form-group">
-            <label for="wifi_secure" class="col-sm-3 control-label"><?= T_('VPN Enabled') ?></label>
+            <label for="service_enabled" class="col-sm-3 control-label"><?= T_('VPN Enabled') ?></label>
             <div class="col-sm-9 input-group-btn">
               <div class="input-group">
                 <input type="checkbox" class="form-control switch" name="service_enabled" id="service_enabled" value="1" <?= $service_enabled == 1 ? 'checked="checked"' : '' ?> />
