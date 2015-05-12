@@ -176,9 +176,9 @@ sudo yunohost service enable php5-fpm
 
 sudo yunohost service add ynh-vpnclient
 sudo yunohost service enable ynh-vpnclient
-sudo service ynh-vpnclient start
+sudo systemctl start ynh-vpnclient --quiet
 
-sudo service nginx reload
+sudo systemctl reload nginx --quiet
 
 # Update SSO for vpnadmin
 sudo yunohost app ssowatconf
@@ -186,7 +186,8 @@ sudo yunohost app ssowatconf
 # Restart hotspot service if installed (and started) to change NAT configuration (now on tun0)
 # A new start will fix the interface without unsetting all stuff
 if [ -e /tmp/.ynh-hotspot-started ]; then
-  sudo service ynh-hotspot start
+  sudo systemctl restart ynh-hotspot --quiet
+  sudo systemctl restart dnsmasq --quiet
 fi
 
 # Check configuration consistency

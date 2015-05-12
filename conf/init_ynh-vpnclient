@@ -69,7 +69,7 @@ is_serverip6route_set() {
 }
 
 is_openvpn_running() {
-  service openvpn status client &> /dev/null
+  systemctl is-active openvpn@client.service --quiet &> /dev/null
 }
 
 is_running() {
@@ -128,7 +128,7 @@ start_openvpn() {
     sed 's|^<TPL:LOGIN_COMMENT>||' -i /etc/openvpn/client.conf
   fi
 
-  service openvpn start client
+  systemctl start openvpn@client.service --quiet
 }
 
 ## Unsetters
@@ -146,7 +146,7 @@ unset_serverip6route() {
 }
 
 stop_openvpn() {
-  service openvpn stop
+  systemctl stop openvpn.service --quiet
 }
 
 ## Tools
@@ -181,7 +181,7 @@ if [ "$1" != restart ]; then
   # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
   if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
     touch /tmp/.ynh-vpnclient-boot
-    service php5-fpm restart
+    systemctl restart php5-fpm --quiet
   fi
   
   # Check configuration consistency
@@ -287,12 +287,12 @@ case "${1}" in
       moulinette_set wired_device "${new_wired_device}"
 
       # Restart dhcpd
-      service bind9 stop &> /dev/null
-      service dnsmasq restart
+      systemctl stop bind9 --quiet &> /dev/null
+      systemctl restart dnsmasq --quiet
 
       # Restart hotspot if needed
       if has_hotspot_app && ! is_hotspot_knowme; then
-        service ynh-hotspot start
+        systemctl start ynh-hotspot --quiet
       fi
     fi
   ;;
@@ -322,10 +322,10 @@ case "${1}" in
     fi
 
     if has_hotspot_app && is_hotspot_knowme; then
-      service ynh-hotspot start
+      systemctl start ynh-hotspot --quiet
     fi
 
-    service dnsmasq restart
+    systemctl restart dnsmasq --quiet
   ;;
   restart)
     $0 stop

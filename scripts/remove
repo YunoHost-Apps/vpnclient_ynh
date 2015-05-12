@@ -21,7 +21,7 @@
 domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
-sudo service ynh-vpnclient stop
+sudo systemctl stop ynh-vpnclient --quiet
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/init.d/ynh-vpnclient
 sudo rm -f /tmp/.ynh-vpnclient-*
@@ -37,7 +37,7 @@ sudo rm -rf /etc/openvpn/keys/
 # Restart services
 sudo yunohost service stop php5-fpm
 sudo yunohost service start php5-fpm
-sudo service nginx reload
+sudo systemctl reload nginx --quiet
 
 # Remove sources
 sudo rm -rf /var/www/vpnadmin/

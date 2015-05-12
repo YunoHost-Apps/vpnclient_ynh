@@ -27,17 +27,17 @@ function moulinette_set($var, $value) {
 }
 
 function stop_service() {
-  exec('sudo service ynh-vpnclient stop');
+  exec('sudo systemctl stop ynh-vpnclient');
 }
 
 function start_service() {
-  exec('sudo service ynh-vpnclient start', $output, $retcode);
+  exec('sudo systemctl start ynh-vpnclient', $output, $retcode);
 
   return $retcode;
 }
 
 function service_status() {
-  exec('sudo service ynh-vpnclient status', $output);
+  exec('sudo systemctl is-active ynh-vpnclient', $output);
 
   return $output;
 }

@@ -28,6 +28,6 @@ This app works with a non-stable version of YunoHost.
 
 Until this version is available (coming soon!) as an official stable release, you need to execute some commands before installing this app:
 
-    # service bind9 stop
-    # update-rc.d bind9 remove
+    # systemctl stop bind9
+    # systemctl disable bind9
     # apt-get install dnsmasq
