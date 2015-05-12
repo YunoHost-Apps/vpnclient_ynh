@@ -162,7 +162,8 @@ sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/v
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
 
 # Copy init script
-sudo install -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/ynh-vpnclient
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient.service /lib/systemd/system/ynh-vpnclient.service
 
 # Set default inits
 # The openvpn configuration is modified before the start, so the service is disabled by default
