@@ -1,30 +1,19 @@
 #!/bin/bash
-### BEGIN INIT INFO
-# Provides: ynh-vpnclient
-# Required-Start:    $network $remote_fs $syslog yunohost-api
-# Required-Stop:     $network $remote_fs $syslog
-# Should-Start:      ynh-hotspot 
-# Should-Stop:       ynh-hotspot 
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start VPN client.
-# Description:       Start VPN client.
-### END INIT INFO
 
-# VPN Client app for YunoHost 
+# VPN Client app for YunoHost
 # Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
 # Contribute at https://github.com/jvaubourg/vpnclient_ynh
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -162,7 +151,7 @@ moulinette_get() {
   fi
 
   echo "${value}"
-} 
+}
 
 moulinette_set() {
   var=${1}
@@ -183,49 +172,49 @@ if [ "$1" != restart ]; then
     touch /tmp/.ynh-vpnclient-boot
     systemctl restart php5-fpm --quiet
   fi
-  
+
   # Check configuration consistency
-  
+
   if [[ ! "${1}" =~ stop ]]; then
     exitcode=0
-  
+
     if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
       echo "[WARN] You need a CA server (you can add it through the web admin)"
       exitcode=1
     fi
-  
+
     empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
     if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
       echo "[WARN] You need either a client certificate, either a username, or both (you can add one through the web admin)"
       exitcode=1
     fi
-  
+
     [ "${exitcode}" -ne 0 ] && exit ${exitcode}
   fi
-  
+
   # Variables
-  
+
   echo -n "Retrieving Yunohost settings... "
-  
+
   ynh_service_enabled=$(moulinette_get service_enabled)
   ynh_server_name=$(moulinette_get server_name)
   ynh_server_port=$(moulinette_get server_port)
   ynh_server_proto=$(moulinette_get server_proto)
   ynh_ip6_addr=$(moulinette_get ip6_addr)
   ynh_login_user=$(moulinette_get login_user)
-  
+
   old_ip6_gw=$(moulinette_get ip6_gw)
   old_wired_device=$(moulinette_get wired_device)
   old_server_ip6=$(moulinette_get server_ip6)
-  
+
   new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
   new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
   new_server_ip6=$(host "${ynh_server_name}" | awk '/IPv6/ { print $NF; }')
-  
+
   if [ -z "${new_server_ip6}" ]; then
     new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 | awk '/IPv6/ { print $NF; }')
   fi
-  
+
   echo "OK"
 
 fi
@@ -309,7 +298,7 @@ case "${1}" in
       echo "Unset IPv6 server route"
       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
     fi
-  
+
     if is_openvpn_running; then
       echo "Stop openvpn"
       stop_openvpn

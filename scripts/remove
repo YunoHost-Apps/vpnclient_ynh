@@ -22,6 +22,7 @@ domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
 sudo systemctl stop ynh-vpnclient --quiet
+sudo systemctl disable ynh-vpnclient --quiet
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /lib/systemd/system/ynh-vpnclient.service /usr/local/bin/ynh-vpnclient
 sudo rm -f /tmp/.ynh-vpnclient-*
