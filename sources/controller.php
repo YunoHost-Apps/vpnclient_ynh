@@ -37,7 +37,7 @@ function start_service() {
 }
 
 function service_status() {
-  exec('sudo systemctl is-active ynh-vpnclient', $output);
+  exec('sudo ynh-vpnclient status', $output);
 
   return $output;
 }

@@ -2,14 +2,14 @@
 Description=YunoHost VPN Client.
 Requires=network.target
 After=network.target
+Wants=ynh-hotspot.service
+Before=ynh-hotspot.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/ynh-vpnclient start
-ExecRestart=/usr/local/bin/ynh-vpnclient restart
 ExecStop=/usr/local/bin/ynh-vpnclient stop
 RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
-Alias=ynh-vpnclient.service

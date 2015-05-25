@@ -24,10 +24,5 @@ This YunoHost app is a part of the "[La Brique Internet](http://labriqueinter.ne
 
 ## Prerequisites
 
-This app works with a non-stable version of YunoHost.
-
-Until this version is available (coming soon!) as an official stable release, you need to execute some commands before installing this app:
-
-    # systemctl stop bind9
-    # systemctl disable bind9
-    # apt-get install dnsmasq
+* Debian Jessie
+* YunoHost >= 2.2.0

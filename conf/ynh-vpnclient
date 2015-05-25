@@ -33,12 +33,17 @@ has_hotspot_app() {
 }
 
 is_hotspot_knowme() {
-  value=$(yunohost app setting hotspot vpnclient)
+  gotcha=0
 
-  if [[ "${value}" =~ "An instance is already running" ]]; then
-    echo "${value}" >&2
-    exit 1
-  fi
+  while [ "${gotcha}" -eq 0 ]; do
+    value=$(yunohost app setting hotspot vpnclient)
+
+    if [[ "${value}" =~ "An instance is already running" ]]; then
+      sleep $(($((RANDOM%5)) + 1))
+    else
+      gotcha=1
+    fi
+  done
 
   [ "${value}" == yes ]
 }
@@ -58,7 +63,7 @@ is_serverip6route_set() {
 }
 
 is_openvpn_running() {
-  systemctl is-active openvpn@client.service --quiet &> /dev/null
+  systemctl is-active openvpn@client.service &> /dev/null
 }
 
 is_running() {
@@ -117,7 +122,7 @@ start_openvpn() {
     sed 's|^<TPL:LOGIN_COMMENT>||' -i /etc/openvpn/client.conf
   fi
 
-  systemctl start openvpn@client.service --quiet
+  systemctl start openvpn@client.service
 }
 
 ## Unsetters
@@ -135,20 +140,24 @@ unset_serverip6route() {
 }
 
 stop_openvpn() {
-  systemctl stop openvpn.service --quiet
+  systemctl stop openvpn.service
 }
 
 ## Tools
 
 moulinette_get() {
   var=${1}
+  gotcha=0
 
-  value=$(yunohost app setting vpnclient "${var}")
+  while [ "${gotcha}" -eq 0 ]; do
+    value=$(yunohost app setting vpnclient "${var}")
 
-  if [[ "${value}" =~ "An instance is already running" ]]; then
-    echo "${value}" >&2
-    exit 1
-  fi
+    if [[ "${value}" =~ "An instance is already running" ]]; then
+      sleep $(($((RANDOM%5)) + 1))
+    else
+      gotcha=1
+    fi
+  done
 
   echo "${value}"
 }
@@ -170,7 +179,7 @@ if [ "$1" != restart ]; then
   # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
   if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
     touch /tmp/.ynh-vpnclient-boot
-    systemctl restart php5-fpm --quiet
+    systemctl restart php5-fpm
   fi
 
   # Check configuration consistency
@@ -275,13 +284,9 @@ case "${1}" in
       moulinette_set ip6_gw "${new_ip6_gw}"
       moulinette_set wired_device "${new_wired_device}"
 
-      # Restart dhcpd
-      systemctl stop bind9 --quiet &> /dev/null
-      systemctl restart dnsmasq --quiet
-
-      # Restart hotspot if needed
+      # Fix configuration
       if has_hotspot_app && ! is_hotspot_knowme; then
-        systemctl start ynh-hotspot --quiet
+        ynh-hotspot start
       fi
     fi
   ;;
@@ -310,11 +315,10 @@ case "${1}" in
       done
     fi
 
+    # Fix configuration
     if has_hotspot_app && is_hotspot_knowme; then
-      systemctl start ynh-hotspot --quiet
+      ynh-hotspot start
     fi
-
-    systemctl restart dnsmasq --quiet
   ;;
   restart)
     $0 stop
