@@ -162,32 +162,31 @@ sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/v
 sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
 
 # Copy init script
-sudo install -o root -g root -m 0755 ../conf/init_ynh-vpnclient /etc/init.d/ynh-vpnclient
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
+sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
 
 # Set default inits
-# The openvpn configuration is modified before the start, so the service is disabled by default
-# and the ynh-vpnclient service handles it.
-sudo yunohost service add openvpn
-sudo yunohost service stop openvpn
-sudo yunohost service disable openvpn
+# The boot order of these services are important, so they are disabled by default
+# and the ynh-vpnclient service handles them.
+sudo systemctl disable openvpn
+sudo systemctl stop openvpn
 
-sudo yunohost service add php5-fpm
-sudo yunohost service enable php5-fpm
+sudo systemctl enable php5-fpm
+sudo systemctl restart php5-fpm
 
-sudo yunohost service add ynh-vpnclient
-sudo yunohost service enable ynh-vpnclient
-sudo service ynh-vpnclient start
+sudo systemctl reload nginx
 
-sudo service nginx reload
+sudo systemctl enable ynh-vpnclient
+sudo systemctl start ynh-vpnclient
 
 # Update SSO for vpnadmin
 sudo yunohost app ssowatconf
 
 # Restart hotspot service if installed (and started) to change NAT configuration (now on tun0)
 # A new start will fix the interface without unsetting all stuff
-if [ -e /tmp/.ynh-hotspot-started ]; then
-  sudo service ynh-hotspot start
-fi
+#if [ -e /tmp/.ynh-hotspot-started ]; then
+#  sudo ynh-hotspot start
+#fi
 
 # Check configuration consistency
 
