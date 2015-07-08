@@ -93,40 +93,40 @@ dispatch_put('/settings', function() {
   if($service_enabled == 1) {
     try {
       if(empty($_POST['server_name']) || empty($_POST['server_port']) || empty($_POST['server_proto'])) {
-        throw new Exception(T_('The Server Address, the Server Port and the Protocol cannot be empty'));
+        throw new Exception(_('The Server Address, the Server Port and the Protocol cannot be empty'));
       }
     
       if(!preg_match('/^\d+$/', $_POST['server_port'])) {
-        throw new Exception(T_('The Server Port must be only composed of digits'));
+        throw new Exception(_('The Server Port must be only composed of digits'));
       }
     
       if($_POST['server_proto'] != 'udp' && $_POST['server_proto'] != 'tcp') {
-        throw new Exception(T_('The Protocol must be "udp" or "tcp"'));
+        throw new Exception(_('The Protocol must be "udp" or "tcp"'));
       }
     
       if(($_FILES['crt_client']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1))
         || ($_FILES['crt_client_key']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client']['error'] != UPLOAD_ERR_OK && (!$crt_client_exists || $_POST['crt_client_delete'] == 1))) {
     
-        throw new Exception(T_('A Client Certificate is needed when you suggest a Key, or vice versa'));
+        throw new Exception(_('A Client Certificate is needed when you suggest a Key, or vice versa'));
       }
     
       if(empty($_POST['login_user']) xor empty($_POST['login_passphrase'])) {
-        throw new Exception(T_('A Password is needed when you suggest a Username, or vice versa'));
+        throw new Exception(_('A Password is needed when you suggest a Username, or vice versa'));
       }
     
       if($_FILES['crt_server_ca']['error'] != UPLOAD_ERR_OK && !$crt_server_ca_exists) {
-        throw new Exception(T_('You need a Server CA.'));
+        throw new Exception(_('You need a Server CA.'));
       }
     
       if(($_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1)) && empty($_POST['login_user'])) {
-        throw new Exception(T_('You need either a Client Certificate, either a Username, or both'));
+        throw new Exception(_('You need either a Client Certificate, either a Username, or both'));
       }
     
       if($ip6_net != 'none') {
         $ip6_net = ipv6_expanded($ip6_net);
     
         if(empty($ip6_net)) {
-          throw new Exception(T_('The IPv6 Delegated Prefix format looks bad'));
+          throw new Exception(_('The IPv6 Delegated Prefix format looks bad'));
         }
     
         $ip6_blocs = explode(':', $ip6_net);
@@ -137,7 +137,7 @@ dispatch_put('/settings', function() {
       }
 
     } catch(Exception $e) {
-      flash('error', $e->getMessage().' ('.T_('configuration not updated').').');
+      flash('error', $e->getMessage().' ('._('configuration not updated').').');
       goto redirect;
     }
   }
@@ -182,13 +182,13 @@ dispatch_put('/settings', function() {
     $retcode = start_service();
 
     if($retcode == 0) {
-      flash('success', T_('Configuration updated and service successfully reloaded'));
+      flash('success', _('Configuration updated and service successfully reloaded'));
     } else {
-      flash('error', T_('Configuration updated but service reload failed'));
+      flash('error', _('Configuration updated but service reload failed'));
     }
 
   } else {
-      flash('success', T_('Service successfully disabled'));
+      flash('success', _('Service successfully disabled'));
   }
 
   redirect:

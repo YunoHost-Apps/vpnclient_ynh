@@ -1,8 +1,8 @@
 <?php
 
-/* VPN Client app for YunoHost 
+/* Wifi Hotspot app for YunoHost 
  * Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
- * Contribute at https://github.com/jvaubourg/vpnclient_ynh
+ * Contribute at https://github.com/jvaubourg/hotspot_ynh
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,57 +18,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Limonade configuration
+// Framework configuration
 function configure() {
-    option('env', ENV_PRODUCTION);
-    option('debug', false);
-    option('base_uri', '<TPL:NGINX_LOCATION>/');
-    layout("layout.html.php");
-    define('PUBLIC_DIR', '<TPL:NGINX_LOCATION>/public');
-}
+  option('env', ENV_PRODUCTION);
+  option('debug', false);
+  option('base_uri', '<TPL:NGINX_LOCATION>/');
 
-// Not found page
-function not_found($errno, $errstr, $errfile=null, $errline=null) {
-    $msg = h(rawurldecode($errstr));
-    return render($msg, 'error_layout.html.php');
-}
+  layout('layout.html.php');
 
-function T_($string) {
-    return gettext($string);
+  define('PUBLIC_DIR', '<TPL:NGINX_LOCATION>/public');
 }
 
 // Before routing
 function before($route) {
-     /**
-     * * Locale
-     * */
-    if (!isset($_SESSION['locale'])) {
-        $locale = explode(',',$_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        $_SESSION['locale'] = strtolower(substr(chop($locale[0]),0,2));
-    }
-    $textdomain="localization";
-    putenv('LANGUAGE='.$_SESSION['locale']);
-    putenv('LANG='.$_SESSION['locale']);
-    putenv('LC_ALL='.$_SESSION['locale']);
-    putenv('LC_MESSAGES='.$_SESSION['locale']);
-    setlocale(LC_ALL,$_SESSION['locale']);
-    setlocale(LC_CTYPE,$_SESSION['locale']);
-    $locales_dir = dirname(__FILE__).'/../i18n';
-    bindtextdomain($textdomain,$locales_dir);
-    bind_textdomain_codeset($textdomain, 'UTF-8');
-    textdomain($textdomain);
-    // Set the $locale variable in template
-    set('locale', $_SESSION['locale']);
+  $lang_mapping = array(
+    'fr' => 'fr_FR'
+  );
+
+  if(!isset($_SESSION['locale'])) {
+    $locale = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    $_SESSION['locale'] = strtolower(substr(chop($locale[0]), 0, 2));
+  }
+
+  $lang = $_SESSION['locale'];
+
+  // Convert simple language code into full language code
+  if(array_key_exists($lang, $lang_mapping)) {
+    $lang = $lang_mapping[$lang];
+  }
+
+  $lang = "$lang.utf8";
+  $textdomain = "localization";
+
+  putenv("LANGUAGE=$lang");
+  putenv("LANG=$lang");
+  putenv("LC_ALL=$lang");
+  putenv("LC_MESSAGES=$lang");
+
+  setlocale(LC_ALL, $lang);
+  setlocale(LC_CTYPE, $lang);
+
+  $locales_dir = dirname(__FILE__).'/i18n';
+
+  bindtextdomain($textdomain, $locales_dir);
+  bind_textdomain_codeset($textdomain, 'UTF-8');
+  textdomain($textdomain);
+
+  set('locale', $lang);
 }
 
 // After routing
 function after($output, $route) {
-    /*
-    $time = number_format( (float)substr(microtime(), 0, 10) - LIM_START_MICROTIME, 6);
-    $output .= "\n<!-- page rendered in $time sec., on ".date(DATE_RFC822)." -->\n";
-    $output .= "<!-- for route\n";
-    $output .= print_r($route, true);
-    $output .= "-->";
-    */
-    return $output;
+  return $output;
 }

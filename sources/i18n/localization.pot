@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-08 19:18+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: sources/views/layout.html.php:27
+msgid "VPN Client"
+msgstr ""
+
+#: sources/views/layout.html.php:49
+msgid "Error"
+msgstr ""
+
+#: sources/views/layout.html.php:54 sources/views/settings.html.php:125
+#: sources/views/settings.html.php:165
+msgid "Notice"
+msgstr ""
+
+#: sources/views/layout.html.php:66
+msgid "Any problem? Contribute!"
+msgstr ""
+
+#: sources/views/settings.html.php:20
+msgid "VPN Client Configuration"
+msgstr ""
+
+#: sources/views/settings.html.php:22 sources/views/settings.html.php:24
+msgid ""
+"This is a fast status. Click on More details to show the complete status."
+msgstr ""
+
+#: sources/views/settings.html.php:22
+msgid "Running"
+msgstr ""
+
+#: sources/views/settings.html.php:24
+msgid "Not Running"
+msgstr ""
+
+#: sources/views/settings.html.php:27
+msgid "Loading complete status may take a few minutes. Be patient."
+msgstr ""
+
+#: sources/views/settings.html.php:27
+msgid "More details"
+msgstr ""
+
+#: sources/views/settings.html.php:43
+msgid "Service"
+msgstr ""
+
+#: sources/views/settings.html.php:48
+msgid "VPN Enabled"
+msgstr ""
+
+#: sources/views/settings.html.php:60
+msgid "VPN"
+msgstr ""
+
+#: sources/views/settings.html.php:65
+msgid "Server Address"
+msgstr ""
+
+#: sources/views/settings.html.php:72
+msgid "Server Port"
+msgstr ""
+
+#: sources/views/settings.html.php:74
+msgid "With restricted access, you should use 443 (TCP) or 53 (UDP)"
+msgstr ""
+
+#: sources/views/settings.html.php:79
+msgid "Protocol"
+msgstr ""
+
+#: sources/views/settings.html.php:82
+msgid "UDP"
+msgstr ""
+
+#: sources/views/settings.html.php:85
+msgid ""
+"UDP is more efficient than TCP (but more filtered in case of restrictive "
+"access)"
+msgstr ""
+
+#: sources/views/settings.html.php:86
+msgid "TCP"
+msgstr ""
+
+#: sources/views/settings.html.php:94
+msgid "Edit the raw configuration only if you know what you do!"
+msgstr ""
+
+#: sources/views/settings.html.php:94 sources/views/settings.html.php:99
+msgid "Advanced"
+msgstr ""
+
+#: sources/views/settings.html.php:109
+msgid "IPv6"
+msgstr ""
+
+#: sources/views/settings.html.php:114
+msgid "Delegated prefix"
+msgstr ""
+
+#: sources/views/settings.html.php:116
+msgid ""
+"Leave empty if your Internet Service Provider does not give you a delegated "
+"prefix"
+msgstr ""
+
+#: sources/views/settings.html.php:125
+msgid ""
+"You need to upload a Client Certificate, or define a Username (or both) for "
+"starting your VPN Client."
+msgstr ""
+
+#: sources/views/settings.html.php:131
+msgid "Certificates"
+msgstr ""
+
+#: sources/views/settings.html.php:136
+msgid "Update Client Cert."
+msgstr ""
+
+#: sources/views/settings.html.php:136
+msgid "Upload Client Cert."
+msgstr ""
+
+#: sources/views/settings.html.php:139 sources/views/settings.html.php:152
+msgid "Delete this certificate"
+msgstr ""
+
+#: sources/views/settings.html.php:144 sources/views/settings.html.php:157
+#: sources/views/settings.html.php:177
+msgid "Browse"
+msgstr ""
+
+#: sources/views/settings.html.php:149
+msgid "Update Client Key"
+msgstr ""
+
+#: sources/views/settings.html.php:149
+msgid "Upload Client Key"
+msgstr ""
+
+#: sources/views/settings.html.php:155
+msgid "Make sure your browser is able to read the key file before uploading"
+msgstr ""
+
+#: sources/views/settings.html.php:157
+msgid "make sure your browser is able to read the key file before uploading"
+msgstr ""
+
+#: sources/views/settings.html.php:165
+msgid "You need to upload a Server CA for starting your VPN Client."
+msgstr ""
+
+#: sources/views/settings.html.php:169
+msgid "Update Server CA"
+msgstr ""
+
+#: sources/views/settings.html.php:169
+msgid "Upload Server CA"
+msgstr ""
+
+#: sources/views/settings.html.php:172
+msgid "You cannot have no server CA"
+msgstr ""
+
+#: sources/views/settings.html.php:185
+msgid "Login"
+msgstr ""
+
+#: sources/views/settings.html.php:190
+msgid "Username"
+msgstr ""
+
+#: sources/views/settings.html.php:192 sources/views/settings.html.php:199
+msgid "Leave empty if not necessary"
+msgstr ""
+
+#: sources/views/settings.html.php:197
+msgid "Password"
+msgstr ""
+
+#: sources/views/settings.html.php:207
+msgid "Reloading may take a few minutes. Be patient."
+msgstr ""
+
+#: sources/views/settings.html.php:207
+msgid "Save and reload"
+msgstr ""
