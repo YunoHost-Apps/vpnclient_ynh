@@ -218,18 +218,14 @@ dispatch('/status', function() {
 });
 
 dispatch('/lang/:locale', function($locale = 'en') {
-  switch ($locale) {
+  switch($locale) {
     case 'fr':
       $_SESSION['locale'] = 'fr';
-      break;
+    break;
 
     default:
       $_SESSION['locale'] = 'en';
   }
 
-  if(!empty($_GET['redirect_to'])) {
-    redirect_to($_GET['redirect_to']);
-  } else {
-    redirect_to('/');
-  }
+  redirect_to('/');
 });
