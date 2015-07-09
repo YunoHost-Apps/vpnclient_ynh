@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: data 2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-08 19:18+0200\n"
-"PO-Revision-Date: 2015-07-09 13:51+0100\n"
+"PO-Revision-Date: 2015-07-09 18:45+0100\n"
 "Last-Translator: samy boutayeb <samy@langues-etcetera.fr>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.7.7\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: sources/views/layout.html.php:27
 msgid "VPN Client"
@@ -34,7 +34,7 @@ msgstr "Notice"
 
 #: sources/views/layout.html.php:66
 msgid "Any problem? Contribute!"
-msgstr "Un souci ? Contribuez !"
+msgstr "Un problème ? Contribuez !"
 
 #: sources/views/settings.html.php:20
 msgid "VPN Client Configuration"
@@ -44,7 +44,7 @@ msgstr "Configuration du client VPN"
 msgid ""
 "This is a fast status. Click on More details to show the complete status."
 msgstr ""
-"Ceci est un résumé du statut. Cliquez sur Plus de détails pour consulter "
+"Ceci est un résumé du statut. Cliquez sur « Plus de détails » pour consulter "
 "l'intégralité du statut."
 
 #: sources/views/settings.html.php:22
@@ -85,7 +85,7 @@ msgstr "Port du serveur"
 
 #: sources/views/settings.html.php:74
 msgid "With restricted access, you should use 443 (TCP) or 53 (UDP)"
-msgstr "En accès restreint, utiliser 443 (TCP) ou 53 (UDP)"
+msgstr "En cas d'accès restreint, utiliser 443 (TCP) ou 53 (UDP)"
 
 #: sources/views/settings.html.php:79
 msgid "Protocol"
@@ -100,8 +100,7 @@ msgid ""
 "UDP is more efficient than TCP (but more filtered in case of restrictive "
 "access)"
 msgstr ""
-"UDP est plus performant que TCP (mais plus filtré en cas de restriction "
-"d'accès)"
+"UDP est plus performant que TCP (mais plus filtré en cas d'accès restreint)"
 
 #: sources/views/settings.html.php:86
 msgid "TCP"
@@ -109,8 +108,7 @@ msgstr "TCP"
 
 #: sources/views/settings.html.php:94
 msgid "Edit the raw configuration only if you know what you do!"
-msgstr ""
-"N'éditez la configuration brute que si vous savez ce que vous faites !"
+msgstr "N'éditez la configuration brute que si vous savez ce que vous faites !"
 
 #: sources/views/settings.html.php:94 sources/views/settings.html.php:99
 msgid "Advanced"
@@ -137,7 +135,7 @@ msgid ""
 "You need to upload a Client Certificate, or define a Username (or both) for "
 "starting your VPN Client."
 msgstr ""
-"Vous devez transférer le certificat du client, ou définir un nom "
+"Vous devez téléverser le certificat du client, ou définir un nom "
 "d'utilisateur (ou les deux) pour démarrer votre client VPN."
 
 #: sources/views/settings.html.php:131
@@ -150,7 +148,7 @@ msgstr "Actualiser le certificat du client"
 
 #: sources/views/settings.html.php:136
 msgid "Upload Client Cert."
-msgstr "Transférer le certificat du client"
+msgstr "Téléverser le certificat du client"
 
 #: sources/views/settings.html.php:139 sources/views/settings.html.php:152
 msgid "Delete this certificate"
@@ -167,24 +165,23 @@ msgstr "Actualiser la clé du client"
 
 #: sources/views/settings.html.php:149
 msgid "Upload Client Key"
-msgstr "Transférer la clé du client"
+msgstr "Téléverser la clé du client"
 
 #: sources/views/settings.html.php:155
 msgid "Make sure your browser is able to read the key file before uploading"
 msgstr ""
 "Assurez-vous que votre navigateur peut lire le fichier contenant la clé "
-"avant de le transférer"
+"avant de le téléverser"
 
 #: sources/views/settings.html.php:157
 msgid "make sure your browser is able to read the key file before uploading"
 msgstr ""
 "Assurez-vous que votre navigateur peut lire le fichier contenant la clé "
-"avant de le télécharger"
+"avant de le téléverser"
 
 #: sources/views/settings.html.php:165
 msgid "You need to upload a Server CA for starting your VPN Client."
-msgstr ""
-"Vous devez transférer un CA de serveur pour démarrer votre client VPN."
+msgstr "Vous devez transférer un CA de serveur pour démarrer votre client VPN."
 
 #: sources/views/settings.html.php:169
 msgid "Update Server CA"
@@ -196,7 +193,7 @@ msgstr "Transférer le CA du serveur"
 
 #: sources/views/settings.html.php:172
 msgid "You cannot have no server CA"
-msgstr "Vous ne pouvez pas avoir aucun serveur CA"
+msgstr "Vous ne pouvez pas n'avoir aucun CA de serveur"
 
 #: sources/views/settings.html.php:185
 msgid "Login"
@@ -208,7 +205,7 @@ msgstr "Nom d'utilisateur"
 
 #: sources/views/settings.html.php:192 sources/views/settings.html.php:199
 msgid "Leave empty if not necessary"
-msgstr "Laisser vide s'il n'est pas utilisé"
+msgstr "Laisser vide s'il non-nécessaire"
 
 #: sources/views/settings.html.php:197
 msgid "Password"
