@@ -1,0 +1,50 @@
+#!/bin/bash
+
+APP=vpnclient
+OWNER=labriqueinternet
+SERVICE="ynh-${APP}"
+REPO="${APP}_ynh"
+
+ARGS='domain path server_name'
+
+install_time=$(sudo yunohost app setting "${APP}" install_time)
+install_isotime=$(date -Iseconds --date="@${install_time}")
+
+commits=$(sudo curl -s "https://api.github.com/repos/${OWNER}/${REPO}/commits?since=${install_isotime}" | wc -l)
+
+if [ "${commits}" -le 3 ]; then
+  echo "${APP}: Up-to-date"
+  exit 0
+fi
+
+for i in ${ARGS}; do
+  value=$(sudo yunohost app setting "${APP}" "${i}")
+  value=$(php -r "echo rawurlencode('$value');")
+
+  args_url="${args_url}&${i}=${value}"
+done
+
+tmpdir=$(mktemp -dp /tmp/ "${APP}-upgrade-XXXXX")
+
+sudo systemctl stop "${SERVICE}"
+
+sudo cp -a "/etc/yunohost/apps/${APP}/settings.yml" "${tmpdir}/"
+sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
+
+sudo yunohost app remove "${APP}"
+sudo yunohost app install "https://github.com/${OWNER}/${REPO}" --args "${args_url}"
+
+sudo systemctl stop "${SERVICE}"
+
+install_time=$(sudo yunohost app setting "${APP}" install_time)
+
+sudo cp -a "${tmpdir}/settings.yml" "/etc/yunohost/apps/${APP}/"
+sudo cp -a "${tmpdir}/keys/"* /etc/openvpn/keys/ 2> /dev/null
+
+sudo yunohost app setting "${APP}" install_time -v "${install_time}"
+
+sudo systemctl start "${SERVICE}"
+
+sudo rm -r "${tmpdir}/"
+
+exit 0
