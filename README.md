@@ -1,8 +1,6 @@
 # VPN Client
 ## Overview
 
-**Warning: work in progress**
-
 VPN Client app for [YunoHost](http://yunohost.org/).
 
 * Install a VPN connection on your self-hosted server.
