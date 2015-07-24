@@ -41,8 +41,4 @@ sudo systemctl reload nginx
 # Remove sources
 sudo rm -rf /var/www/vpnadmin/
 
-# Remove packets
-# The yunohost policy is currently to not uninstall packets (dependency problems)
-## sudo apt-get --assume-yes --force-yes remove openvpn php5-fpm sipcalc
-
 exit 0
