@@ -13,7 +13,7 @@ English is the default language when the browser language is not available.
 
 Updating the pot file from template files:
 ```
-xgettext sources/views/* -o sources/i18n/localization.pot
+xgettext sources/*.php sources/views/*.php -o sources/i18n/localization.pot
 ```
 
 ## Add a new language
