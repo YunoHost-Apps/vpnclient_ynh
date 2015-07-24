@@ -18,12 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function moulinette_get($var) {
-  return htmlspecialchars(exec('sudo yunohost app setting vpnclient '.escapeshellarg($var)));
+function ynh_setting_get($setting) {
+  $value = exec("sudo grep \"^$setting:\" /etc/yunohost/apps/vpnclient/settings.yml");
+  $value = preg_replace('/^[^:]+:\s*["\']?/', '', $value);
+  $value = preg_replace('/\s*["\']$/', '', $value);
+
+  return htmlspecialchars($value);
 }
 
-function moulinette_set($var, $value) {
-  return exec('sudo yunohost app setting vpnclient '.escapeshellarg($var).' -v '.escapeshellarg($value));
+function ynh_setting_set($setting, $value) {
+  return exec('sudo yunohost app setting vpnclient '.escapeshellarg($setting).' -v '.escapeshellarg($value));
 }
 
 function stop_service() {
@@ -61,16 +65,16 @@ function ipv6_compressed($ip) {
 }
 
 dispatch('/', function() {
-  $ip6_net = moulinette_get('ip6_net');
+  $ip6_net = ynh_setting_get('ip6_net');
   $ip6_net = ($ip6_net == 'none') ? '' : $ip6_net;
   $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
 
-  set('service_enabled', moulinette_get('service_enabled'));
-  set('server_name', moulinette_get('server_name'));
-  set('server_port', moulinette_get('server_port'));
-  set('server_proto', moulinette_get('server_proto'));
-  set('login_user', moulinette_get('login_user'));
-  set('login_passphrase', moulinette_get('login_passphrase'));
+  set('service_enabled', ynh_setting_get('service_enabled'));
+  set('server_name', ynh_setting_get('server_name'));
+  set('server_port', ynh_setting_get('server_port'));
+  set('server_proto', ynh_setting_get('server_proto'));
+  set('login_user', ynh_setting_get('login_user'));
+  set('login_passphrase', ynh_setting_get('login_passphrase'));
   set('ip6_net', $ip6_net);
   set('crt_client_exists', file_exists('/etc/openvpn/keys/user.crt'));
   set('crt_client_key_exists', file_exists('/etc/openvpn/keys/user.key'));
@@ -144,16 +148,16 @@ dispatch_put('/settings', function() {
   
   stop_service();
   
-  moulinette_set('service_enabled', $service_enabled);
+  ynh_setting_set('service_enabled', $service_enabled);
 
   if($service_enabled == 1) {
-    moulinette_set('server_name', $_POST['server_name']);
-    moulinette_set('server_port', $_POST['server_port']);
-    moulinette_set('server_proto', $_POST['server_proto']);
-    moulinette_set('login_user', $_POST['login_user']);
-    moulinette_set('login_passphrase', $_POST['login_passphrase']);
-    moulinette_set('ip6_net', $ip6_net);
-    moulinette_set('ip6_addr', $ip6_addr);
+    ynh_setting_set('server_name', $_POST['server_name']);
+    ynh_setting_set('server_port', $_POST['server_port']);
+    ynh_setting_set('server_proto', $_POST['server_proto']);
+    ynh_setting_set('login_user', $_POST['login_user']);
+    ynh_setting_set('login_passphrase', $_POST['login_passphrase']);
+    ynh_setting_set('ip6_net', $ip6_net);
+    ynh_setting_set('ip6_addr', $ip6_addr);
     
     file_put_contents('/etc/openvpn/client.conf.tpl', $_POST['raw_openvpn']);
 
