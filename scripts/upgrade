@@ -12,7 +12,6 @@ path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
 
 tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
-sudo systemctl stop ynh-vpnclient
 sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
 
 export VPNCLIENT_UPGRADE=1

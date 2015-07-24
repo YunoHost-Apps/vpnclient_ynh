@@ -123,12 +123,10 @@ sudo systemctl restart php5-fpm
 sudo systemctl reload nginx
 
 sudo systemctl enable ynh-vpnclient
+sudo yunohost service add ynh-vpnclient
 
 if ! $upgrade; then
   sudo systemctl start ynh-vpnclient
-
-  sudo yunohost service add ynh-vpnclient
-  sudo yunohost app ssowatconf
 
   # Check configuration consistency
   
@@ -140,5 +138,7 @@ if ! $upgrade; then
     echo "WARNING: VPN Client is not started because you need either a client certificate, either a username (or both)" >&2
   fi
 fi
+
+sudo yunohost app ssowatconf
 
 exit 0
