@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # This is an upgrade?
-upgrade=$([ "$VPNCLIENT_UPGRADE" == 1 ] && echo true || echo false)
+upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 
 # Retrieve arguments
 domain=${1}
@@ -55,7 +55,7 @@ fi
 if ! $upgrade; then
 
   # Save arguments
-  sudo yunohost app setting vpnclient service_enabled -v 1
+  sudo yunohost app setting vpnclient service_enabled -v 0
   sudo yunohost app setting vpnclient server_name -v "${server_name}"
   sudo yunohost app setting vpnclient server_port -v 1194
   sudo yunohost app setting vpnclient server_proto -v udp
@@ -65,6 +65,10 @@ if ! $upgrade; then
   sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
 
 fi
+
+# Save git commit
+gitcommit=$(git rev-parse HEAD)
+sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 
 # Install IPv6 scripts
 sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/

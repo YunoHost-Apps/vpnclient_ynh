@@ -15,7 +15,7 @@ tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
 sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
 
 export VPNCLIENT_UPGRADE=1
-sudo bash /etc/yunohost/apps/vpnclient/scripts/remove
+sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
 sudo cp -a "${tmpdir}/keys/"* /etc/openvpn/keys/ 2> /dev/null

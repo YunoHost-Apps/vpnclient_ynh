@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# The parameter $1 is the backup directory location
+# which will be compressed afterward
+backup_dir="${1}/apps/vpnclient"
+mkdir -p "${backup_dir}/"
+
+sudo cp -a /etc/openvpn/keys/ "${backup_dir}/"
+
+exit 0

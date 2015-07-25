@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# The parameter $1 is the uncompressed restore directory location
+backup_dir="${1}/apps/vpnclient"
+
+mkdir -p /etc/openvpn/
+cp -a "${backup_dir}/keys/" /etc/openvpn/
+
+gitcommit=$(sudo yunohost app setting vpnclient gitcommit)
+tmpdir=$(mktemp -dp /tmp/ vpnclient-restore-XXXXX)
+
+git clone https://github.com/labriqueinternet/vpnclient_ynh.git "${tmpdir}/"
+git --work-tree "${tmpdir}/" --git-dir "${tmpdir}/.git/" reset --hard "${gitcommit}"
+
+cd "${tmpdir}/scripts/"
+./upgrade 
+
+sudo rm -r "${tmpdir}/"
+
+exit 0
