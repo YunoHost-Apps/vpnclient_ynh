@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-08 19:18+0200\n"
+"POT-Creation-Date: 2015-07-25 10:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,54 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: sources/controller.php:100
+msgid "The Server Address, the Server Port and the Protocol cannot be empty"
+msgstr ""
+
+#: sources/controller.php:104
+msgid "The Server Port must be only composed of digits"
+msgstr ""
+
+#: sources/controller.php:108
+msgid "The Protocol must be \"udp\" or \"tcp\""
+msgstr ""
+
+#: sources/controller.php:114
+msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
+msgstr ""
+
+#: sources/controller.php:118
+msgid "A Password is needed when you suggest a Username, or vice versa"
+msgstr ""
+
+#: sources/controller.php:122
+msgid "You need a Server CA."
+msgstr ""
+
+#: sources/controller.php:126
+msgid "You need either a Client Certificate, either a Username, or both"
+msgstr ""
+
+#: sources/controller.php:133
+msgid "The IPv6 Delegated Prefix format looks bad"
+msgstr ""
+
+#: sources/controller.php:144
+msgid "configuration not updated"
+msgstr ""
+
+#: sources/controller.php:189
+msgid "Configuration updated and service successfully reloaded"
+msgstr ""
+
+#: sources/controller.php:191
+msgid "Configuration updated but service reload failed"
+msgstr ""
+
+#: sources/controller.php:195
+msgid "Service successfully disabled"
+msgstr ""
 
 #: sources/views/layout.html.php:27
 msgid "VPN Client"
