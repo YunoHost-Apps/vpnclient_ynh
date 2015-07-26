@@ -12,14 +12,20 @@ path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
 
 tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
+sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${tmpdir}/"
 sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
 
 export VPNCLIENT_UPGRADE=1
 sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
+gitcommit=$(ynh_setting vpnclient gitcommit)
+
+sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
 sudo cp -a "${tmpdir}/keys/"* /etc/openvpn/keys/ 2> /dev/null
 sudo rm -r "${tmpdir}/"
+
+sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 
 sudo systemctl start ynh-vpnclient
 
