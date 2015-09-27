@@ -31,6 +31,7 @@ sudo rm -f /tmp/.ynh-vpnclient-*
 sudo rm -f /etc/openvpn/client.conf{.tpl,.tpl.restore,}
 sudo rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
 sudo rm -f /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo rm -f /etc/yunohost/hooks.d/90-vpnclient.tpl
 
 # Remove certificates
 sudo rm -rf /etc/openvpn/keys/

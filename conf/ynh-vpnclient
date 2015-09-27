@@ -38,6 +38,13 @@ is_hotspot_knowme() {
   [ "${hotspot_vpnclient}" == yes ]
 }
 
+is_firewall_set() {
+  wired_device=${1}
+
+  ip6tables -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
+  && iptables -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+}
+
 is_ip6addr_set() {
   ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/128"
 }
@@ -59,13 +66,26 @@ is_openvpn_running() {
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
   && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
-  && is_openvpn_running
+  && is_firewall_set && is_openvpn_running
 }
 
 ## Setters
 
 set_ip6addr() {
   ip address add "${ynh_ip6_addr}/128" dev tun0
+}
+
+set_firewall() {
+  wired_device=${1}
+
+  cp /etc/yunohost/hooks.d/{90-vpnclient.tpl,post_iptable_rules/90-vpnclient}
+
+  sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  sed "s|<TPL:PROTO>|${ynh_server_proto}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  sed "s|<TPL:WIRED_DEVICE>|${wired_device}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+
+  yunohost firewall reload
 }
 
 set_serverip6route() {
@@ -119,6 +139,11 @@ start_openvpn() {
 
 unset_ip6addr() {
   ip address delete "${ynh_ip6_addr}/128" dev tun0
+}
+
+unset_firewall() {
+  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  yunohost firewall reload
 }
 
 unset_serverip6route() {
@@ -255,6 +280,12 @@ case "${1}" in
         set_ip6addr
       fi
 
+      # Set ipv6/ipv4 firewall
+      if ! is_firewall_set "${new_wired_device}"; then
+        echo "Set IPv6/IPv4 firewall"
+        set_firewall "${new_wired_device}"
+      fi
+
       # Update dynamic settings
       ynh_setting_set vpnclient server_ip6 "${new_server_ip6}"
       ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
@@ -278,6 +309,11 @@ case "${1}" in
     if is_serverip6route_set "${old_server_ip6}"; then
       echo "Unset IPv6 server route"
       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
+    fi
+
+    if is_firewall_set "${old_wired_device}"; then
+      echo "Unset IPv6/IPv4 firewall"
+      unset_firewall
     fi
 
     if is_openvpn_running; then
@@ -347,6 +383,12 @@ case "${1}" in
       echo "[INFO] No IPv6 server route to set"
     fi
 
+    if is_firewall_set "${new_wired_device}"; then
+      echo "[OK] IPv6/IPv4 firewall set"
+    else
+      echo "[ERR] No IPv6/IPv4 firewall set"
+    fi
+
     if is_openvpn_running; then
       echo "[OK] Openvpn is running"
     else
@@ -357,7 +399,7 @@ case "${1}" in
     exit ${exitcode}
   ;;
   *)
-    echo "Usage: $0 {start|stop|litestop|restart|status}"
+    echo "Usage: $0 {start|stop|restart|status}"
     exit 1
   ;;
 esac

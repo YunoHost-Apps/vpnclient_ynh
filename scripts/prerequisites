@@ -1,0 +1,9 @@
+# Source me
+
+# Check Moulinette version (firewall hook)
+ynh_moulinette_version=$(sudo dpkg -l moulinette-yunohost | grep ii | awk '{ print $3 }' | sed 's/\.//g')
+
+if [ "${ynh_moulinette_version}" -lt 240 ]; then
+  echo "ERROR: You need a YunoHost-Moulinette version equals or greater than 2.4.0" >&2
+  exit 1
+fi
