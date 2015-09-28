@@ -16,11 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+function tabsClick() {
+  var tab = $(this).parent().attr('data-tab');
+
+  $('.nav').find('li.active').removeClass('active');
+  $(this).parent().addClass('active');
+
+  $('.tabs').hide();
+  $('.tab' + tab).show();
+
+  return false;
+}
+
 $(document).ready(function() {
   $('.btn-group').button();
   $('[data-toggle="tooltip"]').tooltip();
 
   $('.switch').bootstrapToggle();
+  $('.nav-tabs a').click(tabsClick);
 
   $('.fileinput').click(function() {
     if(!$(this).hasClass('btn-danger')) {

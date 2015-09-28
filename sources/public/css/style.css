@@ -96,3 +96,12 @@ textarea#raw_openvpn {
   height: 300px;
   border: 1px solid #D9534F;
 }
+
+ul.nav {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+ul.nav a {
+  outline: none;
+}
