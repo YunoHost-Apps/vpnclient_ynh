@@ -87,6 +87,7 @@ sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvp
 sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
 sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
+sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
 # Copy web sources
 sudo mkdir -pm 0755 /var/www/vpnadmin/
