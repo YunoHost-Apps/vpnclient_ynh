@@ -114,6 +114,12 @@ start_openvpn() {
     sed 's|^<TPL:CERT_COMMENT>|;|' -i /etc/openvpn/client.conf
   fi
 
+  if [ -e /etc/openvpn/keys/user_ta.key ]; then
+    sed 's|^<TPL:TA_COMMENT>||' -i /etc/openvpn/client.conf
+  else
+    sed 's|^<TPL:TA_COMMENT>|;|' -i /etc/openvpn/client.conf
+  fi
+
   if [[ "${proto}" =~ udp ]]; then
     sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
   else

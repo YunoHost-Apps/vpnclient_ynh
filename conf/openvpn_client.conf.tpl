@@ -23,6 +23,7 @@ comp-lzo adaptive
 
 # TLS
 tls-client
+<TPL:TA_COMMENT>tls-auth /etc/openvpn/keys/user_ta.key 1
 remote-cert-tls server
 ca /etc/openvpn/keys/ca-server.crt
 <TPL:CERT_COMMENT>cert /etc/openvpn/keys/user.crt

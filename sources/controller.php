@@ -78,6 +78,7 @@ dispatch('/', function() {
   set('ip6_net', $ip6_net);
   set('crt_client_exists', file_exists('/etc/openvpn/keys/user.crt'));
   set('crt_client_key_exists', file_exists('/etc/openvpn/keys/user.key'));
+  set('crt_client_ta_exists', file_exists('/etc/openvpn/keys/user_ta.key'));
   set('crt_server_ca_exists', file_exists('/etc/openvpn/keys/ca-server.crt'));
   set('faststatus', service_faststatus() == 0);
   set('raw_openvpn', $raw_openvpn);
@@ -179,6 +180,12 @@ dispatch_put('/settings', function() {
       move_uploaded_file($_FILES['crt_client_key']['tmp_name'], '/etc/openvpn/keys/user.key');
     } elseif($_POST['crt_client_key_delete'] == 1) {
       unlink('/etc/openvpn/keys/user.key');
+    }
+
+    if($_FILES['crt_client_ta']['error'] == UPLOAD_ERR_OK) {
+      move_uploaded_file($_FILES['crt_client_ta']['tmp_name'], '/etc/openvpn/keys/user_ta.key');
+    } elseif($_POST['crt_client_ta_delete'] == 1) {
+      unlink('/etc/openvpn/keys/user_ta.key');
     }
     
     if($_FILES['crt_server_ca']['error'] == UPLOAD_ERR_OK) {

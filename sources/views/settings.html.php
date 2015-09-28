@@ -125,6 +125,26 @@
 
         <div style="padding: 14px 14px 0 10px">
           <div class="form-group">
+            <?php if(!$crt_server_ca_exists): ?>
+              <div class="alert alert-dismissible alert-warning fade in" style="margin: 2px 16px 17px" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <strong><?= _('Notice') ?>:</strong> <?= _("You need to upload a Server CA for starting your VPN Client.") ?>
+              </div>
+            <?php endif; ?>
+
+            <label for="crt_server_ca" class="col-sm-3 control-label"><?= $crt_server_ca_exists ? _('Update Server CA') : _('Upload Server CA') ?></label>
+            <div class="input-group col-sm-9" style="padding: 0 15px">
+              <?php if($crt_server_ca_exists): ?>
+                <a class="btn btn-danger not-allowed btn-disabled input-group-addon" id="crt_server_ca_deletebtn" data-toggle="tooltip" data-title="<?= _('You cannot have no server CA') ?>"><span class="glyphicon glyphicon-remove"></span></a>
+                <input id="crt_server_ca_delete" name="crt_server_ca_delete" type="checkbox" value="1" style="display: none" />
+              <?php endif; ?>
+              <input type="text" class="form-control fileinput" id="crt_server_ca_choosertxt" placeholder="-----BEGIN CERTIFICATE-----" readonly="readonly" />
+              <input id="crt_server_ca" name="crt_server_ca" type="file" style="display: none" />
+              <a class="btn input-group-addon fileinput" id="crt_server_ca_chooserbtn" data-toggle="tooltip" data-title="<?= _('Browse') ?>"><span class="glyphicon glyphicon-search"></span></a>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="crt_client" class="col-sm-3 control-label"><?= $crt_client_exists ? _('Update Client Cert.') : _('Upload Client Cert.') ?></label>
             <div class="input-group col-sm-9" style="padding: 0 15px">
               <?php if($crt_client_exists): ?>
@@ -151,22 +171,15 @@
           </div>
 
           <div class="form-group">
-            <?php if(!$crt_server_ca_exists): ?>
-              <div class="alert alert-dismissible alert-warning fade in" style="margin: 2px 16px 17px" role="alert">
-                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <strong><?= _('Notice') ?>:</strong> <?= _("You need to upload a Server CA for starting your VPN Client.") ?>
-              </div>
-            <?php endif; ?>
-
-            <label for="crt_server_ca" class="col-sm-3 control-label"><?= $crt_server_ca_exists ? _('Update Server CA') : _('Upload Server CA') ?></label>
+            <label for="crt_client_ta" class="col-sm-3 control-label" data-toggle="tooltip" data-title="<?= _('ta.key') ?>"><?= $crt_client_ta_exists ? _('Update Shared-Secret') : _('Upload Shared-Secret') ?></label>
             <div class="input-group col-sm-9" style="padding: 0 15px">
-              <?php if($crt_server_ca_exists): ?>
-                <a class="btn btn-danger not-allowed btn-disabled input-group-addon" id="crt_server_ca_deletebtn" data-toggle="tooltip" data-title="<?= _('You cannot have no server CA') ?>"><span class="glyphicon glyphicon-remove"></span></a>
-                <input id="crt_server_ca_delete" name="crt_server_ca_delete" type="checkbox" value="1" style="display: none" />
+              <?php if($crt_client_ta_exists): ?>
+                <a class="btn btn-danger input-group-addon deletefile" id="crt_client_ta_deletebtn" data-toggle="tooltip" data-title="<?= _('Delete this certificate') ?>"><span class="glyphicon glyphicon-remove"></span></a>
+                <input id="crt_client_ta_delete" name="crt_client_ta_delete" type="checkbox" value="1" style="display: none" />
               <?php endif; ?>
-              <input type="text" class="form-control fileinput" id="crt_server_ca_choosertxt" placeholder="-----BEGIN CERTIFICATE-----" readonly="readonly" />
-              <input id="crt_server_ca" name="crt_server_ca" type="file" style="display: none" />
-              <a class="btn input-group-addon fileinput" id="crt_server_ca_chooserbtn" data-toggle="tooltip" data-title="<?= _('Browse') ?>"><span class="glyphicon glyphicon-search"></span></a>
+              <input type="text" class="form-control fileinput" id="crt_client_ta_choosertxt" data-toggle="tooltip" data-title="<?= _('Make sure your browser is able to read the key file before uploading') ?>" placeholder="-----BEGIN PRIVATE KEY-----" readonly="readonly" />
+              <input id="crt_client_ta" name="crt_client_ta" type="file" style="display: none" />
+              <a class="btn input-group-addon fileinput" id="crt_client_ta_chooserbtn" data-toggle="tooltip" data-title="<?= _('Browse') ?> (<?= _('make sure your browser is able to read the key file before uploading') ?>)"><span class="glyphicon glyphicon-search"></span></a>
             </div>
           </div>
 
