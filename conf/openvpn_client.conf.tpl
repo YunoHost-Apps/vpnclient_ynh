@@ -1,8 +1,8 @@
-# [WARN] Edit this raw configuration ONLY IF YOU KNOW what
-#        you do!
-# [WARN] Continue to use the placeholders <TPL:*> and keep
-#        update their value on the web admin (they are not
-#        only used for this file).
+# [WARN] Edit this raw configuration ONLY IF YOU KNOW 
+#        what you do!
+# [WARN] Continue to use the placeholders <TPL:*> and
+#        keep update their value on the web admin (they 
+#        are not only used for this file).
 
 remote <TPL:SERVER_NAME>
 proto <TPL:PROTO>

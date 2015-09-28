@@ -81,6 +81,8 @@ dispatch('/', function() {
   set('crt_server_ca_exists', file_exists('/etc/openvpn/keys/ca-server.crt'));
   set('faststatus', service_faststatus() == 0);
   set('raw_openvpn', $raw_openvpn);
+  set('dns0', ynh_setting_get('dns0'));
+  set('dns1', ynh_setting_get('dns1'));
 
   return render('settings.html.php');
 });
@@ -106,6 +108,10 @@ dispatch_put('/settings', function() {
     
       if($_POST['server_proto'] != 'udp' && $_POST['server_proto'] != 'tcp') {
         throw new Exception(_('The Protocol must be "udp" or "tcp"'));
+      }
+
+      if(empty($_POST['dns0']) || empty($_POST['dns1'])) {
+        throw new Exception(_('You need to define two DNS resolver addresses'));
       }
     
       if(($_FILES['crt_client']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1))
@@ -154,6 +160,8 @@ dispatch_put('/settings', function() {
     ynh_setting_set('server_name', $_POST['server_name']);
     ynh_setting_set('server_port', $_POST['server_port']);
     ynh_setting_set('server_proto', $_POST['server_proto']);
+    ynh_setting_set('dns0', $_POST['dns0']);
+    ynh_setting_set('dns1', $_POST['dns1']);
     ynh_setting_set('login_user', $_POST['login_user']);
     ynh_setting_set('login_passphrase', $_POST['login_passphrase']);
     ynh_setting_set('ip6_net', $ip6_net);

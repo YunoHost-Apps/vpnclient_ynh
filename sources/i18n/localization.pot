@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-25 10:42+0200\n"
+"POT-Creation-Date: 2015-09-28 16:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,51 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sources/controller.php:100
+#: sources/controller.php:102
 msgid "The Server Address, the Server Port and the Protocol cannot be empty"
 msgstr ""
 
-#: sources/controller.php:104
+#: sources/controller.php:106
 msgid "The Server Port must be only composed of digits"
 msgstr ""
 
-#: sources/controller.php:108
+#: sources/controller.php:110
 msgid "The Protocol must be \"udp\" or \"tcp\""
 msgstr ""
 
 #: sources/controller.php:114
+msgid "You need to define two DNS resolver addresses"
+msgstr ""
+
+#: sources/controller.php:120
 msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
 msgstr ""
 
-#: sources/controller.php:118
+#: sources/controller.php:124
 msgid "A Password is needed when you suggest a Username, or vice versa"
 msgstr ""
 
-#: sources/controller.php:122
+#: sources/controller.php:128
 msgid "You need a Server CA."
 msgstr ""
 
-#: sources/controller.php:126
+#: sources/controller.php:132
 msgid "You need either a Client Certificate, either a Username, or both"
 msgstr ""
 
-#: sources/controller.php:133
+#: sources/controller.php:139
 msgid "The IPv6 Delegated Prefix format looks bad"
 msgstr ""
 
-#: sources/controller.php:144
+#: sources/controller.php:150
 msgid "configuration not updated"
 msgstr ""
 
-#: sources/controller.php:189
+#: sources/controller.php:197
 msgid "Configuration updated and service successfully reloaded"
 msgstr ""
 
-#: sources/controller.php:191
+#: sources/controller.php:199
 msgid "Configuration updated but service reload failed"
 msgstr ""
 
-#: sources/controller.php:195
+#: sources/controller.php:203
 msgid "Service successfully disabled"
 msgstr ""
 
@@ -73,8 +77,8 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: sources/views/layout.html.php:54 sources/views/settings.html.php:125
-#: sources/views/settings.html.php:165
+#: sources/views/layout.html.php:54 sources/views/settings.html.php:117
+#: sources/views/settings.html.php:157
 msgid "Notice"
 msgstr ""
 
@@ -149,107 +153,115 @@ msgstr ""
 msgid "TCP"
 msgstr ""
 
+#: sources/views/settings.html.php:92
+msgid "Delegated prefix (IPv6)"
+msgstr ""
+
 #: sources/views/settings.html.php:94
-msgid "Edit the raw configuration only if you know what you do!"
-msgstr ""
-
-#: sources/views/settings.html.php:94 sources/views/settings.html.php:99
-msgid "Advanced"
-msgstr ""
-
-#: sources/views/settings.html.php:109
-msgid "IPv6"
-msgstr ""
-
-#: sources/views/settings.html.php:114
-msgid "Delegated prefix"
-msgstr ""
-
-#: sources/views/settings.html.php:116
 msgid ""
 "Leave empty if your Internet Service Provider does not give you a delegated "
 "prefix"
 msgstr ""
 
-#: sources/views/settings.html.php:125
+#: sources/views/settings.html.php:101
+msgid "Edit the raw configuration only if you know what you do!"
+msgstr ""
+
+#: sources/views/settings.html.php:101 sources/views/settings.html.php:106
+msgid "Advanced"
+msgstr ""
+
+#: sources/views/settings.html.php:117
 msgid ""
 "You need to upload a Client Certificate, or define a Username (or both) for "
 "starting your VPN Client."
 msgstr ""
 
-#: sources/views/settings.html.php:131
-msgid "Certificates"
+#: sources/views/settings.html.php:123
+msgid "Authentication"
 msgstr ""
 
-#: sources/views/settings.html.php:136
+#: sources/views/settings.html.php:128
 msgid "Update Client Cert."
 msgstr ""
 
-#: sources/views/settings.html.php:136
+#: sources/views/settings.html.php:128
 msgid "Upload Client Cert."
 msgstr ""
 
-#: sources/views/settings.html.php:139 sources/views/settings.html.php:152
+#: sources/views/settings.html.php:131 sources/views/settings.html.php:144
 msgid "Delete this certificate"
 msgstr ""
 
-#: sources/views/settings.html.php:144 sources/views/settings.html.php:157
-#: sources/views/settings.html.php:177
+#: sources/views/settings.html.php:136 sources/views/settings.html.php:149
+#: sources/views/settings.html.php:169
 msgid "Browse"
 msgstr ""
 
-#: sources/views/settings.html.php:149
+#: sources/views/settings.html.php:141
 msgid "Update Client Key"
 msgstr ""
 
-#: sources/views/settings.html.php:149
+#: sources/views/settings.html.php:141
 msgid "Upload Client Key"
 msgstr ""
 
-#: sources/views/settings.html.php:155
+#: sources/views/settings.html.php:147
 msgid "Make sure your browser is able to read the key file before uploading"
 msgstr ""
 
-#: sources/views/settings.html.php:157
+#: sources/views/settings.html.php:149
 msgid "make sure your browser is able to read the key file before uploading"
 msgstr ""
 
-#: sources/views/settings.html.php:165
+#: sources/views/settings.html.php:157
 msgid "You need to upload a Server CA for starting your VPN Client."
 msgstr ""
 
-#: sources/views/settings.html.php:169
+#: sources/views/settings.html.php:161
 msgid "Update Server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:169
+#: sources/views/settings.html.php:161
 msgid "Upload Server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:172
+#: sources/views/settings.html.php:164
 msgid "You cannot have no server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:185
-msgid "Login"
-msgstr ""
-
-#: sources/views/settings.html.php:190
+#: sources/views/settings.html.php:174
 msgid "Username"
 msgstr ""
 
-#: sources/views/settings.html.php:192 sources/views/settings.html.php:199
+#: sources/views/settings.html.php:176 sources/views/settings.html.php:183
 msgid "Leave empty if not necessary"
 msgstr ""
 
-#: sources/views/settings.html.php:197
+#: sources/views/settings.html.php:181
 msgid "Password"
 msgstr ""
 
-#: sources/views/settings.html.php:207
+#: sources/views/settings.html.php:191
+msgid "DNS"
+msgstr ""
+
+#: sources/views/settings.html.php:196
+msgid "First resolver"
+msgstr ""
+
+#: sources/views/settings.html.php:198 sources/views/settings.html.php:205
+msgid "IPv6 or IPv4"
+msgstr ""
+
+#: sources/views/settings.html.php:203
+msgid "Second resolver"
+msgstr ""
+
+#: sources/views/settings.html.php:213
 msgid "Reloading may take a few minutes. Be patient."
 msgstr ""
 
-#: sources/views/settings.html.php:207
+#: sources/views/settings.html.php:213
 msgid "Save and reload"
 msgstr ""

@@ -88,6 +88,13 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="ip6_net" class="col-sm-3 control-label"><?= _('Delegated prefix (IPv6)') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= _('Leave empty if your Internet Service Provider does not give you a delegated prefix') ?>" class="form-control" name="ip6_net" id="ip6_net" placeholder="2001:db8:42::" value="<?= $ip6_net ?>" />
+            </div>
+          </div>
+
           <div class="form-group" id="raw_openvpn_btnpanel">
             <label class="col-sm-3 control-label"></label>
             <div class="col-sm-9">
@@ -104,21 +111,6 @@
         </div>
       </div>
 
-      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
-        <div class="panel-heading">
-          <h3 class="panel-title"><?= _("IPv6") ?></h3>
-        </div>
-
-        <div style="padding: 14px 14px 0 10px">
-          <div class="form-group">
-            <label for="ip6_net" class="col-sm-3 control-label"><?= _('Delegated prefix') ?></label>
-            <div class="col-sm-9">
-              <input type="text" data-toggle="tooltip" data-title="<?= _('Leave empty if your Internet Service Provider does not give you a delegated prefix') ?>" class="form-control" name="ip6_net" id="ip6_net" placeholder="2001:db8:42::" value="<?= $ip6_net ?>" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <?php if(!$crt_client_key_exists && empty($login_user)): ?>
         <div class="alert alert-dismissible alert-warning fade in enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?> style="margin: 2px 0px 17px" role="alert">
           <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -128,7 +120,7 @@
 
       <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
         <div class="panel-heading">
-          <h3 class="panel-title"><?= _("Certificates") ?></h3>
+          <h3 class="panel-title"><?= _("Authentication") ?></h3>
         </div>
 
         <div style="padding: 14px 14px 0 10px">
@@ -177,15 +169,7 @@
               <a class="btn input-group-addon fileinput" id="crt_server_ca_chooserbtn" data-toggle="tooltip" data-title="<?= _('Browse') ?>"><span class="glyphicon glyphicon-search"></span></a>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
-        <div class="panel-heading">
-          <h3 class="panel-title"><?= _("Login") ?></h3>
-        </div>
-
-        <div style="padding: 14px 14px 0 10px">
           <div class="form-group">
             <label for="login_user" class="col-sm-3 control-label"><?= _('Username') ?></label>
             <div class="col-sm-9">
@@ -197,6 +181,28 @@
             <label for="login_passphrase" class="col-sm-3 control-label"><?= _('Password') ?></label>
             <div class="col-sm-9">
               <input type="text" data-toggle="tooltip" data-title="<?= _('Leave empty if not necessary') ?>" class="form-control" name="login_passphrase" id="login_passphrase" placeholder="XVCwSbDkxnqQ" value="<?= $login_passphrase ?>" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default enabled" <?= $service_enabled == 0 ? 'style="display: none"' : '' ?>>
+        <div class="panel-heading">
+          <h3 class="panel-title"><?= _("DNS") ?></h3>
+        </div>
+
+        <div style="padding: 14px 14px 0 10px">
+          <div class="form-group">
+            <label for="dns0" class="col-sm-3 control-label"><?= _('First resolver') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= _('IPv6 or IPv4') ?>" class="form-control" name="dns0" id="dns0" placeholder="89.234.141.66" value="<?= $dns0 ?>" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dns1" class="col-sm-3 control-label"><?= _('Second resolver') ?></label>
+            <div class="col-sm-9">
+              <input type="text" data-toggle="tooltip" data-title="<?= _('IPv6 or IPv4') ?>" class="form-control" name="dns1" id="dns1" placeholder="2001:913::8" value="<?= $dns1 ?>" />
             </div>
           </div>
         </div>
