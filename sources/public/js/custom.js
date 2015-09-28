@@ -47,7 +47,7 @@ $(document).ready(function() {
       if($(choosertxtid).hasClass('btn-danger') != $('#crt_client_choosertxt').hasClass('btn-danger')) {
         $('#crt_client_deletebtn').click();
       }
-    } else {
+    } else if($(this).attr('id').search('_ta') < 0) {
       if($(choosertxtid).hasClass('btn-danger') != $('#crt_client_key_choosertxt').hasClass('btn-danger')) {
         $('#crt_client_key_deletebtn').click();
       }
