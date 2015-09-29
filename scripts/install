@@ -44,7 +44,7 @@ if ! $upgrade; then
 fi
 
 # Install packages
-packages='php5-fpm sipcalc dnsutils openvpn'
+packages='php5-fpm sipcalc dnsutils openvpn curl'
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get --assume-yes --force-yes install ${packages}
@@ -77,6 +77,9 @@ sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 # Install IPv6 scripts
 sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
 sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
+
+# Install command-line cube file loader
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
 
 # Copy confs
 sudo mkdir -pm 0755 /var/log/nginx/

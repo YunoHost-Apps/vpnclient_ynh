@@ -33,6 +33,7 @@ sudo rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
 sudo rm -f /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo rm -f /etc/yunohost/hooks.d/90-vpnclient.tpl
 sudo rm -f /etc/systemd/system/openvpn@.service
+sudo rm -f /usr/local/bin/ynh-vpnclient-loadcubefile.sh
 
 # Remove certificates
 sudo rm -rf /etc/openvpn/keys/

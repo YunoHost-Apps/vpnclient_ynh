@@ -46,17 +46,17 @@
     <?php if(isset($flash['error'])): ?>
       <div class="alert alert-dismissible alert-danger fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <strong><?= _('Error') ?>:</strong> <?= $flash['error'] ?>
+        <strong><?= _('Error') ?>:</strong> <?= $flash['error'] ?><!-- RETURN_MSG -->
       </div>
     <?php elseif(isset($flash['notice'])): ?>
       <div class="alert alert-dismissible alert-info fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <strong><?= _('Notice') ?>:</strong> <?= $flash['notice'] ?>
+        <strong><?= _('Notice') ?>:</strong> <?= $flash['notice'] ?><!-- RETURN_MSG -->
       </div>
     <?php elseif(isset($flash['success'])): ?>
       <div class="alert alert-dismissible alert-success fade in" style="margin-top: 20px" role="alert">
         <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <?= $flash['success'] ?>
+        <?= $flash['success'] ?><!-- RETURN_MSG -->
       </div>
     <?php endif; ?>
 
