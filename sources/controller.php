@@ -205,9 +205,9 @@ dispatch_put('/settings', function() {
     ynh_setting_set('ip6_addr', $ip6_addr);
 
     if($autoconf) {
-      if(!empty($config['openvpn_add'])) {
-        copy('/etc/openvpn/client.conf.tpl.restore', '/etc/openvpn/client.conf.tpl');
+      copy('/etc/openvpn/client.conf.tpl.restore', '/etc/openvpn/client.conf.tpl');
 
+      if(!empty($config['openvpn_add'])) {
         $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
         $raw_openvpn .= "\n# Custom\n".$config['openvpn_add'];
 
