@@ -19,6 +19,12 @@ if [ ! -z "${host6}" ]; then
   sudo ip6tables -A vpnclient_out -d ${host6} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
 fi
 
+for i in <TPL:DNS0> <TPL:DNS1>; do
+  if [[ "${i}" =~ : ]]; then
+    sudo ip6tables -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+  fi
+done
+
 sudo ip6tables -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
 sudo ip6tables -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 sudo ip6tables -A vpnclient_out -j DROP
@@ -44,6 +50,12 @@ sudo iptables -A vpnclient_in -j DROP
 if [ ! -z "${host4}" ]; then
   sudo iptables -A vpnclient_out -d ${host4} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
 fi
+
+for i in <TPL:DNS0> <TPL:DNS1>; do
+  if [[ "${i}" =~ \. ]]; then
+    sudo iptables -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+  fi
+done
 
 sudo iptables -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
 sudo iptables -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT

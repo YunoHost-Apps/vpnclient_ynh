@@ -89,6 +89,8 @@ set_firewall() {
   sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
   sed "s|<TPL:PROTO>|${ynh_server_proto}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
   sed "s|<TPL:WIRED_DEVICE>|${wired_device}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  sed "s|<TPL:DNS0>|${ynh_dns0}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  sed "s|<TPL:DNS1>|${ynh_dns1}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
   yunohost firewall reload
 }
