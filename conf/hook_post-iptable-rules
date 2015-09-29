@@ -1,0 +1,70 @@
+#!/bin/bash
+
+host6=$(dig AAAA +short <TPL:SERVER_NAME> | tail -n1)
+host4=$(dig A +short <TPL:SERVER_NAME> | tail -n1)
+
+# IPv6
+
+sudo ip6tables -N vpnclient_in
+sudo ip6tables -N vpnclient_out
+sudo ip6tables -N vpnclient_fwd
+
+sudo ip6tables -A vpnclient_in -p icmpv6 -j ACCEPT
+sudo ip6tables -A vpnclient_in -s fd00::/8,fe80::/10 -j ACCEPT
+sudo ip6tables -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+sudo ip6tables -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo ip6tables -A vpnclient_in -j DROP
+
+if [ ! -z "${host6}" ]; then
+  sudo ip6tables -A vpnclient_out -d ${host6} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+fi
+
+for i in <TPL:DNS0> <TPL:DNS1>; do
+  if [[ "${i}" =~ : ]]; then
+    sudo ip6tables -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+  fi
+done
+
+sudo ip6tables -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
+sudo ip6tables -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo ip6tables -A vpnclient_out -j DROP
+
+sudo ip6tables -A vpnclient_fwd -j DROP
+
+sudo ip6tables -I INPUT 1 -i <TPL:WIRED_DEVICE> -j vpnclient_in
+sudo ip6tables -I OUTPUT 1 -o <TPL:WIRED_DEVICE> -j vpnclient_out
+sudo ip6tables -I FORWARD 1 -o <TPL:WIRED_DEVICE> -j vpnclient_fwd
+
+# IPv4
+
+sudo iptables -N vpnclient_in
+sudo iptables -N vpnclient_out
+sudo iptables -N vpnclient_fwd
+
+sudo iptables -A vpnclient_in -p icmp -j ACCEPT
+sudo iptables -A vpnclient_in -s 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
+sudo iptables -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+sudo iptables -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A vpnclient_in -j DROP
+
+if [ ! -z "${host4}" ]; then
+  sudo iptables -A vpnclient_out -d ${host4} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+fi
+
+for i in <TPL:DNS0> <TPL:DNS1>; do
+  if [[ "${i}" =~ \. ]]; then
+    sudo iptables -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+  fi
+done
+
+sudo iptables -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
+sudo iptables -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A vpnclient_out -j DROP
+
+sudo iptables -A vpnclient_fwd -j DROP
+
+sudo iptables -I INPUT 1 -i <TPL:WIRED_DEVICE> -j vpnclient_in
+sudo iptables -I OUTPUT 1 -o <TPL:WIRED_DEVICE> -j vpnclient_out
+sudo iptables -I FORWARD 1 -o  <TPL:WIRED_DEVICE> -j vpnclient_fwd
+
+exit 0

@@ -26,6 +26,8 @@ url_path=${2}
 server_name=${3}
 
 if ! $upgrade; then
+ 
+  source ./prerequisites
 
   # Check arguments
   if [ -z "${server_name}" ]; then
@@ -42,7 +44,7 @@ if ! $upgrade; then
 fi
 
 # Install packages
-packages='php5-fpm sipcalc openvpn'
+packages='php5-fpm sipcalc dnsutils openvpn curl'
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get --assume-yes --force-yes install ${packages}
@@ -76,15 +78,21 @@ sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
 sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
+# Install command-line cube file loader
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
+
 # Copy confs
 sudo mkdir -pm 0755 /var/log/nginx/
 sudo chown root:admins /etc/openvpn/
 sudo chmod 775 /etc/openvpn/
+sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 
 sudo install -b -o root -g admins -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
 sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
 sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
 sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
+sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
 # Copy web sources
 sudo mkdir -pm 0755 /var/www/vpnadmin/

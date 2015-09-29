@@ -7,6 +7,8 @@ ynh_setting() {
   sudo grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
 }
 
+source ./prerequisites
+
 domain=$(ynh_setting vpnclient domain)
 path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
