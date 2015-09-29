@@ -14,6 +14,7 @@ dev tun
 tun-ipv6
 keepalive 10 30
 comp-lzo adaptive
+resolv-retry infinite
 
 # Authentication by login
 <TPL:LOGIN_COMMENT>auth-user-pass /etc/openvpn/keys/credentials
@@ -25,6 +26,7 @@ comp-lzo adaptive
 tls-client
 <TPL:TA_COMMENT>tls-auth /etc/openvpn/keys/user_ta.key 1
 remote-cert-tls server
+ns-cert-type server
 ca /etc/openvpn/keys/ca-server.crt
 <TPL:CERT_COMMENT>cert /etc/openvpn/keys/user.crt
 <TPL:CERT_COMMENT>key /etc/openvpn/keys/user.key

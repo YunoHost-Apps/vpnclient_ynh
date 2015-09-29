@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: data 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-29 02:43+0200\n"
-"PO-Revision-Date: 2015-09-29 02:45+0200\n"
+"POT-Creation-Date: 2015-09-29 14:09+0200\n"
+"PO-Revision-Date: 2015-09-29 14:10+0200\n"
 "Last-Translator: samy boutayeb <samy@langues-etcetera.fr>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -19,62 +19,66 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: sources/controller.php:138
+#: sources/controller.php:130
+msgid "Json Syntax Error, please check your dot cube file"
+msgstr "Error de syntaxe Json, merci de vérifier votre fichier .cube"
+
+#: sources/controller.php:140
 msgid "The Server Address, the Server Port and the Protocol cannot be empty"
 msgstr ""
 "L'adresse du serveur, le port du serveur et le protocole ne peuvent pas être "
 "vides"
 
-#: sources/controller.php:142
+#: sources/controller.php:144
 msgid "The Server Port must be only composed of digits"
 msgstr "Le port du serveur ne peut correspondre qu'à des chiffres"
 
-#: sources/controller.php:146
+#: sources/controller.php:148
 msgid "The Protocol must be \"udp\" or \"tcp\""
 msgstr "Le protocole ne peut correspondre qu'à \"udp\" ou \"tcp\""
 
-#: sources/controller.php:150
+#: sources/controller.php:152
 msgid "You need to define two DNS resolver addresses"
 msgstr "Vous devez définir deux adresses de résolveur DNS"
 
-#: sources/controller.php:154
+#: sources/controller.php:156
 msgid "A Password is needed when you suggest a Username, or vice versa"
 msgstr ""
 "Un mot de passe est nécessaire si vous proposez un nom d'utilisateur, et "
 "inversement"
 
-#: sources/controller.php:161
+#: sources/controller.php:163
 msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
 msgstr ""
 "Un certificat client est nécessaire si vous proposez une clé, et inversement"
 
-#: sources/controller.php:165
+#: sources/controller.php:167
 msgid "You need a Server CA."
 msgstr "Vous ne pouvez pas ne pas avoir de CA de serveur"
 
-#: sources/controller.php:169
+#: sources/controller.php:171
 msgid "You need either a Client Certificate, either a Username, or both"
 msgstr ""
 "Vous devez avoir soit un certificat client, soit un nom d'utilisateur, soit "
 "les deux"
 
-#: sources/controller.php:176
+#: sources/controller.php:178
 msgid "The IPv6 Delegated Prefix format looks bad"
 msgstr "Le format du préfixe IPv6 délégué semble incorrect"
 
-#: sources/controller.php:187
+#: sources/controller.php:189
 msgid "configuration not updated"
 msgstr "configuration non-mise à jour"
 
-#: sources/controller.php:285
+#: sources/controller.php:310
 msgid "Configuration updated and service successfully reloaded"
 msgstr "Configuration mise à jour et service correctement rechargé"
 
-#: sources/controller.php:287
+#: sources/controller.php:312
 msgid "Configuration updated but service reload failed"
 msgstr "Configuration mise à jour mais le rechargement du service a échoué"
 
-#: sources/controller.php:291
+#: sources/controller.php:316
 msgid "Service successfully disabled"
 msgstr "Service désactivé avec succès"
 

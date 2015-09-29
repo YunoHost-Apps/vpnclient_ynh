@@ -84,10 +84,6 @@ function readAutoConf($file) {
     $config['crt_client_ta'] = str_replace('|', "\n", $config['crt_client_ta']);
   }
 
-  if(!empty($config['openvpn_add'])) {
-    $config['openvpn_add'] = str_replace('|', "\n", $config['openvpn_add']);
-  }
-
   return $config;
 }
 
@@ -126,14 +122,20 @@ dispatch_put('/settings', function() {
     $config = $_POST;
     $autoconf = false;
 
-    if($_FILES['cubefile']['error'] == UPLOAD_ERR_OK) {
-      $config = readAutoConf($_FILES['cubefile']['tmp_name']);
-      $autoconf = true;
-    }
-    $ip6_net = empty($config['ip6_net']) ? 'none' : $config['ip6_net'];
-    $ip6_addr = 'none';
-
     try {
+      if($_FILES['cubefile']['error'] == UPLOAD_ERR_OK) {
+        $config = readAutoConf($_FILES['cubefile']['tmp_name']);
+
+        if(is_null($config)) {
+          throw new Exception(_('Json Syntax Error, please check your dot cube file'));
+        }
+
+        $autoconf = true;
+      }
+  
+      $ip6_net = empty($config['ip6_net']) ? 'none' : $config['ip6_net'];
+      $ip6_addr = 'none';
+
       if(empty($config['server_name']) || empty($config['server_port']) || empty($config['server_proto'])) {
         throw new Exception(_('The Server Address, the Server Port and the Protocol cannot be empty'));
       }
@@ -207,9 +209,32 @@ dispatch_put('/settings', function() {
     if($autoconf) {
       copy('/etc/openvpn/client.conf.tpl.restore', '/etc/openvpn/client.conf.tpl');
 
+      if(!empty($config['openvpn_rm'])) {
+        $raw_openvpn = explode("\n", file_get_contents('/etc/openvpn/client.conf.tpl'));
+        $fopenvpn = fopen('/etc/openvpn/client.conf.tpl', 'w');
+
+        foreach($raw_openvpn AS $opt) {
+          $filtered = false;
+
+          if(!preg_match('/^#/', $opt) && !preg_match('/<TPL:/', $opt)) {
+            foreach($config['openvpn_rm'] AS $filter) {
+              if(preg_match("/$filter/i", $opt)) {
+                $filtered = true;
+              }
+            }
+          }
+
+          if(!$filtered) {
+            fwrite($fopenvpn, "$opt\n");
+          }
+        }
+
+        fclose($fopenvpn);
+      }
+
       if(!empty($config['openvpn_add'])) {
         $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
-        $raw_openvpn .= "\n# Custom\n".$config['openvpn_add'];
+        $raw_openvpn .= "\n# Custom\n".implode("\n", $config['openvpn_add']);
 
         file_put_contents('/etc/openvpn/client.conf.tpl', $raw_openvpn);
       }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-29 02:43+0200\n"
+"POT-Creation-Date: 2015-09-29 14:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,55 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sources/controller.php:138
+#: sources/controller.php:130
+msgid "Json Syntax Error, please check your dot cube file"
+msgstr ""
+
+#: sources/controller.php:140
 msgid "The Server Address, the Server Port and the Protocol cannot be empty"
 msgstr ""
 
-#: sources/controller.php:142
+#: sources/controller.php:144
 msgid "The Server Port must be only composed of digits"
 msgstr ""
 
-#: sources/controller.php:146
+#: sources/controller.php:148
 msgid "The Protocol must be \"udp\" or \"tcp\""
 msgstr ""
 
-#: sources/controller.php:150
+#: sources/controller.php:152
 msgid "You need to define two DNS resolver addresses"
 msgstr ""
 
-#: sources/controller.php:154
+#: sources/controller.php:156
 msgid "A Password is needed when you suggest a Username, or vice versa"
 msgstr ""
 
-#: sources/controller.php:161
+#: sources/controller.php:163
 msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
 msgstr ""
 
-#: sources/controller.php:165
+#: sources/controller.php:167
 msgid "You need a Server CA."
 msgstr ""
 
-#: sources/controller.php:169
+#: sources/controller.php:171
 msgid "You need either a Client Certificate, either a Username, or both"
 msgstr ""
 
-#: sources/controller.php:176
+#: sources/controller.php:178
 msgid "The IPv6 Delegated Prefix format looks bad"
 msgstr ""
 
-#: sources/controller.php:187
+#: sources/controller.php:189
 msgid "configuration not updated"
 msgstr ""
 
-#: sources/controller.php:285
+#: sources/controller.php:310
 msgid "Configuration updated and service successfully reloaded"
 msgstr ""
 
-#: sources/controller.php:287
+#: sources/controller.php:312
 msgid "Configuration updated but service reload failed"
 msgstr ""
 
-#: sources/controller.php:291
+#: sources/controller.php:316
 msgid "Service successfully disabled"
 msgstr ""
 
