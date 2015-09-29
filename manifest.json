@@ -30,15 +30,6 @@
         },
         "example": "/vpnadmin",
         "default": "/vpnadmin"
-      },
-      {
-        "name": "server_name",
-        "ask": {
-            "en": "Select a VPN server",
-            "fr": "Sélectionnez un serveur VPN"
-        },
-        "example": "access.ldn-fai.net",
-        "default": "access.ldn-fai.net"
       }
     ]
   }

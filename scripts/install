@@ -23,18 +23,11 @@ upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 # Retrieve arguments
 domain=${1}
 url_path=${2}
-server_name=${3}
 
 if ! $upgrade; then
  
   source ./prerequisites
 
-  # Check arguments
-  if [ -z "${server_name}" ]; then
-    echo "ERROR: You need a VPN server name" >&2
-    exit 1
-  fi
-  
   # Check domain/path availability
   sudo yunohost app checkurl ${domain}${url_path} -a vpnclient
   if [ ! $? -eq 0 ]; then
@@ -58,7 +51,7 @@ if ! $upgrade; then
 
   # Save arguments
   sudo yunohost app setting vpnclient service_enabled -v 0
-  sudo yunohost app setting vpnclient server_name -v "${server_name}"
+  sudo yunohost app setting vpnclient server_name -v access.ldn-fai.net
   sudo yunohost app setting vpnclient server_port -v 1194
   sudo yunohost app setting vpnclient server_proto -v udp
   sudo yunohost app setting vpnclient ip6_addr -v none
