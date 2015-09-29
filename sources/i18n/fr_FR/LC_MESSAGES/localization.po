@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: data 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-28 17:23+0200\n"
-"PO-Revision-Date: 2015-09-28 17:25+0200\n"
+"POT-Creation-Date: 2015-09-29 02:43+0200\n"
+"PO-Revision-Date: 2015-09-29 02:45+0200\n"
 "Last-Translator: samy boutayeb <samy@langues-etcetera.fr>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -19,62 +19,62 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: sources/controller.php:103
+#: sources/controller.php:138
 msgid "The Server Address, the Server Port and the Protocol cannot be empty"
 msgstr ""
 "L'adresse du serveur, le port du serveur et le protocole ne peuvent pas être "
 "vides"
 
-#: sources/controller.php:107
+#: sources/controller.php:142
 msgid "The Server Port must be only composed of digits"
 msgstr "Le port du serveur ne peut correspondre qu'à des chiffres"
 
-#: sources/controller.php:111
+#: sources/controller.php:146
 msgid "The Protocol must be \"udp\" or \"tcp\""
 msgstr "Le protocole ne peut correspondre qu'à \"udp\" ou \"tcp\""
 
-#: sources/controller.php:115
+#: sources/controller.php:150
 msgid "You need to define two DNS resolver addresses"
 msgstr "Vous devez définir deux adresses de résolveur DNS"
 
-#: sources/controller.php:121
-msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
-msgstr ""
-"Un certificat client est nécessaire si vous proposez une clé, et inversement"
-
-#: sources/controller.php:125
+#: sources/controller.php:154
 msgid "A Password is needed when you suggest a Username, or vice versa"
 msgstr ""
 "Un mot de passe est nécessaire si vous proposez un nom d'utilisateur, et "
 "inversement"
 
-#: sources/controller.php:129
+#: sources/controller.php:161
+msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
+msgstr ""
+"Un certificat client est nécessaire si vous proposez une clé, et inversement"
+
+#: sources/controller.php:165
 msgid "You need a Server CA."
 msgstr "Vous ne pouvez pas ne pas avoir de CA de serveur"
 
-#: sources/controller.php:133
+#: sources/controller.php:169
 msgid "You need either a Client Certificate, either a Username, or both"
 msgstr ""
 "Vous devez avoir soit un certificat client, soit un nom d'utilisateur, soit "
 "les deux"
 
-#: sources/controller.php:140
+#: sources/controller.php:176
 msgid "The IPv6 Delegated Prefix format looks bad"
 msgstr "Le format du préfixe IPv6 délégué semble incorrect"
 
-#: sources/controller.php:151
+#: sources/controller.php:187
 msgid "configuration not updated"
 msgstr "configuration non-mise à jour"
 
-#: sources/controller.php:204
+#: sources/controller.php:285
 msgid "Configuration updated and service successfully reloaded"
 msgstr "Configuration mise à jour et service correctement rechargé"
 
-#: sources/controller.php:206
+#: sources/controller.php:287
 msgid "Configuration updated but service reload failed"
 msgstr "Configuration mise à jour mais le rechargement du service a échoué"
 
-#: sources/controller.php:210
+#: sources/controller.php:291
 msgid "Service successfully disabled"
 msgstr "Service désactivé avec succès"
 
@@ -86,8 +86,8 @@ msgstr "Client VPN"
 msgid "Error"
 msgstr "Erreur"
 
-#: sources/views/layout.html.php:54 sources/views/settings.html.php:117
-#: sources/views/settings.html.php:131
+#: sources/views/layout.html.php:54 sources/views/settings.html.php:124
+#: sources/views/settings.html.php:138
 msgid "Notice"
 msgstr "Notice"
 
@@ -131,45 +131,53 @@ msgid "VPN Enabled"
 msgstr "VPN activé"
 
 #: sources/views/settings.html.php:60
+msgid "Manual"
+msgstr "Manuel"
+
+#: sources/views/settings.html.php:61
+msgid "Automatic"
+msgstr "Automatique"
+
+#: sources/views/settings.html.php:67
 msgid "VPN"
 msgstr "VPN"
 
-#: sources/views/settings.html.php:65
+#: sources/views/settings.html.php:72
 msgid "Server Address"
 msgstr "Adresse du serveur"
 
-#: sources/views/settings.html.php:72
+#: sources/views/settings.html.php:79
 msgid "Server Port"
 msgstr "Port du serveur"
 
-#: sources/views/settings.html.php:74
+#: sources/views/settings.html.php:81
 msgid "With restricted access, you should use 443 (TCP) or 53 (UDP)"
 msgstr "En cas d'accès restreint, utiliser 443 (TCP) ou 53 (UDP)"
 
-#: sources/views/settings.html.php:79
+#: sources/views/settings.html.php:86
 msgid "Protocol"
 msgstr "Protocole"
 
-#: sources/views/settings.html.php:82
+#: sources/views/settings.html.php:89
 msgid "UDP"
 msgstr "UDP"
 
-#: sources/views/settings.html.php:85
+#: sources/views/settings.html.php:92
 msgid ""
 "UDP is more efficient than TCP (but more filtered in case of restrictive "
 "access)"
 msgstr ""
 "UDP est plus performant que TCP (mais plus filtré en cas d'accès restreint)"
 
-#: sources/views/settings.html.php:86
+#: sources/views/settings.html.php:93
 msgid "TCP"
 msgstr "TCP"
 
-#: sources/views/settings.html.php:92
+#: sources/views/settings.html.php:99
 msgid "Delegated prefix (IPv6)"
 msgstr "Préfixe délégué (IPv6)"
 
-#: sources/views/settings.html.php:94
+#: sources/views/settings.html.php:101
 msgid ""
 "Leave empty if your Internet Service Provider does not give you a delegated "
 "prefix"
@@ -177,15 +185,15 @@ msgstr ""
 "Laissez vide si votre Fournisseur d'Accès à Internet ne vous fournit pas de "
 "préfixe délégué."
 
-#: sources/views/settings.html.php:101
+#: sources/views/settings.html.php:108
 msgid "Edit the raw configuration only if you know what you do!"
 msgstr "N'éditez la configuration brute que si vous savez ce que vous faites !"
 
-#: sources/views/settings.html.php:101 sources/views/settings.html.php:106
+#: sources/views/settings.html.php:108 sources/views/settings.html.php:113
 msgid "Advanced"
 msgstr "Avancé"
 
-#: sources/views/settings.html.php:117
+#: sources/views/settings.html.php:124
 msgid ""
 "You need to upload a Client Certificate, or define a Username (or both) for "
 "starting your VPN Client."
@@ -193,111 +201,123 @@ msgstr ""
 "Vous devez téléverser le certificat du client, ou définir un nom "
 "d'utilisateur (ou les deux) pour démarrer votre client VPN."
 
-#: sources/views/settings.html.php:123
+#: sources/views/settings.html.php:130
 msgid "Authentication"
 msgstr "Authentification"
 
-#: sources/views/settings.html.php:131
+#: sources/views/settings.html.php:138
 msgid "You need to upload a Server CA for starting your VPN Client."
 msgstr "Vous devez transférer un CA de serveur pour démarrer votre client VPN."
 
-#: sources/views/settings.html.php:135
+#: sources/views/settings.html.php:142
 msgid "Update Server CA"
 msgstr "Actualiser le CA du serveur"
 
-#: sources/views/settings.html.php:135
+#: sources/views/settings.html.php:142
 msgid "Upload Server CA"
 msgstr "Transférer le CA du serveur"
 
-#: sources/views/settings.html.php:138
+#: sources/views/settings.html.php:145
 msgid "You cannot have no server CA"
 msgstr "Vous ne pouvez pas ne pas avoir de CA de serveur"
 
-#: sources/views/settings.html.php:143 sources/views/settings.html.php:156
-#: sources/views/settings.html.php:169 sources/views/settings.html.php:182
+#: sources/views/settings.html.php:150 sources/views/settings.html.php:163
+#: sources/views/settings.html.php:176 sources/views/settings.html.php:189
+#: sources/views/settings.html.php:244
 msgid "Browse"
 msgstr "Parcourir"
 
-#: sources/views/settings.html.php:148
+#: sources/views/settings.html.php:155
 msgid "Update Client Cert."
 msgstr "Actualiser le certificat client"
 
-#: sources/views/settings.html.php:148
+#: sources/views/settings.html.php:155
 msgid "Upload Client Cert."
 msgstr "Téléverser un certificat client"
 
-#: sources/views/settings.html.php:151 sources/views/settings.html.php:164
-#: sources/views/settings.html.php:177
+#: sources/views/settings.html.php:158 sources/views/settings.html.php:171
+#: sources/views/settings.html.php:184
 msgid "Delete this certificate"
 msgstr "Supprimer ce certificat"
 
-#: sources/views/settings.html.php:161
+#: sources/views/settings.html.php:168
 msgid "Update Client Key"
 msgstr "Actualiser la clé client"
 
-#: sources/views/settings.html.php:161
+#: sources/views/settings.html.php:168
 msgid "Upload Client Key"
 msgstr "Téléverser un clé client"
 
-#: sources/views/settings.html.php:167 sources/views/settings.html.php:180
+#: sources/views/settings.html.php:174 sources/views/settings.html.php:187
 msgid "Make sure your browser is able to read the key file before uploading"
 msgstr ""
 "Assurez-vous que votre navigateur peut lire le fichier contenant la clé "
 "avant de le téléverser"
 
-#: sources/views/settings.html.php:169 sources/views/settings.html.php:182
+#: sources/views/settings.html.php:176 sources/views/settings.html.php:189
 msgid "make sure your browser is able to read the key file before uploading"
 msgstr ""
 "assurez-vous que votre navigateur peut lire le fichier contenant la clé "
 "avant de le téléverser"
 
-#: sources/views/settings.html.php:174
-msgid "ta.key"
-msgstr "ta.key"
-
-#: sources/views/settings.html.php:174
+#: sources/views/settings.html.php:181
 msgid "Update Shared-Secret"
 msgstr "Actualiser le secret partagé"
 
-#: sources/views/settings.html.php:174
+#: sources/views/settings.html.php:181
 msgid "Upload Shared-Secret"
 msgstr "Téléverser un secret partagé"
 
-#: sources/views/settings.html.php:187
+#: sources/views/settings.html.php:194
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: sources/views/settings.html.php:189 sources/views/settings.html.php:196
+#: sources/views/settings.html.php:196 sources/views/settings.html.php:203
 msgid "Leave empty if not necessary"
 msgstr "Laisser vide si non nécessaire"
 
-#: sources/views/settings.html.php:194
+#: sources/views/settings.html.php:201
 msgid "Password"
 msgstr "Mot de passe"
 
-#: sources/views/settings.html.php:204
+#: sources/views/settings.html.php:211
 msgid "DNS"
 msgstr "DNS"
 
-#: sources/views/settings.html.php:209
+#: sources/views/settings.html.php:216
 msgid "First resolver"
 msgstr "Premier résolveur"
 
-#: sources/views/settings.html.php:211 sources/views/settings.html.php:218
+#: sources/views/settings.html.php:218 sources/views/settings.html.php:225
 msgid "IPv6 or IPv4"
 msgstr "IPv6 ou IPv4"
 
-#: sources/views/settings.html.php:216
+#: sources/views/settings.html.php:223
 msgid "Second resolver"
 msgstr "Second résolveur"
 
-#: sources/views/settings.html.php:226
+#: sources/views/settings.html.php:235
+msgid "Auto Configuration"
+msgstr "Configuration automatique"
+
+#: sources/views/settings.html.php:240
+msgid "Upload Config"
+msgstr "Téléverser une configuration"
+
+#: sources/views/settings.html.php:247
+msgid "What is a dot cube file?"
+msgstr "Qu'est-ce qu'un fichier .cube ?"
+
+#: sources/views/settings.html.php:255
 msgid "Reloading may take a few minutes. Be patient."
 msgstr "Le rechargement peut prendre quelques minutes. Soyez patient."
 
-#: sources/views/settings.html.php:226
+#: sources/views/settings.html.php:255
 msgid "Save and reload"
 msgstr "Sauvegarder et recharger"
+
+#~ msgid "ta.key"
+#~ msgstr "ta.key"
 
 #~ msgid "IPv6"
 #~ msgstr "IPv6"

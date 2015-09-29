@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-28 17:23+0200\n"
+"POT-Creation-Date: 2015-09-29 02:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,55 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sources/controller.php:103
+#: sources/controller.php:138
 msgid "The Server Address, the Server Port and the Protocol cannot be empty"
 msgstr ""
 
-#: sources/controller.php:107
+#: sources/controller.php:142
 msgid "The Server Port must be only composed of digits"
 msgstr ""
 
-#: sources/controller.php:111
+#: sources/controller.php:146
 msgid "The Protocol must be \"udp\" or \"tcp\""
 msgstr ""
 
-#: sources/controller.php:115
+#: sources/controller.php:150
 msgid "You need to define two DNS resolver addresses"
 msgstr ""
 
-#: sources/controller.php:121
-msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
-msgstr ""
-
-#: sources/controller.php:125
+#: sources/controller.php:154
 msgid "A Password is needed when you suggest a Username, or vice versa"
 msgstr ""
 
-#: sources/controller.php:129
+#: sources/controller.php:161
+msgid "A Client Certificate is needed when you suggest a Key, or vice versa"
+msgstr ""
+
+#: sources/controller.php:165
 msgid "You need a Server CA."
 msgstr ""
 
-#: sources/controller.php:133
+#: sources/controller.php:169
 msgid "You need either a Client Certificate, either a Username, or both"
 msgstr ""
 
-#: sources/controller.php:140
+#: sources/controller.php:176
 msgid "The IPv6 Delegated Prefix format looks bad"
 msgstr ""
 
-#: sources/controller.php:151
+#: sources/controller.php:187
 msgid "configuration not updated"
 msgstr ""
 
-#: sources/controller.php:204
+#: sources/controller.php:285
 msgid "Configuration updated and service successfully reloaded"
 msgstr ""
 
-#: sources/controller.php:206
+#: sources/controller.php:287
 msgid "Configuration updated but service reload failed"
 msgstr ""
 
-#: sources/controller.php:210
+#: sources/controller.php:291
 msgid "Service successfully disabled"
 msgstr ""
 
@@ -77,8 +77,8 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: sources/views/layout.html.php:54 sources/views/settings.html.php:117
-#: sources/views/settings.html.php:131
+#: sources/views/layout.html.php:54 sources/views/settings.html.php:124
+#: sources/views/settings.html.php:138
 msgid "Notice"
 msgstr ""
 
@@ -120,161 +120,178 @@ msgid "VPN Enabled"
 msgstr ""
 
 #: sources/views/settings.html.php:60
+msgid "Manual"
+msgstr ""
+
+#: sources/views/settings.html.php:61
+msgid "Automatic"
+msgstr ""
+
+#: sources/views/settings.html.php:67
 msgid "VPN"
 msgstr ""
 
-#: sources/views/settings.html.php:65
+#: sources/views/settings.html.php:72
 msgid "Server Address"
 msgstr ""
 
-#: sources/views/settings.html.php:72
+#: sources/views/settings.html.php:79
 msgid "Server Port"
 msgstr ""
 
-#: sources/views/settings.html.php:74
+#: sources/views/settings.html.php:81
 msgid "With restricted access, you should use 443 (TCP) or 53 (UDP)"
 msgstr ""
 
-#: sources/views/settings.html.php:79
+#: sources/views/settings.html.php:86
 msgid "Protocol"
 msgstr ""
 
-#: sources/views/settings.html.php:82
+#: sources/views/settings.html.php:89
 msgid "UDP"
 msgstr ""
 
-#: sources/views/settings.html.php:85
+#: sources/views/settings.html.php:92
 msgid ""
 "UDP is more efficient than TCP (but more filtered in case of restrictive "
 "access)"
 msgstr ""
 
-#: sources/views/settings.html.php:86
+#: sources/views/settings.html.php:93
 msgid "TCP"
 msgstr ""
 
-#: sources/views/settings.html.php:92
+#: sources/views/settings.html.php:99
 msgid "Delegated prefix (IPv6)"
 msgstr ""
 
-#: sources/views/settings.html.php:94
+#: sources/views/settings.html.php:101
 msgid ""
 "Leave empty if your Internet Service Provider does not give you a delegated "
 "prefix"
 msgstr ""
 
-#: sources/views/settings.html.php:101
+#: sources/views/settings.html.php:108
 msgid "Edit the raw configuration only if you know what you do!"
 msgstr ""
 
-#: sources/views/settings.html.php:101 sources/views/settings.html.php:106
+#: sources/views/settings.html.php:108 sources/views/settings.html.php:113
 msgid "Advanced"
 msgstr ""
 
-#: sources/views/settings.html.php:117
+#: sources/views/settings.html.php:124
 msgid ""
 "You need to upload a Client Certificate, or define a Username (or both) for "
 "starting your VPN Client."
 msgstr ""
 
-#: sources/views/settings.html.php:123
+#: sources/views/settings.html.php:130
 msgid "Authentication"
 msgstr ""
 
-#: sources/views/settings.html.php:131
+#: sources/views/settings.html.php:138
 msgid "You need to upload a Server CA for starting your VPN Client."
 msgstr ""
 
-#: sources/views/settings.html.php:135
+#: sources/views/settings.html.php:142
 msgid "Update Server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:135
+#: sources/views/settings.html.php:142
 msgid "Upload Server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:138
+#: sources/views/settings.html.php:145
 msgid "You cannot have no server CA"
 msgstr ""
 
-#: sources/views/settings.html.php:143 sources/views/settings.html.php:156
-#: sources/views/settings.html.php:169 sources/views/settings.html.php:182
+#: sources/views/settings.html.php:150 sources/views/settings.html.php:163
+#: sources/views/settings.html.php:176 sources/views/settings.html.php:189
+#: sources/views/settings.html.php:244
 msgid "Browse"
 msgstr ""
 
-#: sources/views/settings.html.php:148
+#: sources/views/settings.html.php:155
 msgid "Update Client Cert."
 msgstr ""
 
-#: sources/views/settings.html.php:148
+#: sources/views/settings.html.php:155
 msgid "Upload Client Cert."
 msgstr ""
 
-#: sources/views/settings.html.php:151 sources/views/settings.html.php:164
-#: sources/views/settings.html.php:177
+#: sources/views/settings.html.php:158 sources/views/settings.html.php:171
+#: sources/views/settings.html.php:184
 msgid "Delete this certificate"
 msgstr ""
 
-#: sources/views/settings.html.php:161
+#: sources/views/settings.html.php:168
 msgid "Update Client Key"
 msgstr ""
 
-#: sources/views/settings.html.php:161
+#: sources/views/settings.html.php:168
 msgid "Upload Client Key"
 msgstr ""
 
-#: sources/views/settings.html.php:167 sources/views/settings.html.php:180
+#: sources/views/settings.html.php:174 sources/views/settings.html.php:187
 msgid "Make sure your browser is able to read the key file before uploading"
 msgstr ""
 
-#: sources/views/settings.html.php:169 sources/views/settings.html.php:182
+#: sources/views/settings.html.php:176 sources/views/settings.html.php:189
 msgid "make sure your browser is able to read the key file before uploading"
 msgstr ""
 
-#: sources/views/settings.html.php:174
-msgid "ta.key"
-msgstr ""
-
-#: sources/views/settings.html.php:174
+#: sources/views/settings.html.php:181
 msgid "Update Shared-Secret"
 msgstr ""
 
-#: sources/views/settings.html.php:174
+#: sources/views/settings.html.php:181
 msgid "Upload Shared-Secret"
 msgstr ""
 
-#: sources/views/settings.html.php:187
+#: sources/views/settings.html.php:194
 msgid "Username"
 msgstr ""
 
-#: sources/views/settings.html.php:189 sources/views/settings.html.php:196
+#: sources/views/settings.html.php:196 sources/views/settings.html.php:203
 msgid "Leave empty if not necessary"
 msgstr ""
 
-#: sources/views/settings.html.php:194
+#: sources/views/settings.html.php:201
 msgid "Password"
 msgstr ""
 
-#: sources/views/settings.html.php:204
+#: sources/views/settings.html.php:211
 msgid "DNS"
 msgstr ""
 
-#: sources/views/settings.html.php:209
+#: sources/views/settings.html.php:216
 msgid "First resolver"
 msgstr ""
 
-#: sources/views/settings.html.php:211 sources/views/settings.html.php:218
+#: sources/views/settings.html.php:218 sources/views/settings.html.php:225
 msgid "IPv6 or IPv4"
 msgstr ""
 
-#: sources/views/settings.html.php:216
+#: sources/views/settings.html.php:223
 msgid "Second resolver"
 msgstr ""
 
-#: sources/views/settings.html.php:226
+#: sources/views/settings.html.php:235
+msgid "Auto Configuration"
+msgstr ""
+
+#: sources/views/settings.html.php:240
+msgid "Upload Config"
+msgstr ""
+
+#: sources/views/settings.html.php:247
+msgid "What is a dot cube file?"
+msgstr ""
+
+#: sources/views/settings.html.php:255
 msgid "Reloading may take a few minutes. Be patient."
 msgstr ""
 
-#: sources/views/settings.html.php:226
+#: sources/views/settings.html.php:255
 msgid "Save and reload"
 msgstr ""

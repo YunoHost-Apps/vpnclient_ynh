@@ -244,6 +244,7 @@
                   <a class="btn input-group-addon fileinput" id="cubefile_chooserbtn" data-toggle="tooltip" data-title="<?= _('Browse') ?>"><span class="glyphicon glyphicon-search"></span></a>
                 </div>
               </div>
+              <p style="text-align: center"><a href="http://internetcu.be/dotcubefiles.html"><?= _('What is a dot cube file?') ?></a></p>
             </div>
           </div>
         </div>
