@@ -64,6 +64,29 @@ function ipv6_compressed($ip) {
   return $output[0];
 }
 
+function readAutoConf($file) {
+  $json = file_get_contents($file);
+  $config = json_decode($json, true);
+
+  if(!empty($config['crt_server_ca'])) {
+    $config['crt_server_ca'] = str_replace('|', "\n", $config['crt_server_ca']);
+  }
+
+  if(!empty($config['crt_client'])) {
+    $config['crt_client'] = str_replace('|', "\n", $config['crt_client']);
+  }
+
+  if(!empty($config['crt_client_key'])) {
+    $config['crt_client_key'] = str_replace('|', "\n", $config['crt_client_key']);
+  }
+
+  if(!empty($config['crt_client_ta'])) {
+    $config['crt_client_ta'] = str_replace('|', "\n", $config['crt_client_ta']);
+  }
+
+  return $config;
+}
+
 dispatch('/', function() {
   $ip6_net = ynh_setting_get('ip6_net');
   $ip6_net = ($ip6_net == 'none') ? '' : $ip6_net;
@@ -78,51 +101,73 @@ dispatch('/', function() {
   set('ip6_net', $ip6_net);
   set('crt_client_exists', file_exists('/etc/openvpn/keys/user.crt'));
   set('crt_client_key_exists', file_exists('/etc/openvpn/keys/user.key'));
+  set('crt_client_ta_exists', file_exists('/etc/openvpn/keys/user_ta.key'));
   set('crt_server_ca_exists', file_exists('/etc/openvpn/keys/ca-server.crt'));
   set('faststatus', service_faststatus() == 0);
   set('raw_openvpn', $raw_openvpn);
+  set('dns0', ynh_setting_get('dns0'));
+  set('dns1', ynh_setting_get('dns1'));
 
   return render('settings.html.php');
 });
 
 dispatch_put('/settings', function() {
-  $crt_client_exists = file_exists('/etc/openvpn/keys/user.crt');
-  $crt_client_key_exists = file_exists('/etc/openvpn/keys/user.key');
-  $crt_server_ca_exists = file_exists('/etc/openvpn/keys/ca-server.crt');
-
   $service_enabled = isset($_POST['service_enabled']) ? 1 : 0;
-  $ip6_net = empty($_POST['ip6_net']) ? 'none' : $_POST['ip6_net'];
-  $ip6_addr = 'none';
 
   if($service_enabled == 1) {
+    $crt_client_exists = file_exists('/etc/openvpn/keys/user.crt');
+    $crt_client_key_exists = file_exists('/etc/openvpn/keys/user.key');
+    $crt_server_ca_exists = file_exists('/etc/openvpn/keys/ca-server.crt');
+
+    $config = $_POST;
+    $autoconf = false;
+
     try {
-      if(empty($_POST['server_name']) || empty($_POST['server_port']) || empty($_POST['server_proto'])) {
+      if($_FILES['cubefile']['error'] == UPLOAD_ERR_OK) {
+        $config = readAutoConf($_FILES['cubefile']['tmp_name']);
+
+        if(is_null($config)) {
+          throw new Exception(_('Json Syntax Error, please check your dot cube file'));
+        }
+
+        $autoconf = true;
+      }
+  
+      $ip6_net = empty($config['ip6_net']) ? 'none' : $config['ip6_net'];
+      $ip6_addr = 'none';
+
+      if(empty($config['server_name']) || empty($config['server_port']) || empty($config['server_proto'])) {
         throw new Exception(_('The Server Address, the Server Port and the Protocol cannot be empty'));
       }
     
-      if(!preg_match('/^\d+$/', $_POST['server_port'])) {
+      if(!preg_match('/^\d+$/', $config['server_port'])) {
         throw new Exception(_('The Server Port must be only composed of digits'));
       }
     
-      if($_POST['server_proto'] != 'udp' && $_POST['server_proto'] != 'tcp') {
+      if($config['server_proto'] != 'udp' && $config['server_proto'] != 'tcp') {
         throw new Exception(_('The Protocol must be "udp" or "tcp"'));
       }
-    
-      if(($_FILES['crt_client']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1))
-        || ($_FILES['crt_client_key']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client']['error'] != UPLOAD_ERR_OK && (!$crt_client_exists || $_POST['crt_client_delete'] == 1))) {
-    
-        throw new Exception(_('A Client Certificate is needed when you suggest a Key, or vice versa'));
+
+      if(empty($config['dns0']) || empty($config['dns1'])) {
+        throw new Exception(_('You need to define two DNS resolver addresses'));
       }
-    
-      if(empty($_POST['login_user']) xor empty($_POST['login_passphrase'])) {
+
+      if(empty($config['login_user']) xor empty($config['login_passphrase'])) {
         throw new Exception(_('A Password is needed when you suggest a Username, or vice versa'));
       }
-    
-      if($_FILES['crt_server_ca']['error'] != UPLOAD_ERR_OK && !$crt_server_ca_exists) {
+
+      if((!$autoconf && (($_FILES['crt_client']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1))
+        || ($_FILES['crt_client_key']['error'] == UPLOAD_ERR_OK && $_FILES['crt_client']['error'] != UPLOAD_ERR_OK && (!$crt_client_exists || $_POST['crt_client_delete'] == 1))))
+        || ($autoconf && (empty($config['crt_client']) xor empty($config['crt_client_key'])))) {
+      
+        throw new Exception(_('A Client Certificate is needed when you suggest a Key, or vice versa'));
+      } 
+ 
+      if((!$autoconf && $_FILES['crt_server_ca']['error'] != UPLOAD_ERR_OK && !$crt_server_ca_exists) || ($autoconf && empty($config['crt_server_ca']))) {
         throw new Exception(_('You need a Server CA.'));
       }
-    
-      if(($_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1)) && empty($_POST['login_user'])) {
+      
+      if(((!$autoconf && $_FILES['crt_client_key']['error'] != UPLOAD_ERR_OK && (!$crt_client_key_exists || $_POST['crt_client_key_delete'] == 1)) || ($autoconf && empty($config['crt_client_key']))) && empty($config['login_user'])) {
         throw new Exception(_('You need either a Client Certificate, either a Username, or both'));
       }
     
@@ -151,34 +196,110 @@ dispatch_put('/settings', function() {
   ynh_setting_set('service_enabled', $service_enabled);
 
   if($service_enabled == 1) {
-    ynh_setting_set('server_name', $_POST['server_name']);
-    ynh_setting_set('server_port', $_POST['server_port']);
-    ynh_setting_set('server_proto', $_POST['server_proto']);
-    ynh_setting_set('login_user', $_POST['login_user']);
-    ynh_setting_set('login_passphrase', $_POST['login_passphrase']);
+    ynh_setting_set('server_name', $config['server_name']);
+    ynh_setting_set('server_port', $config['server_port']);
+    ynh_setting_set('server_proto', $config['server_proto']);
+    ynh_setting_set('dns0', $config['dns0']);
+    ynh_setting_set('dns1', $config['dns1']);
+    ynh_setting_set('login_user', $config['login_user']);
+    ynh_setting_set('login_passphrase', $config['login_passphrase']);
     ynh_setting_set('ip6_net', $ip6_net);
     ynh_setting_set('ip6_addr', $ip6_addr);
-    
-    file_put_contents('/etc/openvpn/client.conf.tpl', $_POST['raw_openvpn']);
 
-    if($_FILES['crt_client']['error'] == UPLOAD_ERR_OK) {
-      move_uploaded_file($_FILES['crt_client']['tmp_name'], '/etc/openvpn/keys/user.crt');
-    } elseif($_POST['crt_client_delete'] == 1) {
-      unlink('/etc/openvpn/keys/user.crt');
+    if($autoconf) {
+      copy('/etc/openvpn/client.conf.tpl.restore', '/etc/openvpn/client.conf.tpl');
+
+      if(!empty($config['openvpn_rm'])) {
+        $raw_openvpn = explode("\n", file_get_contents('/etc/openvpn/client.conf.tpl'));
+        $fopenvpn = fopen('/etc/openvpn/client.conf.tpl', 'w');
+
+        foreach($raw_openvpn AS $opt) {
+          $filtered = false;
+
+          if(!preg_match('/^#/', $opt) && !preg_match('/<TPL:/', $opt)) {
+            foreach($config['openvpn_rm'] AS $filter) {
+              if(preg_match("/$filter/i", $opt)) {
+                $filtered = true;
+              }
+            }
+          }
+
+          if(!$filtered) {
+            fwrite($fopenvpn, "$opt\n");
+          }
+        }
+
+        fclose($fopenvpn);
+      }
+
+      if(!empty($config['openvpn_add'])) {
+        $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
+        $raw_openvpn .= "\n# Custom\n".implode("\n", $config['openvpn_add']);
+
+        file_put_contents('/etc/openvpn/client.conf.tpl', $raw_openvpn);
+      }
+
+      if(empty($config['crt_client'])) {
+        if(file_exists('/etc/openvpn/keys/user.crt')) {
+          unlink('/etc/openvpn/keys/user.crt');
+        }
+      } else {
+        file_put_contents('/etc/openvpn/keys/user.crt', $config['crt_client']);
+      }
+
+      if(empty($config['crt_client_key'])) {
+        if(file_exists('/etc/openvpn/keys/user.key')) {
+          unlink('/etc/openvpn/keys/user.key');
+        }
+      } else {
+        file_put_contents('/etc/openvpn/keys/user.key', $config['crt_client_key']);
+      }
+
+      if(empty($config['crt_client_ta'])) {
+        if(file_exists('/etc/openvpn/keys/user_ta.key')) {
+          unlink('/etc/openvpn/keys/user_ta.key');
+        }
+      } else {
+        file_put_contents('/etc/openvpn/keys/user_ta.key', $config['crt_client_ta']);
+      }
+
+      if(empty($config['crt_server_ca'])) {
+        if(file_exists('/etc/openvpn/keys/ca-server.crt')) {
+          unlink('/etc/openvpn/keys/ca-server.crt');
+        }
+      } else {
+        file_put_contents('/etc/openvpn/keys/ca-server.crt', $config['crt_server_ca']);
+      }
+
+    } else {
+
+      file_put_contents('/etc/openvpn/client.conf.tpl', $_POST['raw_openvpn']);
+
+      if($_FILES['crt_client']['error'] == UPLOAD_ERR_OK) {
+        move_uploaded_file($_FILES['crt_client']['tmp_name'], '/etc/openvpn/keys/user.crt');
+      } elseif($_POST['crt_client_delete'] == 1) {
+        unlink('/etc/openvpn/keys/user.crt');
+      }
+      
+      if($_FILES['crt_client_key']['error'] == UPLOAD_ERR_OK) {
+        move_uploaded_file($_FILES['crt_client_key']['tmp_name'], '/etc/openvpn/keys/user.key');
+      } elseif($_POST['crt_client_key_delete'] == 1) {
+        unlink('/etc/openvpn/keys/user.key');
+      }
+  
+      if($_FILES['crt_client_ta']['error'] == UPLOAD_ERR_OK) {
+        move_uploaded_file($_FILES['crt_client_ta']['tmp_name'], '/etc/openvpn/keys/user_ta.key');
+      } elseif($_POST['crt_client_ta_delete'] == 1) {
+        unlink('/etc/openvpn/keys/user_ta.key');
+      }
+      
+      if($_FILES['crt_server_ca']['error'] == UPLOAD_ERR_OK) {
+        move_uploaded_file($_FILES['crt_server_ca']['tmp_name'], '/etc/openvpn/keys/ca-server.crt');
+      }
     }
     
-    if($_FILES['crt_client_key']['error'] == UPLOAD_ERR_OK) {
-      move_uploaded_file($_FILES['crt_client_key']['tmp_name'], '/etc/openvpn/keys/user.key');
-    } elseif($_POST['crt_client_key_delete'] == 1) {
-      unlink('/etc/openvpn/keys/user.key');
-    }
-    
-    if($_FILES['crt_server_ca']['error'] == UPLOAD_ERR_OK) {
-      move_uploaded_file($_FILES['crt_server_ca']['tmp_name'], '/etc/openvpn/keys/ca-server.crt');
-    }
-    
-    if(!empty($_POST['login_user'])) {
-      file_put_contents('/etc/openvpn/keys/credentials', "${_POST['login_user']}\n${_POST['login_passphrase']}");
+    if(!empty($config['login_user'])) {
+      file_put_contents('/etc/openvpn/keys/credentials', "${config['login_user']}\n${config['login_passphrase']}");
     } else {
       file_put_contents('/etc/openvpn/keys/credentials', '');
     }

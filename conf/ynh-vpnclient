@@ -59,6 +59,11 @@ is_serverip6route_set() {
   fi
 }
 
+is_dns_set() {
+  [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
+  && grep -q ${ynh_dns0} /etc/resolv.conf
+}
+
 is_openvpn_running() {
   systemctl is-active openvpn@client.service &> /dev/null
 }
@@ -66,7 +71,7 @@ is_openvpn_running() {
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
   && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
-  && is_firewall_set && is_openvpn_running
+  && is_dns_set && is_firewall_set && is_openvpn_running
 }
 
 ## Setters
@@ -96,6 +101,15 @@ set_serverip6route() {
   ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
 }
 
+set_dns() {
+  cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+echo nameserver ${ynh_dns0} > /etc/resolv.conf
+echo nameserver ${ynh_dns1} >> /etc/resolv.conf
+EOF
+
+  bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+}
+
 start_openvpn() {
   ip6_gw=${1}
   server_ip6=${2}
@@ -118,6 +132,12 @@ start_openvpn() {
     sed 's|^<TPL:CERT_COMMENT>||' -i /etc/openvpn/client.conf
   else
     sed 's|^<TPL:CERT_COMMENT>|;|' -i /etc/openvpn/client.conf
+  fi
+
+  if [ -e /etc/openvpn/keys/user_ta.key ]; then
+    sed 's|^<TPL:TA_COMMENT>||' -i /etc/openvpn/client.conf
+  else
+    sed 's|^<TPL:TA_COMMENT>|;|' -i /etc/openvpn/client.conf
   fi
 
   if [[ "${proto}" =~ udp ]]; then
@@ -152,6 +172,10 @@ unset_serverip6route() {
   wired_device=${3}
 
   ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+}
+
+unset_dns() {
+  rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
 }
 
 stop_openvpn() {
@@ -212,6 +236,8 @@ if [ "$1" != restart ]; then
   ynh_server_proto=$(ynh_setting_get vpnclient server_proto)
   ynh_ip6_addr=$(ynh_setting_get vpnclient ip6_addr)
   ynh_login_user=$(ynh_setting_get vpnclient login_user)
+  ynh_dns0=$(ynh_setting_get vpnclient dns0)
+  ynh_dns1=$(ynh_setting_get vpnclient dns1)
 
   old_ip6_gw=$(ynh_setting_get vpnclient ip6_gw)
   old_wired_device=$(ynh_setting_get vpnclient wired_device)
@@ -280,6 +306,12 @@ case "${1}" in
         set_ip6addr
       fi
 
+      # Set host DNS resolvers
+      if ! is_dns_set; then
+        echo "Set host DNS resolvers"
+        set_dns
+      fi
+
       # Set ipv6/ipv4 firewall
       if ! is_firewall_set "${new_wired_device}"; then
         echo "Set IPv6/IPv4 firewall"
@@ -314,6 +346,11 @@ case "${1}" in
     if is_firewall_set "${old_wired_device}"; then
       echo "Unset IPv6/IPv4 firewall"
       unset_firewall
+    fi
+
+    if is_dns_set; then
+      echo "Unset forced host DNS resolvers"
+      unset_dns
     fi
 
     if is_openvpn_running; then
@@ -387,6 +424,14 @@ case "${1}" in
       echo "[OK] IPv6/IPv4 firewall set"
     else
       echo "[ERR] No IPv6/IPv4 firewall set"
+      exitcode=1
+    fi
+
+    if is_dns_set; then
+      echo "[OK] Host DNS correctly set"
+    else
+      echo "[ERR] No host DNS set"
+      exitcode=1
     fi
 
     if is_openvpn_running; then

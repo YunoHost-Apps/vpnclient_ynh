@@ -16,11 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+function tabsClick() {
+  var tab = $(this).parent().attr('data-tab');
+
+  $('.nav').find('li.active').removeClass('active');
+  $(this).parent().addClass('active');
+
+  $('.tabs').hide();
+  $('.tab' + tab).show();
+
+  return false;
+}
+
 $(document).ready(function() {
   $('.btn-group').button();
   $('[data-toggle="tooltip"]').tooltip();
 
   $('.switch').bootstrapToggle();
+  $('.nav-tabs a').click(tabsClick);
 
   $('.fileinput').click(function() {
     if(!$(this).hasClass('btn-danger')) {
@@ -47,7 +60,7 @@ $(document).ready(function() {
       if($(choosertxtid).hasClass('btn-danger') != $('#crt_client_choosertxt').hasClass('btn-danger')) {
         $('#crt_client_deletebtn').click();
       }
-    } else {
+    } else if($(this).attr('id').search('_ta') < 0) {
       if($(choosertxtid).hasClass('btn-danger') != $('#crt_client_key_choosertxt').hasClass('btn-danger')) {
         $('#crt_client_key_deletebtn').click();
       }
