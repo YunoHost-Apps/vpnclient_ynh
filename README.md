@@ -13,14 +13,19 @@ This YunoHost app is a part of the "[La Brique Internet](http://labriqueinter.ne
 
 ## Features
 
-* Port selection, with UDP or TCP
-* Authentication based on certificates or login (or both)
+* Authentication based on certificates or login (or both), with or without shared-secret (*ta.key*)
 * IPv6 compliant (with a delegated prefix)
 * Set an IPv6 from your delegated prefix (*prefix::42*) on the server, to use for the AAAA records
 * Use native IPv6 if available for creating the tunnel
+* Port selection, with UDP or TCP
+* Set DNS resolvers on the host
+* Strong firewalling (internet access and self-hosted services only available through the VPN)
+* Advanced mode for editing the default OpenVPN configuration
+* Auto-configuration mode, with [dot cube files](http://internetcu.be/dotcubefiles.html)
 * Web interface ([screenshot](https://raw.githubusercontent.com/labriqueinternet/vpnclient_ynh/master/screenshot.png))
 
 ## Prerequisites
 
 * Debian Jessie
 * YunoHost >= 2.2.0
+* Yunohost-Moulinette >= 2.4.0 (firewalling)
