@@ -64,6 +64,10 @@ function ipv6_compressed($ip) {
   return $output[0];
 }
 
+function noneValue($str) {
+  return ($str == 'none') ? '' : $str;
+}
+
 function readAutoConf($file) {
   $json = file_get_contents($file);
   $config = json_decode($json, true);
@@ -88,12 +92,11 @@ function readAutoConf($file) {
 }
 
 dispatch('/', function() {
-  $ip6_net = ynh_setting_get('ip6_net');
-  $ip6_net = ($ip6_net == 'none') ? '' : $ip6_net;
+  $ip6_net = noneValue(ynh_setting_get('ip6_net'));
   $raw_openvpn = file_get_contents('/etc/openvpn/client.conf.tpl');
 
   set('service_enabled', ynh_setting_get('service_enabled'));
-  set('server_name', ynh_setting_get('server_name'));
+  set('server_name', noneValue(ynh_setting_get('server_name')));
   set('server_port', ynh_setting_get('server_port'));
   set('server_proto', ynh_setting_get('server_proto'));
   set('login_user', ynh_setting_get('login_user'));

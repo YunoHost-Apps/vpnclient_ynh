@@ -71,7 +71,7 @@
               <div class="form-group">
                 <label for="server_name" class="col-sm-3 control-label"><?= _('Server Address') ?></label>
                 <div class="col-sm-9">
-                  <input type="text" class="form-control" name="server_name" id="server_name" placeholder="access.ldn-fai.net" value="<?= $server_name ?>" />
+                  <input type="text" class="form-control" name="server_name" id="server_name" placeholder="vpn.example.net" value="<?= $server_name ?>" />
                 </div>
               </div>
     
