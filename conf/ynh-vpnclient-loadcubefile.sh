@@ -36,19 +36,15 @@ while getopts "u:p:c:h" opt; do
       fi
     ;;
     h)
-      echo "-u SSO username (user with permissions on VPN Client)"
-      echo "-p SSO password"
+      echo "-u YunoHost username (user with permissions on VPN Client)"
+      echo "-p User password"
       echo "-c Dot cube file path"
       echo "-h This help"
 
       exit 0
     ;;
     \?)
-      echo "[ERR] Invalid option: -$OPTARG (-h for help)" >&2
-      exit 1
-    ;;
-    :)
-      echo "[ERR] Option -$OPTARG requires an argument" >&2
+      echo "[ERR] Invalid option (-h for help)" >&2
       exit 1
     ;;
   esac

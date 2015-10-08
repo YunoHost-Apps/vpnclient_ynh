@@ -51,7 +51,7 @@ if ! $upgrade; then
 
   # Save arguments
   sudo yunohost app setting vpnclient service_enabled -v 0
-  sudo yunohost app setting vpnclient server_name -v access.ldn-fai.net
+  sudo yunohost app setting vpnclient server_name -v none
   sudo yunohost app setting vpnclient server_port -v 1194
   sudo yunohost app setting vpnclient server_proto -v udp
   sudo yunohost app setting vpnclient ip6_addr -v none

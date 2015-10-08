@@ -12,6 +12,7 @@ sudo ip6tables -N vpnclient_fwd
 sudo ip6tables -A vpnclient_in -p icmpv6 -j ACCEPT
 sudo ip6tables -A vpnclient_in -s fd00::/8,fe80::/10 -j ACCEPT
 sudo ip6tables -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+sudo ip6tables -A vpnclient_in -p tcp --dport 443 -j ACCEPT
 sudo ip6tables -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 sudo ip6tables -A vpnclient_in -j DROP
 
@@ -44,6 +45,7 @@ sudo iptables -N vpnclient_fwd
 sudo iptables -A vpnclient_in -p icmp -j ACCEPT
 sudo iptables -A vpnclient_in -s 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
 sudo iptables -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+sudo iptables -A vpnclient_in -p tcp --dport 443 -j ACCEPT
 sudo iptables -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -A vpnclient_in -j DROP
 

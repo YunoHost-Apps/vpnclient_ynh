@@ -247,10 +247,10 @@ if [ "$1" != restart ]; then
 
   new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
   new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
-  new_server_ip6=$(host "${ynh_server_name}" | awk '/IPv6/ { print $NF; }')
+  new_server_ip6=$(host "${ynh_server_name}" 2> /dev/null | awk '/IPv6/ { print $NF; }')
 
   if [ -z "${new_server_ip6}" ]; then
-    new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 | awk '/IPv6/ { print $NF; }')
+    new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 2> /dev/null | awk '/IPv6/ { print $NF; }')
   fi
 
   echo "OK"
