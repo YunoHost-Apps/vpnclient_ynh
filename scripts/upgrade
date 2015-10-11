@@ -29,6 +29,13 @@ sudo rm -r "${tmpdir}/"
 
 sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 
+# Changes
+
+if [ -z "$(ynh_setting vpnclient dns0)" ]; then
+  sudo yunohost app setting vpnclient dns0 -v 89.234.141.66
+  sudo yunohost app setting vpnclient dns1 -v 2001:913::8
+fi
+
 sudo systemctl start ynh-vpnclient
 
 exit 0
