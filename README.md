@@ -29,3 +29,5 @@ This YunoHost app is a part of the "[La Brique Internet](http://labriqueinter.ne
 * Debian Jessie
 * YunoHost >= 2.2.0
 * Yunohost-Moulinette >= 2.4.0 (firewalling)
+
+**[BUG REPORTS SHOULD BE OPEN HERE](https://dev.yunohost.org)**
