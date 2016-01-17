@@ -200,7 +200,7 @@
               <div class="form-group">
                 <label for="login_passphrase" class="col-sm-3 control-label"><?= _('Password') ?></label>
                 <div class="col-sm-9">
-                  <input type="text" data-toggle="tooltip" data-title="<?= _('Leave empty if not necessary') ?>" class="form-control" name="login_passphrase" id="login_passphrase" placeholder="XVCwSbDkxnqQ" value="<?= $login_passphrase ?>" />
+                  <input type="password" data-toggle="tooltip" data-title="<?= _('Leave empty if not necessary') ?>" class="form-control" name="login_passphrase" id="login_passphrase" placeholder="XVCwSbDkxnqQ" value="<?= $login_passphrase ?>" />
                 </div>
               </div>
             </div>
