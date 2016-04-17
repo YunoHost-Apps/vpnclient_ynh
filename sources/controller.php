@@ -221,7 +221,7 @@ dispatch_put('/settings', function() {
 
           if(!preg_match('/^#/', $opt) && !preg_match('/<TPL:/', $opt)) {
             foreach($config['openvpn_rm'] AS $filter) {
-              if(preg_match("/$filter/i", $opt)) {
+              if(!empty($filter) && preg_match("/$filter/i", $opt)) {
                 $filtered = true;
               }
             }
