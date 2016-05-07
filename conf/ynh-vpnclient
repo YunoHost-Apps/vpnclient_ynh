@@ -41,8 +41,8 @@ is_hotspot_knowme() {
 is_firewall_set() {
   wired_device=${1}
 
-  ip6tables -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
-  && iptables -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
+  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
 }
 
 is_ip6addr_set() {
