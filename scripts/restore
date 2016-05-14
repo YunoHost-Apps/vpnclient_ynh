@@ -4,6 +4,7 @@ backup_dir="${1}/apps/vpnclient"
 
 sudo mkdir -p /etc/openvpn/
 sudo cp -a "${backup_dir}/keys/" /etc/openvpn/
+sudo chown -R root:admins /etc/openvpn/keys/
 
 gitcommit=$(sudo grep revision /etc/yunohost/apps/vpnclient/status.json | sed 's/.*"revision": "\([^"]\+\)".*/\1/')
 tmpdir=$(mktemp -dp /tmp/ vpnclient-restore-XXXXX)
