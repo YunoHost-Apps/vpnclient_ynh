@@ -5,7 +5,7 @@ backup_dir="${1}/apps/vpnclient"
 mkdir -p /etc/openvpn/
 cp -a "${backup_dir}/keys/" /etc/openvpn/
 
-gitcommit=$(grep revision /etc/yunohost/apps/vpnclient/status.json | sed 's/.*"revision": "\([^"]\+\)".*/\1/')
+gitcommit=$(sudo grep revision /etc/yunohost/apps/vpnclient/status.json | sed 's/.*"revision": "\([^"]\+\)".*/\1/')
 tmpdir=$(mktemp -dp /tmp/ vpnclient-restore-XXXXX)
 
 git clone https://github.com/labriqueinternet/vpnclient_ynh.git "${tmpdir}/"
