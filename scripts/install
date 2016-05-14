@@ -25,15 +25,13 @@ domain=${1}
 url_path=${2}
 
 if ! $upgrade; then
- 
   source ./prerequisites
+fi
 
-  # Check domain/path availability
-  sudo yunohost app checkurl ${domain}${url_path} -a vpnclient
-  if [ ! $? -eq 0 ]; then
-    exit 1
-  fi
-
+# Check domain/path availability
+sudo yunohost app checkurl ${domain}${url_path} -a vpnclient
+if [ ! $? -eq 0 ]; then
+  exit 1
 fi
 
 # Install packages
@@ -62,10 +60,6 @@ if ! $upgrade; then
   sudo yunohost app setting vpnclient dns1 -v 2001:913::8
 
 fi
-
-# Save git commit
-gitcommit=$(git rev-parse HEAD)
-sudo yunohost app setting vpnclient gitcommit -v "${gitcommit}"
 
 # Install IPv6 scripts
 sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
