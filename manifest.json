@@ -26,7 +26,7 @@
         "name": "path",
         "ask": {
             "en": "Choose a path for the web administration",
-            "fr": "Choissez un chemin pour l'administration web"
+            "fr": "Choisissez un chemin pour l'administration web"
         },
         "example": "/vpnadmin",
         "default": "/vpnadmin"
