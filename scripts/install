@@ -89,7 +89,7 @@ sudo chown -R root: /var/www/vpnadmin/
 sudo chmod -R 0644 /var/www/vpnadmin/*
 sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
 
-# Copy certificates
+# Create certificates directory
 sudo mkdir -pm 0770 /etc/openvpn/keys/
 sudo chown root:admins /etc/openvpn/keys/
 

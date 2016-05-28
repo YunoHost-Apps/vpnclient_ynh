@@ -17,12 +17,17 @@ tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
 sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${tmpdir}/"
 sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
 
+if [ ! -e /etc/openvpn/client.conf.tpl.restore ] || ! cmp -s /etc/openvpn/client.conf.tpl{,.restore}; then
+  sudo cp -a /etc/openvpn/client.conf.tpl "${tmpdir}/"
+fi
+
 export VPNCLIENT_UPGRADE=1
 sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
 sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
 sudo cp -a "${tmpdir}/keys/"* /etc/openvpn/keys/ 2> /dev/null
+sudo cp -a "${tmpdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
 sudo rm -r "${tmpdir}/"
 
 # Changes
