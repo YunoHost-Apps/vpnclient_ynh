@@ -86,7 +86,7 @@ ynh_service_enabled=$(ynh_setting vpnclient service_enabled)
 
 # SSO login
 
-curl -kLe "https://${ynh_domain}/yunohost/sso/" -d "user=${ynh_user}" -d "password=${ynh_password}" "https://${ynh_domain}/yunohost/sso/" --resolve "${ynh_domain}:443:127.0.0.1" -c "${tmpdir}/cookies" 2> /dev/null | grep -q Logout
+curl -kLe "https://${ynh_domain}/yunohost/sso/" --data-urlencode "user=${ynh_user}" --data-urlencode "password=${ynh_password}" "https://${ynh_domain}/yunohost/sso/" --resolve "${ynh_domain}:443:127.0.0.1" -c "${tmpdir}/cookies" 2> /dev/null | grep -q Logout
 
 if [ $? -ne 0 ]; then
   echo "[ERROR] SSO login failed" >&2
