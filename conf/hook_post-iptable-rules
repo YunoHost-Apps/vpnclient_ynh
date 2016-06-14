@@ -1,7 +1,7 @@
 #!/bin/bash
 
-host6=$(dig AAAA +short <TPL:SERVER_NAME> | tail -n1)
-host4=$(dig A +short <TPL:SERVER_NAME> | tail -n1)
+host6=$(dig AAAA +short <TPL:SERVER_NAME> | grep -v '\.$')
+host4=$(dig A +short <TPL:SERVER_NAME> | grep -v '\.$')
 
 # IPv6
 
@@ -17,7 +17,9 @@ sudo ip6tables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j 
 sudo ip6tables -w -A vpnclient_in -j DROP
 
 if [ ! -z "${host6}" ]; then
-  sudo ip6tables -w -A vpnclient_out -d ${host6} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+  for i in ${host6}; do
+    sudo ip6tables -w -A vpnclient_out -d "${i}" -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+  done
 fi
 
 for i in <TPL:DNS0> <TPL:DNS1>; do
@@ -50,7 +52,9 @@ sudo iptables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j A
 sudo iptables -w -A vpnclient_in -j DROP
 
 if [ ! -z "${host4}" ]; then
-  sudo iptables -w -A vpnclient_out -d ${host4} -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+  for i in ${host4}; do
+    sudo iptables -w -A vpnclient_out -d "${i}" -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+  done
 fi
 
 for i in <TPL:DNS0> <TPL:DNS1>; do
