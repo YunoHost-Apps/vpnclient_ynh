@@ -31,10 +31,12 @@ function ynh_setting_set($setting, $value) {
 }
 
 function stop_service() {
+  touch('/tmp/.ynh-vpnclient-stopped');
   exec('sudo systemctl stop ynh-vpnclient');
 }
 
 function start_service() {
+  unlink('/tmp/.ynh-vpnclient-stopped');
   exec('sudo systemctl start ynh-vpnclient', $output, $retcode);
 
   return $retcode;
