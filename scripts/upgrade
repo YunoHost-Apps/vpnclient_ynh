@@ -22,7 +22,11 @@ if [ ! -e /etc/openvpn/client.conf.tpl.restore ] || ! cmp -s /etc/openvpn/client
 fi
 
 export VPNCLIENT_UPGRADE=1
+echo "Current path: $PWD"
+read
 sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
+echo "Current path: $PWD"
+read
 bash ./install "${domain}" "${path}" "${server_name}"
 
 sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
