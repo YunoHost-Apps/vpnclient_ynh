@@ -131,6 +131,8 @@ sudo systemctl reload nginx
 sudo systemctl enable ynh-vpnclient
 sudo yunohost service add ynh-vpnclient
 
+sudo systemctl start ynh-vpnclient-checker.service
+sudo systemctl enable ynh-vpnclient-checker.service
 sudo systemctl start ynh-vpnclient-checker.timer
 sudo systemctl enable ynh-vpnclient-checker.timer
 

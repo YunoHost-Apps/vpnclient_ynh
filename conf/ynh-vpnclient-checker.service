@@ -5,3 +5,6 @@ After=ynh-vpnclient.service
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/ynh-vpnclient-checker.sh
+
+[Install]
+WantedBy=default.target
