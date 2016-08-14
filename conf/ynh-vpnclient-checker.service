@@ -1,0 +1,8 @@
+[Unit]
+Description=YunoHost VPN Client Checker.
+Requires=ynh-vpnclient.service
+After=ynh-vpnclient.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ynh-vpnclient-checker.sh

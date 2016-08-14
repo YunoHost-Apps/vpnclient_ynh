@@ -1,0 +1,8 @@
+[Unit]
+Description=Run VPN Client Checker every 5 minutes.
+
+[Timer]
+OnUnitActiveSec=5min
+ 
+[Install]
+WantedBy=timers.target

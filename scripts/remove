@@ -21,10 +21,11 @@
 domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
+sudo systemctl disable ynh-vpnclient-checker.timer && sleep 1
 sudo systemctl stop ynh-vpnclient
 sudo systemctl disable ynh-vpnclient
 sudo yunohost service remove ynh-vpnclient
-sudo rm -f /etc/systemd/system/ynh-vpnclient.service /usr/local/bin/ynh-vpnclient
+sudo rm -f /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
 sudo rm -f /tmp/.ynh-vpnclient-*
 
 # Remove confs
@@ -33,7 +34,6 @@ sudo rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf
 sudo rm -f /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo rm -f /etc/yunohost/hooks.d/90-vpnclient.tpl
 sudo rm -f /etc/systemd/system/openvpn@.service
-sudo rm -f /usr/local/bin/ynh-vpnclient-loadcubefile.sh
 
 # Remove certificates
 sudo rm -rf /etc/openvpn/keys/

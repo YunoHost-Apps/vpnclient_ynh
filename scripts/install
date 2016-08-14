@@ -112,6 +112,11 @@ sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
 sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
 sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
 
+# Copy checker timer
+sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
+sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
+sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
+
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
 # and the ynh-vpnclient service handles them.
@@ -125,6 +130,9 @@ sudo systemctl reload nginx
 
 sudo systemctl enable ynh-vpnclient
 sudo yunohost service add ynh-vpnclient
+
+sudo systemctl start ynh-vpnclient-checker.timer
+sudo systemctl enable ynh-vpnclient-checker.timer
 
 if ! $upgrade; then
   sudo systemctl start ynh-vpnclient
