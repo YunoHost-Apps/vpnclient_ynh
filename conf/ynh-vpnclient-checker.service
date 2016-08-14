@@ -1,6 +1,5 @@
 [Unit]
 Description=YunoHost VPN Client Checker.
-Requires=ynh-vpnclient.service
 After=ynh-vpnclient.service
 
 [Service]
