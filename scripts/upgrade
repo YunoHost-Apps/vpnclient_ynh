@@ -9,20 +9,19 @@ ynh_setting() {
 
 source ./prerequisites
 
-cachedir=/var/cache/labriqueinternet/
 domain=$(ynh_setting vpnclient domain)
 path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
 
-sudo mkdir -m 0700 -p "${cachedir}/vpnclient/"
-rollbackdir=$(sudo mktemp -dp ${cachedir}/vpnclient/ rollback_$(date +%Y-%m-%d-%H%M%S)_XXXXX)
+sudo mkdir -m 0700 -p /var/cache/labriqueinternet/vpnclient/
+sudo tar czf "/var/cache/labriqueinternet/vpnclient/rollback_$(date +%Y-%m-%d-%H%M%S).tgz" /etc/openvpn/ /etc/yunohost/apps/vpnclient/ &> /dev/null
 
-sudo tar czf "${rollbackdir}/etc_openvpn.tgz" /etc/openvpn/
-sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${rollbackdir}/"
-sudo cp -a /etc/openvpn/keys/ "${rollbackdir}/"
+tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
+sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${tmpdir}/"
+sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
 
 if [ ! -e /etc/openvpn/client.conf.tpl.restore ] || ! cmp -s /etc/openvpn/client.conf.tpl{,.restore}; then
-  sudo cp -a /etc/openvpn/client.conf.tpl "${rollbackdir}/"
+  sudo cp -a /etc/openvpn/client.conf.tpl "${tmpdir}/"
 fi
 
 export VPNCLIENT_UPGRADE=1
@@ -30,9 +29,10 @@ sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
 sudo rmdir /etc/openvpn/keys/
-sudo cp -a "${rollbackdir}/keys/" /etc/openvpn/keys/
-sudo cp -a "${rollbackdir}/settings.yml" /etc/yunohost/apps/vpnclient/
-sudo cp -a "${rollbackdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
+sudo cp -a "${tmpdir}/keys/" /etc/openvpn/keys/
+sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
+sudo cp -a "${tmpdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
+sudo rm -r "${tmpdir}/"
 
 # Changes
 
