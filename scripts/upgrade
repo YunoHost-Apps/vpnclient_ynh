@@ -30,7 +30,7 @@ sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
 sudo cp -a "${backupdir}/settings.yml" /etc/yunohost/apps/vpnclient/
-sudo cp -a "${backupdir}/keys/"* /etc/openvpn/keys/ 2> /dev/null
+sudo cp -a ${backupdir}/keys/* /etc/openvpn/keys/ 2> /dev/null
 sudo cp -a "${backupdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
 
 # Changes
