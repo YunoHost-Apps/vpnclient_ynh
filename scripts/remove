@@ -21,7 +21,8 @@
 domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
-sudo systemctl disable ynh-vpnclient-checker.timer && sleep 1
+sudo systemctl stop ynh-vpnclient-checker.timer && sleep 1
+sudo systemctl disable ynh-vpnclient-checker.timer
 sudo systemctl stop ynh-vpnclient
 sudo systemctl disable ynh-vpnclient
 sudo yunohost service remove ynh-vpnclient
