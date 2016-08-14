@@ -15,7 +15,7 @@ path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
 
 sudo mkdir -m 0700 -p "${cachedir}/vpnclient/"
-backupdir=$(mktemp -dp ${cachedir}/vpnclient/ upgrade_$(date +%Y-%m-%d-%H%M%S)_XXXXX)
+backupdir=$(sudo mktemp -dp ${cachedir}/vpnclient/ upgrade_$(date +%Y-%m-%d-%H%M%S)_XXXXX)
 
 sudo tar czf "${backupdir}/etc_openvpn.tgz" /etc/openvpn/
 sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${backupdir}/"
