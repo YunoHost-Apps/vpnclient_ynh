@@ -36,8 +36,8 @@ function stop_service() {
 }
 
 function start_service() {
-  unlink('/tmp/.ynh-vpnclient-stopped');
   exec('sudo systemctl start ynh-vpnclient', $output, $retcode);
+  unlink('/tmp/.ynh-vpnclient-stopped');
 
   return $retcode;
 }

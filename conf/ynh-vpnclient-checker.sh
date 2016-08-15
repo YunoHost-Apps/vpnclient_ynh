@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -e /tmp/.ynh-vpnclient-stopped ] && ! ip link show tun0 &> /dev/null; then
+if [ ! -e /tmp/.ynh-vpnclient-stopped ] && ! ip route get 1.2.3.4 | grep -q tun0; then
   systemctl restart ynh-vpnclient &> /dev/null
 fi
 
