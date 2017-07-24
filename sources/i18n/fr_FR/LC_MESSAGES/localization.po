@@ -24,9 +24,9 @@ msgid "Json Syntax Error, please check your dot cube file"
 msgstr "Error de syntaxe Json, merci de vérifier votre fichier .cube"
 
 #: sources/controller.php:140
-msgid "The Server Address, the Server Port and the Protocol cannot be empty"
+msgid "The Server Name, the Server Port and the Protocol cannot be empty"
 msgstr ""
-"L'adresse du serveur, le port du serveur et le protocole ne peuvent pas être "
+"Le nom du serveur, le port du serveur et le protocole ne peuvent pas être "
 "vides"
 
 #: sources/controller.php:144
@@ -147,8 +147,8 @@ msgid "VPN"
 msgstr "VPN"
 
 #: sources/views/settings.html.php:72
-msgid "Server Address"
-msgstr "Adresse du serveur"
+msgid "Server Name"
+msgstr "Nom du serveur"
 
 #: sources/views/settings.html.php:79
 msgid "Server Port"

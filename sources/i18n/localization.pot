@@ -22,7 +22,7 @@ msgid "Json Syntax Error, please check your dot cube file"
 msgstr ""
 
 #: sources/controller.php:140
-msgid "The Server Address, the Server Port and the Protocol cannot be empty"
+msgid "The Server Name, the Server Port and the Protocol cannot be empty"
 msgstr ""
 
 #: sources/controller.php:144
@@ -136,7 +136,7 @@ msgid "VPN"
 msgstr ""
 
 #: sources/views/settings.html.php:72
-msgid "Server Address"
+msgid "Server Name"
 msgstr ""
 
 #: sources/views/settings.html.php:79

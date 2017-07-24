@@ -142,7 +142,7 @@ dispatch_put('/settings', function() {
       $ip6_addr = 'none';
 
       if(empty($config['server_name']) || empty($config['server_port']) || empty($config['server_proto'])) {
-        throw new Exception(_('The Server Address, the Server Port and the Protocol cannot be empty'));
+        throw new Exception(_('The Server Name, the Server Port and the Protocol cannot be empty'));
       }
     
       if(!preg_match('/^\d+$/', $config['server_port'])) {
