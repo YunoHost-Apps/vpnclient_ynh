@@ -17,15 +17,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+source ./helpers
+
 # Retrieve arguments
 domain=$(sudo yunohost app setting vpnclient domain)
 
 # The End
-sudo systemctl stop ynh-vpnclient-checker.service
+ynh_systemctl stop ynh-vpnclient-checker.service
 sudo systemctl disable ynh-vpnclient-checker.service
-sudo systemctl stop ynh-vpnclient-checker.timer && sleep 1
+ynh_systemctl stop ynh-vpnclient-checker.timer && sleep 1
 sudo systemctl disable ynh-vpnclient-checker.timer
-sudo systemctl stop ynh-vpnclient
+ynh_systemctl stop ynh-vpnclient
 sudo systemctl disable ynh-vpnclient
 sudo yunohost service remove ynh-vpnclient
 sudo rm -f /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*

@@ -7,6 +7,7 @@ ynh_setting() {
   sudo grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
 }
 
+source ./helpers
 source ./prerequisites
 
 domain=$(ynh_setting vpnclient domain)
@@ -41,6 +42,6 @@ if [ -z "$(ynh_setting vpnclient dns0)" ]; then
   sudo yunohost app setting vpnclient dns1 -v 2001:913::8
 fi
 
-sudo systemctl start ynh-vpnclient
+ynh_systemctl start ynh-vpnclient
 
 exit 0
