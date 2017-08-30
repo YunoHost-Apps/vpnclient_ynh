@@ -61,7 +61,7 @@ is_serverip6route_set() {
 
 is_dns_set() {
   [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
-  && grep -q ${ynh_dns0} /etc/resolv.conf
+  && ( grep -q ${ynh_dns0} /etc/resolv.conf || grep -q ${ynh_dns0} /etc/resolv.dnsmasq.conf )
 }
 
 is_openvpn_running() {
@@ -104,9 +104,14 @@ set_serverip6route() {
 }
 
 set_dns() {
+  resolvconf=/etc/resolv.conf
+  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+
+  cp -fa "${resolvconf}" "${resolvconf}.ynh"
+
   cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
-echo nameserver ${ynh_dns0} > /etc/resolv.conf
-echo nameserver ${ynh_dns1} >> /etc/resolv.conf
+echo nameserver ${ynh_dns0} > ${resolvconf}
+echo nameserver ${ynh_dns1} >> ${resolvconf}
 EOF
 
   bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
@@ -177,7 +182,11 @@ unset_serverip6route() {
 }
 
 unset_dns() {
+  resolvconf=/etc/resolv.conf
+  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+
   rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  mv "${resolvconf}.ynh" "${resolvconf}"
 }
 
 stop_openvpn() {
