@@ -129,6 +129,8 @@ start_openvpn() {
     [ "${ynh_server_proto}" == tcp ] && proto=tcp-client
   fi
 
+  sync_time
+
   cp /etc/openvpn/client.conf{.tpl,}
 
   sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/openvpn/client.conf
@@ -194,6 +196,12 @@ stop_openvpn() {
 }
 
 ## Tools
+
+sync_time() {
+  systemctl stop ntp
+  ntpd -qg &> /dev/null
+  systemctl start ntp
+}
 
 ynh_setting_get() {
   app=${1}
