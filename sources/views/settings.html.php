@@ -69,7 +69,7 @@
 
             <div style="padding: 14px 14px 0 10px">
               <div class="form-group">
-                <label for="server_name" class="col-sm-3 control-label"><?= _('Server Address') ?></label>
+                <label for="server_name" class="col-sm-3 control-label"><?= _('Server Name') ?></label>
                 <div class="col-sm-9">
                   <input type="text" class="form-control" name="server_name" id="server_name" placeholder="vpn.example.net" value="<?= $server_name ?>" />
                 </div>
