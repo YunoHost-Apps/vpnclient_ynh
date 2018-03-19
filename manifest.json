@@ -19,6 +19,10 @@
     "url": "http://julien.vaubourg.com"
   },
   "multi_instance": false,
+  "services": [
+    "nginx",
+    "php5-fpm"
+  ],
   "arguments": {
     "install" : [
       {
