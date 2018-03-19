@@ -11,7 +11,7 @@
     "email": "julien@vaubourg.com",
     "url": "http://julien.vaubourg.com"
   },
-  "multi_instance": "false",
+  "multi_instance": false,
   "arguments": {
     "install" : [
       {
@@ -20,7 +20,8 @@
             "en": "Choose a domain for the web administration",
             "fr": "Choisissez un domaine pour l'administration web"
         },
-        "example": "domain.org"
+        "example": "domain.org",
+	"type": "domain"
       },
       {
         "name": "path",
@@ -28,6 +29,7 @@
             "en": "Choose a path for the web administration",
             "fr": "Choisissez un chemin pour l'administration web"
         },
+	"type": "path",
         "example": "/vpnadmin",
         "default": "/vpnadmin"
       }
