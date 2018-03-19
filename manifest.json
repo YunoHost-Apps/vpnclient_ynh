@@ -1,11 +1,18 @@
 {
   "name": "VPN Client",
   "id": "vpnclient",
+  "packaging_format": 1,
   "description": {
     "en": "VPN Client",
     "fr": "Client VPN"
   },
-  "license": "AGPL-3",
+  "version": "0.0.0",
+  "url": "https://github.com/labriqueinternet/vpnclient_ynh",
+  "license": "AGPL-3.0",
+    "requirements": {
+        "yunohost": ">= 2.2.0",
+        "yunohost-moulinette >= 2.4.0"
+  },
   "developer": {
     "name": "Julien Vaubourg",
     "email": "julien@vaubourg.com",
@@ -21,7 +28,7 @@
             "fr": "Choisissez un domaine pour l'administration web"
         },
         "example": "domain.org",
-	"type": "domain"
+        "type": "domain"
       },
       {
         "name": "path",
@@ -29,7 +36,7 @@
             "en": "Choose a path for the web administration",
             "fr": "Choisissez un chemin pour l'administration web"
         },
-	"type": "path",
+        "type": "path",
         "example": "/vpnadmin",
         "default": "/vpnadmin"
       }
