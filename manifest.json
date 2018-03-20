@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "requirements": {
       "yunohost": ">= 2.2.0",
-      "yunohost-moulinette": ">= 2.4.0"
+      "moulinette": ">= 2.4.0"
   },
   "developer": {
     "name": "Julien Vaubourg",
