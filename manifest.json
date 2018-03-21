@@ -15,8 +15,8 @@
     "url": "http://julien.vaubourg.com"
   },
   "requirements": {
-      "yunohost": ">= 2.2.0",
-      "moulinette": ">= 2.4.0"
+    "yunohost": ">= 2.2.0",
+    "moulinette": ">= 2.4.0"
   },
   "multi_instance": false,
   "services": [
@@ -24,22 +24,22 @@
     "php5-fpm"
   ],
   "arguments": {
-    "install" : [
+    "install": [
       {
         "name": "domain",
         "type": "domain",
         "ask": {
-            "en": "Choose a domain for the web administration",
-            "fr": "Choisissez un domaine pour l'administration web"
+          "en": "Choose a domain for the web administration",
+          "fr": "Choisissez un domaine pour l'administration web"
         },
-        "example": "domain.org",
+        "example": "domain.org"
       },
       {
         "name": "path",
         "type": "path",
         "ask": {
-            "en": "Choose a path for the web administration",
-            "fr": "Choisissez un chemin pour l'administration web"
+          "en": "Choose a path for the web administration",
+          "fr": "Choisissez un chemin pour l'administration web"
         },
         "example": "/vpnadmin",
         "default": "/vpnadmin"
