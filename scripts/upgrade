@@ -8,7 +8,6 @@ ynh_setting() {
 }
 
 source ./helpers
-source ./prerequisites
 
 domain=$(ynh_setting vpnclient domain)
 path=$(ynh_setting vpnclient path)
@@ -44,4 +43,3 @@ fi
 
 ynh_systemctl start ynh-vpnclient
 
-exit 0
