@@ -1,5 +1,5 @@
 # VPN Client
-[![Build Status](https://travis-ci.org/agentcobra/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/agentcobra/vpnclient_ynh)
+[![Build Status](https://travis-ci.org/labriqueinternet/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/labriqueinternet/vpnclient_ynh)
 ## Overview
 
 VPN Client app for [YunoHost](http://yunohost.org/).

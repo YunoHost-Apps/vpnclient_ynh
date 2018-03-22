@@ -21,6 +21,7 @@
   "multi_instance": false,
   "services": [
     "nginx",
+    "openvpn",
     "php5-fpm"
   ],
   "arguments": {
