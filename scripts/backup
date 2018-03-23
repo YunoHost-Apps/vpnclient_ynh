@@ -6,4 +6,3 @@ mkdir -p "${backup_dir}/"
 sudo cp -a /etc/openvpn/keys/ "${backup_dir}/"
 sudo cp -a /etc/openvpn/client.conf.tpl "${backup_dir}/"
 
-exit 0

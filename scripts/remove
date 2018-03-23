@@ -50,4 +50,3 @@ sudo systemctl reload nginx
 # Remove sources
 sudo rm -rf /var/www/vpnadmin/
 
-exit 0

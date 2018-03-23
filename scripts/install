@@ -26,11 +26,10 @@ url_path=${2}
 
 if ! $upgrade; then
   source ./helpers
-  source ./prerequisites
 fi
 
 # Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || exit 1
+ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
 
 # Install packages
 packages='php5-fpm sipcalc dnsutils openvpn curl'
@@ -150,4 +149,3 @@ fi
 
 sudo yunohost app ssowatconf
 
-exit 0

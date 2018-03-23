@@ -18,4 +18,3 @@ bash ./upgrade
 
 sudo rm -r "${tmpdir}/"
 
-exit 0
