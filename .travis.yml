@@ -1,8 +1,13 @@
 language: php
-
 before_script:
     - git clone --depth 1 git://github.com/YunoHost/package_linter ../package_linter && cd ../package_linter
     - mv ../vpnclient_ynh vpnclient_ynh
-
 script:
     - ./package_linter.py vpnclient_ynh
+notifications:
+  email: false
+  irc:
+    on_success: always
+    on_failure: always
+    channels:
+      - "irc.geeknode.org#labriqueinter.net-dev"
