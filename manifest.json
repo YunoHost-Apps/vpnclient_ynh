@@ -21,8 +21,8 @@
   "multi_instance": false,
   "services": [
     "nginx",
-    "openvpn",
-    "php5-fpm"
+    "php5-fpm",
+    "ynh-vpnclient"
   ],
   "arguments": {
     "install": [
