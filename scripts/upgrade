@@ -1,16 +1,41 @@
 #!/bin/bash
 
-ynh_setting() {
-  app=${1}
-  setting=${2}
-  ynh_app_setting_get $app $setting
-}
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-source ./helpers
+source _common.sh
+source /usr/share/yunohost/helpers
 
-domain=$(ynh_setting vpnclient domain)
-path=$(ynh_setting vpnclient path)
-server_name=$(ynh_setting vpnclient server_name)
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+is_public=$(ynh_app_setting_get $app is_public)
+final_path=$(ynh_app_setting_get $app final_path)
+server_name=$(ynh_app_setting_get $app server_name)
+
+#=================================================
+# CHECK VERSION
+#=================================================
+
+ynh_abort_if_up_to_date
+
+#=================================================
+
 
 sudo mkdir -m 0700 -p /var/cache/labriqueinternet/vpnclient/
 sudo tar czf "/var/cache/labriqueinternet/vpnclient/rollback_$(date +%Y-%m-%d-%H%M%S).tgz" /etc/openvpn/ /etc/yunohost/apps/vpnclient/ &> /dev/null
