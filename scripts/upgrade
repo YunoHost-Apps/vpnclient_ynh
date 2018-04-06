@@ -3,8 +3,7 @@
 ynh_setting() {
   app=${1}
   setting=${2}
-
-  sudo grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
+  ynh_app_setting_get $app $setting
 }
 
 source ./helpers
