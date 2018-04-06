@@ -199,7 +199,7 @@ stop_openvpn() {
 
 sync_time() {
   systemctl stop ntp
-  ntpd -qg &> /dev/null
+  timeout 20 ntpd -qg &> /dev/null
   systemctl start ntp
 }
 
