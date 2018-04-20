@@ -26,8 +26,10 @@ url_path=${2}
 
 source ./helpers
 
-# Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+if ! $upgrade; then
+  # Check domain/path availability
+  ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+fi
 
 # Install packages
 packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
