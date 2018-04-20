@@ -24,12 +24,12 @@ upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 domain=${1}
 url_path=${2}
 
-if ! $upgrade; then
-  source ./helpers
-fi
+source ./helpers
 
-# Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+if ! $upgrade; then
+  # Check domain/path availability
+  ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+fi
 
 # Install packages
 packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
@@ -125,13 +125,13 @@ sudo systemctl restart php5-fpm
 
 sudo systemctl reload nginx
 
-sudo systemctl enable ynh-vpnclient
+sudo systemctl -q enable ynh-vpnclient
 sudo yunohost service add ynh-vpnclient
 
 ynh_systemctl start ynh-vpnclient-checker.service
-sudo systemctl enable ynh-vpnclient-checker.service
+sudo systemctl -q enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
-sudo systemctl enable ynh-vpnclient-checker.timer
+sudo systemctl -q enable ynh-vpnclient-checker.timer
 
 if ! $upgrade; then
   ynh_systemctl start ynh-vpnclient
