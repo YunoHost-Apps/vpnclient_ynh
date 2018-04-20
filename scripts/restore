@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source ./helpers
+ynh_abort_if_errors       # Stop script if an error is detected
+
 backup_dir="${1}/apps/vpnclient"
 
 sudo mkdir -p /etc/openvpn/

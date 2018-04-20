@@ -24,12 +24,14 @@ upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 domain=${1}
 url_path=${2}
 
-if ! $upgrade; then
-  source ./helpers
-fi
+source ./helpers
 
-# Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+ynh_abort_if_errors       # Stop script if an error is detected
+
+if ! $upgrade; then
+  # Check domain/path availability
+  ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
+fi
 
 # Install packages
 packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
@@ -51,8 +53,8 @@ if ! $upgrade; then
   sudo yunohost app setting vpnclient server_proto -v udp
   sudo yunohost app setting vpnclient ip6_addr -v none
   sudo yunohost app setting vpnclient ip6_net -v none
-  sudo yunohost app setting vpnclient login_user -v "${login_user}"
-  sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
+  sudo yunohost app setting vpnclient login_user -v ""
+  sudo yunohost app setting vpnclient login_passphrase -v ""
   sudo yunohost app setting vpnclient dns0 -v 89.234.141.66
   sudo yunohost app setting vpnclient dns1 -v 2001:913::8
 
@@ -125,13 +127,13 @@ sudo systemctl restart php5-fpm
 
 sudo systemctl reload nginx
 
-sudo systemctl enable ynh-vpnclient
+sudo systemctl -q enable ynh-vpnclient
 sudo yunohost service add ynh-vpnclient
 
-ynh_systemctl start ynh-vpnclient-checker.service
-sudo systemctl enable ynh-vpnclient-checker.service
-ynh_systemctl start ynh-vpnclient-checker.timer
-sudo systemctl enable ynh-vpnclient-checker.timer
+sudo systemctl -q start ynh-vpnclient-checker.service
+sudo systemctl -q enable ynh-vpnclient-checker.service
+sudo systemctl -q start ynh-vpnclient-checker.timer
+sudo systemctl -q enable ynh-vpnclient-checker.timer
 
 if ! $upgrade; then
   ynh_systemctl start ynh-vpnclient
