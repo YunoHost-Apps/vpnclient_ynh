@@ -125,13 +125,13 @@ sudo systemctl restart php5-fpm
 
 sudo systemctl reload nginx
 
-sudo systemctl enable ynh-vpnclient
+sudo systemctl -q enable ynh-vpnclient
 sudo yunohost service add ynh-vpnclient
 
 ynh_systemctl start ynh-vpnclient-checker.service
-sudo systemctl enable ynh-vpnclient-checker.service
+sudo systemctl -q enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
-sudo systemctl enable ynh-vpnclient-checker.timer
+sudo systemctl -q enable ynh-vpnclient-checker.timer
 
 if ! $upgrade; then
   ynh_systemctl start ynh-vpnclient
