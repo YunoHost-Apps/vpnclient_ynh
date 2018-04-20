@@ -24,9 +24,7 @@ upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 domain=${1}
 url_path=${2}
 
-if ! $upgrade; then
-  source ./helpers
-fi
+source ./helpers
 
 # Check domain/path availability
 ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1
