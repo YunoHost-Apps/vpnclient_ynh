@@ -27,7 +27,7 @@ export VPNCLIENT_UPGRADE=1
 sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
 bash ./install "${domain}" "${path}" "${server_name}"
 
-sudo rmdir /etc/openvpn/keys/
+sudo rmdir --ignore-fail-on-non-empty /etc/openvpn/keys/
 sudo cp -a "${tmpdir}/keys/" /etc/openvpn/keys/
 sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
 sudo cp -a "${tmpdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
