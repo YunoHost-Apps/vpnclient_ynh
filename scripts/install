@@ -26,6 +26,8 @@ url_path=${2}
 
 source ./helpers
 
+ynh_abort_if_errors       # Stop script if an error is detected
+
 if ! $upgrade; then
   # Check domain/path availability
   ynh_webpath_register vpnclient $domain $url_path || ynh_die "problem on domain/path availability" 1

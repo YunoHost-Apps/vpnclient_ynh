@@ -8,6 +8,8 @@ ynh_setting() {
 
 source ./helpers
 
+ynh_abort_if_errors       # Stop script if an error is detected
+
 domain=$(ynh_setting vpnclient domain)
 path=$(ynh_setting vpnclient path)
 server_name=$(ynh_setting vpnclient server_name)
