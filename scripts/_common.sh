@@ -1,12 +1,15 @@
 #!/bin/bash
-
-source /usr/share/yunohost/helpers
-
 #
+# Common variables
+#
+
+pkg_dependencies="php5-fpm sipcalc dnsutils openvpn curl fake-hwclock"
+
+
 # Helper to start/stop/.. a systemd service from a yunohost context,
 # *and* the systemd service itself needs to be able to run yunohost
 # commands.
-# 
+#
 # Hence the need to release the lock during the operation
 #
 # usage : ynh_systemctl yolo restart
@@ -24,7 +27,7 @@ function ynh_systemctl()
   # Save and release the lock...
   cp $LOCKFILE $LOCKFILE.bkp.$$
   rm $LOCKFILE
-  
+
   # Wait for the end of the action
   wait $SYSCTLACTION
 
@@ -37,3 +40,4 @@ function ynh_systemctl()
   # Restore the old lock
   mv $LOCKFILE.bkp.$$ $LOCKFILE
 }
+

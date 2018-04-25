@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+ynh_abort_if_errors # Stop script if an error is detected
+
+#=================================================
+
 backup_dir="${1}/apps/vpnclient"
 mkdir -p "${backup_dir}/"
 
