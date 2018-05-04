@@ -38,8 +38,8 @@ ynh_abort_if_errors
 #=================================================
 
 # Retrieve arguments
-domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
+domain=$1
+path_url=$2
 
 app=$YNH_APP_INSTANCE_NAME
 
