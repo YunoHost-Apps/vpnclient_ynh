@@ -7,41 +7,27 @@ ynh_setting() {
   sudo grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
 }
 
-source ./helpers
-source ./prerequisites
+#=================================================
+# LOAD SETTINGS
+#=================================================
 
-domain=$(ynh_setting vpnclient domain)
-path=$(ynh_setting vpnclient path)
-server_name=$(ynh_setting vpnclient server_name)
+app=$YNH_APP_INSTANCE_NAME
 
-sudo mkdir -m 0700 -p /var/cache/labriqueinternet/vpnclient/
-sudo tar czf "/var/cache/labriqueinternet/vpnclient/rollback_$(date +%Y-%m-%d-%H%M%S).tgz" /etc/openvpn/ /etc/yunohost/apps/vpnclient/ &> /dev/null
+domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+is_public=$(ynh_app_setting_get $app is_public)
+final_path=$(ynh_app_setting_get $app final_path)
+server_name=$(ynh_app_setting_get $app server_name)
 
-tmpdir=$(mktemp -dp /tmp/ vpnclient-upgrade-XXXXX)
-sudo cp -a /etc/yunohost/apps/vpnclient/settings.yml "${tmpdir}/"
-sudo cp -a /etc/openvpn/keys/ "${tmpdir}/"
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
 
-if [ ! -e /etc/openvpn/client.conf.tpl.restore ] || ! cmp -s /etc/openvpn/client.conf.tpl{,.restore}; then
-  sudo cp -a /etc/openvpn/client.conf.tpl "${tmpdir}/"
-fi
-
-export VPNCLIENT_UPGRADE=1
-sudo bash /etc/yunohost/apps/vpnclient/scripts/remove &> /dev/null
-bash ./install "${domain}" "${path}" "${server_name}"
-
-sudo rmdir /etc/openvpn/keys/
-sudo cp -a "${tmpdir}/keys/" /etc/openvpn/keys/
-sudo cp -a "${tmpdir}/settings.yml" /etc/yunohost/apps/vpnclient/
-sudo cp -a "${tmpdir}/client.conf.tpl" /etc/openvpn/ 2> /dev/null
-sudo rm -r "${tmpdir}/"
-
-# Changes
-
-if [ -z "$(ynh_setting vpnclient dns0)" ]; then
-  sudo yunohost app setting vpnclient dns0 -v 89.234.141.66
-  sudo yunohost app setting vpnclient dns1 -v 2001:913::8
-fi
-
-ynh_systemctl start ynh-vpnclient
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+    ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 exit 0
