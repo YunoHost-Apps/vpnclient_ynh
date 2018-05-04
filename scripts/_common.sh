@@ -5,6 +5,30 @@
 
 pkg_dependencies="php5-fpm sipcalc dnsutils openvpn curl fake-hwclock"
 
+log() {
+  echo "${1}"
+}
+
+info() {
+  log "[INFO] ${1}"
+}
+
+warn() {
+  log "[WARN] ${1}"
+}
+
+err() {
+  log "[ERR] ${1}"
+}
+to_logs() {
+
+  # When yunohost --verbose or bash -x
+  if $_ISVERBOSE; then
+    cat
+  else
+    cat > /dev/null
+  fi
+}
 
 # Experimental helpers
 # Cf. https://github.com/YunoHost-Apps/Experimental_helpers/blob/72b0bc77c68d4a4a2bf4e95663dbc05e4a762a0a/ynh_read_manifest/ynh_read_manifest
