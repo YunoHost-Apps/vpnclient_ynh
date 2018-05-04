@@ -11,6 +11,9 @@ pkg_dependencies="php5-fpm sipcalc dnsutils openvpn curl fake-hwclock"
 read_json () {
     sudo python3 -c "import sys, json;print(json.load(open('$1'))['$2'])"
 }
+
+# Experimental helper
+# Cf. https://github.com/YunoHost-Apps/Experimental_helpers/blob/72b0bc77c68d4a4a2bf4e95663dbc05e4a762a0a/ynh_read_manifest/ynh_read_manifest
 read_manifest () {
     if [ -f '../manifest.json' ] ; then
         read_json '../manifest.json' "$1"
@@ -19,6 +22,16 @@ read_manifest () {
     fi
 }
 
+# Experimental helper
+# cf. https://github.com/YunoHost-Apps/Experimental_helpers/blob/master/ynh_abort_if_up_to_date/ynh_abort_if_up_to_date
+ynh_abort_if_up_to_date () {
+    version=$(read_json "/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" 'version' 2> /dev/null || echo '20160501-7')
+    last_version=$(read_manifest 'version')
+    if [ "${version}" = "${last_version}" ]; then
+        info "Up-to-date, nothing to do"
+        ynh_die "" 0
+    fi
+}
 
 # Helper to start/stop/.. a systemd service from a yunohost context,
 # *and* the systemd service itself needs to be able to run yunohost
