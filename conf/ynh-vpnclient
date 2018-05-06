@@ -200,6 +200,20 @@ stop_openvpn() {
 sync_time() {
   systemctl stop ntp
   timeout 20 ntpd -qg &> /dev/null
+  
+  # Some networks drop ntp port (udp 123). 
+  # Try to get the date with an http request on the internetcube web site
+  if [ $? -ne 0 ]; then
+    http_date=`curl -sD - labriqueinter.net | grep '^Date:' | cut -d' ' -f3-6`
+    http_date=`date -d "${http_date}" +%s`
+    current_date=`date +%s`
+
+    # Set the new date if it's greater than the current date
+    # So it does if 1970 year or if old fake-hwclock date is used
+    if [ $http_date -ge $current_date ]; then
+      date -s "${http_date}"
+    fi
+  fi 
   systemctl start ntp
 }
 
