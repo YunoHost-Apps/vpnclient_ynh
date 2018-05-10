@@ -74,37 +74,42 @@ sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 
 sudo install -b -o root -g admins -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
 sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
-sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
 sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
 sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
 # Copy web sources
-sudo mkdir -pm 0755 /var/www/vpnadmin/
-sudo cp -a ../sources/* /var/www/vpnadmin/
+sudo mkdir -pm 0755 /var/www/${app}/
+sudo cp -a ../sources/* /var/www/${app}/
 
-sudo chown -R root: /var/www/vpnadmin/
-sudo chmod -R 0644 /var/www/vpnadmin/*
-sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
+sudo chown -R root: /var/www/${app}/
+sudo chmod -R 0644 /var/www/${app}/*
+sudo find /var/www/${app}/ -type d -exec chmod +x {} \;
 
 # Create certificates directory
 sudo mkdir -pm 0770 /etc/openvpn/keys/
 sudo chown root:admins /etc/openvpn/keys/
 
-# Fix confs
-## nginx
-sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
 
-## php-fpm
-sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|<TPL:PHP_USER>|admin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|<TPL:PHP_GROUP>|admins|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
-sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
+sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+
+sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
+sudo sed "s|<TPL:PHP_USER>|admin|g" -i /etc/php5/fpm/pool.d/${app}.conf
+sudo sed "s|<TPL:PHP_GROUP>|admins|g" -i /etc/php5/fpm/pool.d/${app}.conf
+sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
 
 # Fix sources
-sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
+sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
 
 # Copy init script
 sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
