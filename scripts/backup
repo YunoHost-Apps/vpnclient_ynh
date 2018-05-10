@@ -70,8 +70,8 @@ ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
 # BACKUP SYSTEMD
 #=================================================
 
-ynh_backup "/etc/systemd/system/ynh-$app.service" # XXX maybe hard-coding the full name would be better
-ynh_backup "/etc/systemd/system/ynh-$app-checker.service" # XXX maybe hard-coding the full name would be better
-ynh_backup "/etc/systemd/system/ynh-$app-checker.timer" # XXX maybe hard-coding the full name would be better
+ynh_backup "/etc/systemd/system/ynh-vpnclient.service"
+ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.service"
+ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.timer"
 
 ynh_backup "/etc/cron.d/$app"
