@@ -22,6 +22,23 @@ final_path=$(ynh_app_setting_get $app final_path)
 server_name=$(ynh_app_setting_get $app server_name)
 
 #=================================================
+# SPECIAL UPGRADE FOR VERSIONS < 1.2.0
+#=================================================
+
+# Apply renaming that occured in v1.2.0 ("vpnadmin" -> "${app}")
+if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
+  sudo sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  sudo sed "s|vpnadmin.sock|${app}.sock|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
+fi
+if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
+  sudo sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/vpnadmin.conf
+  sudo sed "s|vpnadmin.sock|${app}.sock|g" -i  /etc/php5/fpm/pool.d/vpnadmin.conf
+  mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
+fi
+test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
+
+#=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 
@@ -32,3 +49,9 @@ ynh_clean_setup () {
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
+#=================================================
+# RELOAD RELEVANT SERVICES
+#=================================================
+
+ynh_systemctl reload php5-fpm
+ynh_systemctl reload nginx
