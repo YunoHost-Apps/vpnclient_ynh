@@ -1,4 +1,8 @@
 # VPN Client
+
+[![Build Status](https://travis-ci.org/labriqueinternet/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/labriqueinternet/vpnclient_ynh)
+[![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=vpnclient)
+
 ## Overview
 
 VPN Client app for [YunoHost](http://yunohost.org/).
