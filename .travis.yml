@@ -1,8 +1,9 @@
-language: php
+language: python
 before_script:
     - git clone --depth 1 git://github.com/YunoHost/package_linter ../package_linter && cd ../package_linter
     - mv ../vpnclient_ynh vpnclient_ynh
 script:
+    - python -m json.tool vpnclient_ynh/manifest.json
     - ./package_linter.py vpnclient_ynh
 notifications:
   email: false
