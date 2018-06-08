@@ -23,8 +23,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source _common.sh
 source /usr/share/yunohost/helpers
+source _common.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -49,7 +49,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Check destination directory
 final_path="/var/www/$app"
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
+test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
 
 # Normalize the url path syntax
 path_url=$(ynh_normalize_url_path "$path_url")
@@ -75,88 +75,11 @@ ynh_app_setting_set "$app" final_path "$final_path"
 ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
-# SPECIFIC SETUP
+# DEPLOY FILES FROM PACKAGE
 #=================================================
 
-# This is an upgrade?
-upgrade=$([ -z ${VPNCLIENT_UPGRADE+x} ] && echo true || echo false)
+vpnclient_deploy_files_and_services
 
-if ! $upgrade; then
-
-  # Save arguments
-  ynh_app_setting_set $app service_enabled 0
-  ynh_app_setting_set $app server_name none
-  ynh_app_setting_set $app server_port 1194
-  ynh_app_setting_set $app server_proto udp
-  ynh_app_setting_set $app ip6_addr none
-  ynh_app_setting_set $app ip6_net none
-  ynh_app_setting_set $app login_user "${login_user}"
-  ynh_app_setting_set $app login_passphrase "${login_passphrase}"
-  ynh_app_setting_set $app dns0 89.234.141.66
-  ynh_app_setting_set $app dns1 2001:913::8
-
-fi
-
-# Install IPv6 scripts
-sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
-sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
-
-# Install command-line cube file loader
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
-
-# Copy confs
-sudo mkdir -pm 0755 /var/log/nginx/
-sudo chown root:admins /etc/openvpn/
-sudo chmod 775 /etc/openvpn/
-sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
-
-sudo install -b -o root -g admins -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
-sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
-sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
-sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
-sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
-
-# Copy web sources
-sudo mkdir -pm 0755 /var/www/${app}/
-sudo cp -a ../sources/* /var/www/${app}/
-
-sudo chown -R root: /var/www/${app}/
-sudo chmod -R 0644 /var/www/${app}/*
-sudo find /var/www/${app}/ -type d -exec chmod +x {} \;
-
-# Create certificates directory
-sudo mkdir -pm 0770 /etc/openvpn/keys/
-sudo chown root:admins /etc/openvpn/keys/
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-
-sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:PHP_USER>|admin|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:PHP_GROUP>|admins|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
-
-# Fix sources
-sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
-
-# Copy init script
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
-
-# Copy checker timer
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
@@ -177,19 +100,8 @@ sudo systemctl enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
 sudo systemctl enable ynh-vpnclient-checker.timer
 
-if ! $upgrade; then
-  ynh_systemctl start ynh-vpnclient
-
-  # Check configuration consistency
-
-  if [ -z "${crt_server_ca_path}" ]; then
-    echo "WARNING: VPN Client is not started because you need to define a server CA through the web admin" >&2
-  fi
-
-  if [ -z "${crt_client_key_path}" -a -z "${login_user}" ]; then
-    echo "WARNING: VPN Client is not started because you need either a client certificate, either a username (or both)" >&2
-  fi
-fi
+# Start vpnclient
+ynh_systemctl start ynh-vpnclient
 
 sudo yunohost app ssowatconf
 
