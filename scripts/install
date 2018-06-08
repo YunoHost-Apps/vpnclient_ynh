@@ -17,12 +17,39 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is an upgrade?
-upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source /usr/share/yunohost/helpers
+source _common.sh
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
 
 # Retrieve arguments
-domain=${1}
-url_path=${2}
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$YNH_APP_ARG_PATH
+
+app=$YNH_APP_INSTANCE_NAME
+
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
+
+# Check destination directory
+final_path="/var/www/$app"
+test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
 
 source ./helpers
 source ./prerequisites
@@ -36,89 +63,12 @@ fi
 packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get --assume-yes --force-yes install ${packages}
-
-if [ $? -ne 0 ]; then
-  sudo apt-get update
-  sudo apt-get --assume-yes --force-yes install ${packages}
-fi
-
-if ! $upgrade; then
-
-  # Save arguments
-  sudo yunohost app setting vpnclient service_enabled -v 0
-  sudo yunohost app setting vpnclient server_name -v none
-  sudo yunohost app setting vpnclient server_port -v 1194
-  sudo yunohost app setting vpnclient server_proto -v udp
-  sudo yunohost app setting vpnclient ip6_addr -v none
-  sudo yunohost app setting vpnclient ip6_net -v none
-  sudo yunohost app setting vpnclient login_user -v "${login_user}"
-  sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
-  sudo yunohost app setting vpnclient dns0 -v 89.234.141.66
-  sudo yunohost app setting vpnclient dns1 -v 2001:913::8
-
-fi
-
-# Install IPv6 scripts
-sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
-sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
-
-# Install command-line cube file loader
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
-
-# Copy confs
-sudo mkdir -pm 0755 /var/log/nginx/
-sudo chown root:admins /etc/openvpn/
-sudo chmod 775 /etc/openvpn/
-sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
-
-sudo install -b -o root -g admins -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
-sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
-sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
-sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
-sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
-
-# Copy web sources
-sudo mkdir -pm 0755 /var/www/${app}/
-sudo cp -a ../sources/* /var/www/${app}/
-
-sudo chown -R root: /var/www/${app}/
-sudo chmod -R 0644 /var/www/${app}/*
-sudo find /var/www/${app}/ -type d -exec chmod +x {} \;
-
-# Create certificates directory
-sudo mkdir -pm 0770 /etc/openvpn/keys/
-sudo chown root:admins /etc/openvpn/keys/
-
 #=================================================
-# NGINX CONFIGURATION
+# DEPLOY FILES FROM PACKAGE
 #=================================================
 
-sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+vpnclient_deploy_files_and_services
 
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-
-sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:PHP_USER>|admin|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:PHP_GROUP>|admins|g" -i /etc/php5/fpm/pool.d/${app}.conf
-sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
-
-# Fix sources
-sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
-
-# Copy init script
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
-
-# Copy checker timer
-sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
-sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
@@ -139,19 +89,8 @@ sudo systemctl enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
 sudo systemctl enable ynh-vpnclient-checker.timer
 
-if ! $upgrade; then
-  ynh_systemctl start ynh-vpnclient
-
-  # Check configuration consistency
-  
-  if [ -z "${crt_server_ca_path}" ]; then
-    echo "WARNING: VPN Client is not started because you need to define a server CA through the web admin" >&2
-  fi
-  
-  if [ -z "${crt_client_key_path}" -a -z "${login_user}" ]; then
-    echo "WARNING: VPN Client is not started because you need either a client certificate, either a username (or both)" >&2
-  fi
-fi
+# Start vpnclient
+ynh_systemctl start ynh-vpnclient
 
 sudo yunohost app ssowatconf
 
