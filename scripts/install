@@ -89,8 +89,6 @@ sudo systemctl enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
 sudo systemctl enable ynh-vpnclient-checker.timer
 
-# Start vpnclient
-ynh_systemctl start ynh-vpnclient
 
 sudo yunohost app ssowatconf
 
