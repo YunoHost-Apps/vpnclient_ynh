@@ -36,23 +36,23 @@ if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
 fi
 test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
 
-# Versions known to have a buggy backup script
-buggy_versions="1.0.0 1.0.1 1.1.0"
-curr_version=$(read_manifest version)
-if echo $buggy_versions | grep -w $curr_version > /dev/null; then
-  echo "Your current version of ${app} is very old: ${curr_version}. Please ignore the next warning." >&2
-fi
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-    ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+## Versions known to have a buggy backup script
+#buggy_versions="1.0.0 1.0.1 1.1.0"
+#curr_version=$(read_manifest version)
+#if echo $buggy_versions | grep -w $curr_version > /dev/null; then
+#  echo "Your current version of ${app} is very old: ${curr_version}. Please ignore the next warning." >&2
+#fi
+#
+##=================================================
+## BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+##=================================================
+#
+#ynh_backup_before_upgrade
+#ynh_clean_setup () {
+#    ynh_restore_upgradebackup
+#}
+## Exit if an error occurs during the execution of the script
+#ynh_abort_if_errors
 
 #=================================================
 # DO UPGRADE
