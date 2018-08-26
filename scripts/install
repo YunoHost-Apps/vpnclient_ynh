@@ -80,6 +80,8 @@ ynh_install_app_dependencies "$pkg_dependencies"
 
 vpnclient_deploy_files_and_services
 
+ynh_app_setting_set $app final_path $final_path
+
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
