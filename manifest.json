@@ -7,11 +7,11 @@
   },
   "license": "AGPL-3",
   "url": "https://github.com/labriqueinternet/vpnclient_ynh",
-  "version": "1.1.1",
+  "version": "1.2.0",
+  "license": "AGPL-3.0",
   "maintainer": {
-    "name": "Julien Vaubourg",
-    "email": "julien@vaubourg.com",
-    "url": "http://julien.vaubourg.com"
+    "name": "pitchum",
+    "email": "pitchum@users.noreply.github.com"
   },
   "multi_instance": "false",
   "arguments": {
