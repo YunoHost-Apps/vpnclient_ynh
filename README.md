@@ -1,4 +1,6 @@
-# VPN Client
+# VPN Client [![Build Status](https://travis-ci.org/labriqueinternet/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/labriqueinternet/vpnclient_ynh) [![Integration level](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/jenkins/job/vpnclient%20%28Community%29/lastBuild/consoleFull)  
+[![Install LaBriqueInterNet VPNclient with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=vpnclient)
+
 ## Overview
 
 VPN Client app for [YunoHost](http://yunohost.org/).

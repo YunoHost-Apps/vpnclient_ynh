@@ -1,5 +1,24 @@
 #!/bin/bash
 
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+if [ ! -e _common.sh ]; then
+    # Fetch helpers file if not in current directory
+    cp ../settings/scripts/_common.sh ./_common.sh
+    chmod a+rx _common.sh
+fi
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
 backup_dir="${1}/apps/vpnclient"
 
 sudo mkdir -p /etc/openvpn/
@@ -18,4 +37,3 @@ bash ./upgrade
 
 sudo rm -r "${tmpdir}/"
 
-exit 0

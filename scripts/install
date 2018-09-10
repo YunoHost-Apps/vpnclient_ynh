@@ -1,61 +1,99 @@
 #!/bin/bash
 
-# VPN Client app for YunoHost 
+# VPN Client app for YunoHost
 # Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
 # Contribute at https://github.com/labriqueinternet/vpnclient_ynh
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is an upgrade?
-upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
 
 # Retrieve arguments
-domain=${1}
-url_path=${2}
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$YNH_APP_ARG_PATH
 
-if ! $upgrade; then
-  source ./helpers
-  source ./prerequisites
-fi
+app=$YNH_APP_INSTANCE_NAME
 
-# Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || exit 1
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
 
-# Install packages
-packages='php5-fpm sipcalc dnsutils openvpn curl'
-export DEBIAN_FRONTEND=noninteractive
+# Check destination directory
+final_path="/var/www/$app"
+test ! -e "$final_path" || ynh_die "This path already contains a folder"
 
-sudo apt-get --assume-yes --force-yes install ${packages}
+# Normalize the url path syntax
+path_url=$(ynh_normalize_url_path "$path_url")
 
-if [ $? -ne 0 ]; then
-  sudo apt-get update
-  sudo apt-get --assume-yes --force-yes install ${packages}
-fi
+# Check web path availability
+ynh_webpath_available "$domain" "$path_url"
+# Register (book) web path
+ynh_webpath_register "$app" "$domain" "$path_url"
+
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
+
+ynh_app_setting_set "$app" domain "$domain"
+ynh_app_setting_set "$app" final_path "$final_path"
+
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$pkg_dependencies"
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+
+# This is an upgrade?
+upgrade=$([ -z ${VPNCLIENT_UPGRADE+x} ] && echo true || echo false)
 
 if ! $upgrade; then
 
   # Save arguments
-  sudo yunohost app setting vpnclient service_enabled -v 0
-  sudo yunohost app setting vpnclient server_name -v none
-  sudo yunohost app setting vpnclient server_port -v 1194
-  sudo yunohost app setting vpnclient server_proto -v udp
-  sudo yunohost app setting vpnclient ip6_addr -v none
-  sudo yunohost app setting vpnclient ip6_net -v none
-  sudo yunohost app setting vpnclient login_user -v "${login_user}"
-  sudo yunohost app setting vpnclient login_passphrase -v "${login_passphrase}"
-  sudo yunohost app setting vpnclient dns0 -v 89.234.141.66
-  sudo yunohost app setting vpnclient dns1 -v 2001:913::8
+  ynh_app_setting_set $app service_enabled 0
+  ynh_app_setting_set $app server_name none
+  ynh_app_setting_set $app server_port 1194
+  ynh_app_setting_set $app server_proto udp
+  ynh_app_setting_set $app ip6_addr none
+  ynh_app_setting_set $app ip6_net none
+  ynh_app_setting_set $app login_user "${login_user}"
+  ynh_app_setting_set $app login_passphrase "${login_passphrase}"
+  ynh_app_setting_set $app dns0 89.234.141.66
+  ynh_app_setting_set $app dns1 2001:913::8
 
 fi
 
@@ -91,20 +129,25 @@ sudo find /var/www/vpnadmin/ -type d -exec chmod +x {} \;
 sudo mkdir -pm 0770 /etc/openvpn/keys/
 sudo chown root:admins /etc/openvpn/keys/
 
-# Fix confs
-## nginx
-sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
 sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
 sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
 
-## php-fpm
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+
 sudo sed 's|<TPL:PHP_NAME>|vpnadmin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_USER>|admin|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:PHP_GROUP>|admins|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 sudo sed 's|<TPL:NGINX_REALPATH>|/var/www/vpnadmin/|g' -i /etc/php5/fpm/pool.d/vpnadmin.conf
 
 # Fix sources
-sudo sed "s|<TPL:NGINX_LOCATION>|${url_path}|g" -i /var/www/vpnadmin/config.php
+sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/vpnadmin/config.php
 
 # Copy init script
 sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
@@ -138,11 +181,11 @@ if ! $upgrade; then
   ynh_systemctl start ynh-vpnclient
 
   # Check configuration consistency
-  
+
   if [ -z "${crt_server_ca_path}" ]; then
     echo "WARNING: VPN Client is not started because you need to define a server CA through the web admin" >&2
   fi
-  
+
   if [ -z "${crt_client_key_path}" -a -z "${login_user}" ]; then
     echo "WARNING: VPN Client is not started because you need either a client certificate, either a username (or both)" >&2
   fi
@@ -150,4 +193,3 @@ fi
 
 sudo yunohost app ssowatconf
 
-exit 0
