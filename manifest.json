@@ -1,13 +1,13 @@
 {
   "name": "VPN Client",
   "id": "vpnclient",
+  "version": "1.2.1",
   "packaging_format": 1,
   "description": {
     "en": "VPN Client",
     "fr": "Client VPN"
   },
   "url": "https://github.com/labriqueinternet/vpnclient_ynh",
-  "version": "1.2.0",
   "license": "AGPL-3.0",
   "maintainer": {
     "name": "pitchum",
