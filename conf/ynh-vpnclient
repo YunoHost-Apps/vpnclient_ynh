@@ -129,6 +129,10 @@ start_openvpn() {
     [ "${ynh_server_proto}" == tcp ] && proto=tcp-client
   fi
 
+  # Unset firewall to let DNS and NTP resolution works
+  # Firewall is reset after vpn is mounted (more details on #1016)
+  unset_firewall
+
   sync_time
 
   cp /etc/openvpn/client.conf{.tpl,}
@@ -199,7 +203,7 @@ stop_openvpn() {
 
 sync_time() {
   systemctl stop ntp
-  ntpd -qg &> /dev/null
+  timeout 20 ntpd -qg &> /dev/null
   systemctl start ntp
 }
 

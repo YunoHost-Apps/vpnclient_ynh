@@ -33,7 +33,7 @@ fi
 ynh_webpath_register vpnclient $domain $url_path || exit 1
 
 # Install packages
-packages='php5-fpm sipcalc dnsutils openvpn curl'
+packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get --assume-yes --force-yes install ${packages}
