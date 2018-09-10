@@ -214,8 +214,8 @@ function vpnclient_deploy_files_and_services()
   #=================================================
 
   sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_USER>|admin|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_GROUP>|admins|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sudo sed "s|<TPL:PHP_USER>|www-data|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sudo sed "s|<TPL:PHP_GROUP>|www-data|g" -i /etc/php5/fpm/pool.d/${app}.conf
   sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
 
   # Fix sources
