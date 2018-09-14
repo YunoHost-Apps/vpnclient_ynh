@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "restore script is not implemented"
+exit 0
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================

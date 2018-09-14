@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "backup script is not implemented"
+exit 0
+
 #=================================================
 # GENERIC START
 #=================================================
