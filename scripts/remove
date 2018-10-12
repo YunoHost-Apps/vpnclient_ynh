@@ -43,6 +43,9 @@ sudo rm -f /etc/systemd/system/openvpn@.service
 # Remove certificates
 sudo rm -rf /etc/openvpn/keys/
 
+# Remove packages
+ynh_remove_app_dependencies
+
 # Restart services
 sudo systemctl restart php5-fpm
 sudo systemctl reload nginx
