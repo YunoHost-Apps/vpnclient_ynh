@@ -21,12 +21,15 @@ source /usr/share/yunohost/helpers
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
+#sysuser="${app}"
+sysuser="vpnclient" # XXX hard-coded variable
+
 backup_dir="${1}/apps/vpnclient"
 
 sudo mkdir -p /etc/openvpn/
 sudo cp -a "${backup_dir}/keys/" /etc/openvpn/
 sudo cp -a "${backup_dir}/client.conf.tpl" /etc/openvpn/
-sudo chown -R root:admins /etc/openvpn/keys/
+sudo chown -R root:${sysuser} /etc/openvpn/keys/
 
 gitcommit=$(sudo grep revision /etc/yunohost/apps/vpnclient/status.json | sed 's/.*"revision": "\([^"]\+\)".*/\1/')
 tmpdir=$(mktemp -dp /tmp/ vpnclient-restore-XXXXX)

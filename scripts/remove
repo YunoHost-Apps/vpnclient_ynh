@@ -63,3 +63,5 @@ sudo systemctl reload nginx
 # Remove sources
 sudo rm -rf /var/www/${app}/
 
+# Removed system user
+ynh_system_user_delete ${app}

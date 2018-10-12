@@ -73,7 +73,7 @@ tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 sudo cp -r /etc/openvpn/client* ${tmpdir}
 
 # Deploy files from package
-vpnclient_deploy_files_and_services
+vpnclient_deploy_files_and_services "${domain}" "${app}"
 
 # Restore previously existing config files
 sudo cp -r ${tmpdir}/client* /etc/openvpn/
