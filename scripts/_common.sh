@@ -169,6 +169,20 @@ ynh_abort_if_up_to_date () {
 # Operations needed by both 'install' and 'upgrade' scripts
 function vpnclient_deploy_files_and_services()
 {
+  local domain=$1
+  local app=$2
+  local sysuser="${app}"
+
+  # Ensure vpnclient_ynh has its own system user
+  if ! ynh_system_user_exists ${sysuser}
+  then
+    ynh_system_user_create ${sysuser}
+  fi
+
+  # Ensure the system user has enough sudo permissions
+  sudo install -b -o root -g root -m 0440 ../conf/sudoers.conf /etc/sudoers.d/${app}_ynh
+  ynh_replace_string "__VPNCLIENT_SYSUSER__" "${sysuser}" /etc/sudoers.d/${app}_ynh
+
   # Install IPv6 scripts
   sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
   sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
@@ -178,11 +192,11 @@ function vpnclient_deploy_files_and_services()
 
   # Copy confs
   sudo mkdir -pm 0755 /var/log/nginx/
-  sudo chown root:admins /etc/openvpn/
+  sudo chown root:${sysuser} /etc/openvpn/
   sudo chmod 775 /etc/openvpn/
   sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 
-  sudo install -b -o root -g admins -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
+  sudo install -b -o root -g ${sysuser} -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
   sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
   sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
   sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
@@ -199,7 +213,7 @@ function vpnclient_deploy_files_and_services()
 
   # Create certificates directory
   sudo mkdir -pm 0770 /etc/openvpn/keys/
-  sudo chown root:admins /etc/openvpn/keys/
+  sudo chown root:${sysuser} /etc/openvpn/keys/
 
   #=================================================
   # NGINX CONFIGURATION
@@ -214,8 +228,8 @@ function vpnclient_deploy_files_and_services()
   #=================================================
 
   sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_USER>|www-data|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_GROUP>|www-data|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sudo sed "s|<TPL:PHP_USER>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sudo sed "s|<TPL:PHP_GROUP>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
   sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
 
   # Fix sources
