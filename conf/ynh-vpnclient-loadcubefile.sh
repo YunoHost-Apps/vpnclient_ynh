@@ -96,7 +96,7 @@ fi
 
 # Upload cube file
 
-output=$(curl -kL -F "service_enabled=${ynh_service_enabled}" -F _method=put -F "cubefile=@${cubefile_path}" "https://${ynh_domain}/${ynh_path}/?/settings" --resolve "${ynh_domain}:443:127.0.0.1" -b "${tmpdir}/cookies" 2> /dev/null | grep RETURN_MSG | sed 's/<!-- RETURN_MSG -->//' | sed 's/<\/?[^>]\+>//g' | sed 's/^ \+//g')
+output=$(curl -kL -H "X-Requested-With: yunohost-config" -F "service_enabled=${ynh_service_enabled}" -F _method=put -F "cubefile=@${cubefile_path}" "https://${ynh_domain}/${ynh_path}/?/settings" --resolve "${ynh_domain}:443:127.0.0.1" -b "${tmpdir}/cookies" 2> /dev/null | grep RETURN_MSG | sed 's/<!-- RETURN_MSG -->//' | sed 's/<\/?[^>]\+>//g' | sed 's/^ \+//g')
 
 
 # Configure IPv6 Delegated Prefix on Hotspot
