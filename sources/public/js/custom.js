@@ -87,14 +87,12 @@ function ready() {
         headers: {
           'X-Requested-With': 'jQuery',
         },
+        timeout: 5000,
         dataType: "html",
-        success: function(data){
-          document.body.innerHTML = new DOMParser().parseFromString(data, "text/html").body.innerHTML
-          ready()
-        },
-        error: function() {
-          $('#save').prop('disabled', false);
-          $('#save-loading').hide();
+        // success: function() {}, // XXX will never happen because the VPN connection will be restarted after the form is posted.
+        complete: function() {
+          console.log("Forcing page reload after a few seconds...");
+          setTimeout(function() {document.location.reload();}, 45000)
         },
     });
   })
