@@ -117,6 +117,11 @@ dispatch('/', function() {
 });
 
 dispatch_put('/settings', function() {
+
+  if(!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    throw new Exception('CSRF protection');
+  }
+
   $service_enabled = isset($_POST['service_enabled']) ? 1 : 0;
 
   if($service_enabled == 1) {

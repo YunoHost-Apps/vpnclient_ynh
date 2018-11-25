@@ -28,7 +28,7 @@ function tabsClick() {
   return false;
 }
 
-$(document).ready(function() {
+function ready() {
   $('.btn-group').button();
   $('[data-toggle="tooltip"]').tooltip();
 
@@ -73,11 +73,31 @@ $(document).ready(function() {
     $(choosertxtid).val($(this).val().replace(/^.*[\/\\]/, ''));
   });
 
-  $('#save').click(function() {
-    $(this).prop('disabled', true);
+  $('#form').on("submit", function(event) {
+    event.preventDefault()
+    $('#save').prop('disabled', true);
     $('#save-loading').show();
-    $('#form').submit();
-  });
+    $.ajax({
+        url: this.action,
+        type: this.method,
+        contentType: false,
+        processData: false,
+        cache: false,
+        data: new FormData(this),
+        headers: {
+          'X-Requested-With': 'jQuery',
+        },
+        dataType: "html",
+        success: function(data){
+          document.body.innerHTML = new DOMParser().parseFromString(data, "text/html").body.innerHTML
+          ready()
+        },
+        error: function() {
+          $('#save').prop('disabled', false);
+          $('#save-loading').hide();
+        },
+    });
+  })
 
   $('#status .close').click(function() {
     $(this).parent().hide();
@@ -110,4 +130,6 @@ $(document).ready(function() {
       $('.enabled').show('slow');
     }
   });
-});
+}
+
+$(document).ready(ready)
