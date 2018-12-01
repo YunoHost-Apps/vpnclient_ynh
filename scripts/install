@@ -24,13 +24,13 @@ upgrade=$([ "${VPNCLIENT_UPGRADE}" == 1 ] && echo true || echo false)
 domain=${1}
 url_path=${2}
 
-if ! $upgrade; then
-  source ./helpers
-  source ./prerequisites
-fi
+source ./helpers
+source ./prerequisites
 
 # Check domain/path availability
-ynh_webpath_register vpnclient $domain $url_path || exit 1
+if ! $upgrade; then
+   ynh_webpath_register vpnclient $domain $url_path || exit 1
+fi
 
 # Install packages
 packages='php5-fpm sipcalc dnsutils openvpn curl fake-hwclock'
