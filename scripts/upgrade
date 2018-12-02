@@ -54,7 +54,7 @@ test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
 #    ynh_restore_upgradebackup
 #}
 ## Exit if an error occurs during the execution of the script
-#ynh_abort_if_errors
+ynh_abort_if_errors
 
 #=================================================
 # DO UPGRADE
