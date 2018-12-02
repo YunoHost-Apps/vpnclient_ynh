@@ -37,35 +37,35 @@ domain=$(ynh_app_setting_get $app domain)
 #=================================================
 # The End
 ynh_systemctl stop ynh-vpnclient-checker.service
-sudo systemctl disable ynh-vpnclient-checker.service
+systemctl disable ynh-vpnclient-checker.service
 ynh_systemctl stop ynh-vpnclient-checker.timer && sleep 1
-sudo systemctl disable ynh-vpnclient-checker.timer
+systemctl disable ynh-vpnclient-checker.timer
 ynh_systemctl stop ynh-vpnclient
-sudo systemctl disable ynh-vpnclient
-sudo yunohost service remove ynh-vpnclient
-sudo rm -f /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
-sudo rm -f /tmp/.ynh-vpnclient-*
+systemctl disable ynh-vpnclient
+yunohost service remove ynh-vpnclient
+rm -f /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
+rm -f /tmp/.ynh-vpnclient-*
 
 # Remove confs
-sudo rm -f /etc/openvpn/client.conf{.tpl,.tpl.restore,}
-sudo rm -f /etc/nginx/conf.d/${domain}.d/${app}.conf
-sudo rm -f /etc/php5/fpm/pool.d/${app}.conf
-sudo rm -f /etc/yunohost/hooks.d/90-vpnclient.tpl
-sudo rm -f /etc/systemd/system/openvpn@.service
+rm -f /etc/openvpn/client.conf{.tpl,.tpl.restore,}
+rm -f /etc/nginx/conf.d/${domain}.d/${app}.conf
+rm -f /etc/php5/fpm/pool.d/${app}.conf
+rm -f /etc/yunohost/hooks.d/90-vpnclient.tpl
+rm -f /etc/systemd/system/openvpn@.service
 
 # Remove certificates
-sudo rm -rf /etc/openvpn/keys/
+rm -rf /etc/openvpn/keys/
 
 # Remove packages
 ynh_remove_app_dependencies
 
 # Restart services
-sudo systemctl restart php5-fpm
-sudo systemctl reload nginx
+systemctl restart php5-fpm
+systemctl reload nginx
 
 # Remove sources
-sudo rm -rf /var/www/${app}/
+rm -rf /var/www/${app}/
 
 # Removed system user
 ynh_system_user_delete ${app}
-sudo rm -f /etc/sudoers.d/${app}_ynh
+rm -f /etc/sudoers.d/${app}_ynh

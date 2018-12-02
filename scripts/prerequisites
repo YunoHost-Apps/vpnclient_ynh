@@ -1,7 +1,7 @@
 # Source me
 
 # Check YunoHost version (firewall hook in Moulinette)
-ynh_version=$(sudo dpkg -l yunohost | grep ii | awk '{ print $3 }' | sed 's/\.//g')
+ynh_version=$(dpkg -l yunohost | grep ii | awk '{ print $3 }' | sed 's/\.//g')
 
 if [ "${ynh_version}" -lt 240 ]; then
   echo "WARN: You need a YunoHost's version equals or greater than 2.4.0 for activating the firewalling" >&2

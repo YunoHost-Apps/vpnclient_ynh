@@ -33,7 +33,7 @@ to_logs() {
 # Experimental helpers
 # Cf. https://github.com/YunoHost-Apps/Experimental_helpers/blob/72b0bc77c68d4a4a2bf4e95663dbc05e4a762a0a/ynh_read_manifest/ynh_read_manifest
 read_json () {
-    sudo python3 -c "import sys, json;print(json.load(open('$1'))['$2'])"
+    python3 -c "import sys, json;print(json.load(open('$1'))['$2'])"
 }
 
 # Experimental helper
@@ -72,7 +72,7 @@ function ynh_systemctl()
   local LOCKFILE="/var/run/moulinette_yunohost.lock"
 
   # Launch the action
-  sudo systemctl "$ACTION" "$SERVICE" &
+  systemctl "$ACTION" "$SERVICE" &
   local SYSCTLACTION=$!
 
   # Save and release the lock...
@@ -142,7 +142,7 @@ ynh_app_package_version () {
 #
 # To force an upgrade, even if the package is up to date,
 # you have to set the variable YNH_FORCE_UPGRADE before.
-# example: sudo YNH_FORCE_UPGRADE=1 yunohost app upgrade MyApp
+# example: YNH_FORCE_UPGRADE=1 yunohost app upgrade MyApp
 #
 # usage: ynh_abort_if_up_to_date
 ynh_abort_if_up_to_date () {
@@ -179,70 +179,70 @@ function vpnclient_deploy_files_and_services()
     ynh_system_user_create ${sysuser}
   fi
 
-  # Ensure the system user has enough sudo permissions
-  sudo install -b -o root -g root -m 0440 ../conf/sudoers.conf /etc/sudoers.d/${app}_ynh
+  # Ensure the system user has enough permissions
+  install -b -o root -g root -m 0440 ../conf/sudoers.conf /etc/sudoers.d/${app}_ynh
   ynh_replace_string "__VPNCLIENT_SYSUSER__" "${sysuser}" /etc/sudoers.d/${app}_ynh
 
   # Install IPv6 scripts
-  sudo install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
-  sudo install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
+  install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
+  install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
   # Install command-line cube file loader
-  sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
+  install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
 
   # Copy confs
-  sudo mkdir -pm 0755 /var/log/nginx/
-  sudo chown root:${sysuser} /etc/openvpn/
-  sudo chmod 775 /etc/openvpn/
-  sudo mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
+  mkdir -pm 0755 /var/log/nginx/
+  chown root:${sysuser} /etc/openvpn/
+  chmod 775 /etc/openvpn/
+  mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 
-  sudo install -b -o root -g ${sysuser} -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
-  sudo install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
-  sudo install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  sudo install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
-  sudo install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
-  sudo install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
+  install -b -o root -g ${sysuser} -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
+  install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
+  install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+  install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
+  install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
+  install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
   # Copy web sources
-  sudo mkdir -pm 0755 /var/www/${app}/
-  sudo cp -a ../sources/* /var/www/${app}/
+  mkdir -pm 0755 /var/www/${app}/
+  cp -a ../sources/* /var/www/${app}/
 
-  sudo chown -R root: /var/www/${app}/
-  sudo chmod -R 0644 /var/www/${app}/*
-  sudo find /var/www/${app}/ -type d -exec chmod +x {} \;
+  chown -R root: /var/www/${app}/
+  chmod -R 0644 /var/www/${app}/*
+  find /var/www/${app}/ -type d -exec chmod +x {} \;
 
   # Create certificates directory
-  sudo mkdir -pm 0770 /etc/openvpn/keys/
-  sudo chown root:${sysuser} /etc/openvpn/keys/
+  mkdir -pm 0770 /etc/openvpn/keys/
+  chown root:${sysuser} /etc/openvpn/keys/
 
   #=================================================
   # NGINX CONFIGURATION
   #=================================================
 
-  sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+  sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+  sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+  sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
   #=================================================
   # PHP-FPM CONFIGURATION
   #=================================================
 
-  sudo sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_USER>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:PHP_GROUP>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sudo sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sed "s|<TPL:PHP_USER>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sed "s|<TPL:PHP_GROUP>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
 
   # Fix sources
-  sudo sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
+  sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
 
   # Copy init script
-  sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
-  sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
+  install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
+  install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
 
   # Copy checker timer
-  sudo install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
-  sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
-  sudo install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
+  install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
+  install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
+  install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
 
-  sudo systemctl daemon-reload
+  systemctl daemon-reload
 }
