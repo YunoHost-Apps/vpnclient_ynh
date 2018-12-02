@@ -68,5 +68,6 @@ sudo rm -rf /var/www/${app}/
 
 # Removed system user
 ynh_system_user_delete ${app}
+sudo rm -f /etc/sudoers.d/${app}_ynh
 
 exit 0
