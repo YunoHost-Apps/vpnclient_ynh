@@ -104,5 +104,3 @@ sudo systemctl enable ynh-vpnclient-checker.timer
 
 
 sudo yunohost app ssowatconf
-
-exit 0

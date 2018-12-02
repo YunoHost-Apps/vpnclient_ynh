@@ -87,5 +87,3 @@ ynh_systemctl reload php5-fpm
 ynh_systemctl reload nginx
 
 ynh_systemctl restart ynh-vpnclient
-
-exit 0

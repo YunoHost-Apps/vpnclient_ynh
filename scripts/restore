@@ -41,5 +41,3 @@ cd "${tmpdir}/scripts/"
 bash ./upgrade 
 
 sudo rm -r "${tmpdir}/"
-
-exit 0

@@ -78,5 +78,3 @@ ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.service"
 ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.timer"
 
 ynh_backup "/etc/cron.d/$app"
-
-exit 0
