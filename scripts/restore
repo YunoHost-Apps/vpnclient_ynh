@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ynh_die "restore script is not implemented"
-
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
@@ -13,6 +11,8 @@ if [ ! -e _common.sh ]; then
 fi
 source _common.sh
 source /usr/share/yunohost/helpers
+
+ynh_die "restore script is not implemented yet"
 
 #=================================================
 # MANAGE SCRIPT FAILURE
