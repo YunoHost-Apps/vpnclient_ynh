@@ -1,5 +1,15 @@
 #!/bin/bash
 
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source /usr/share/yunohost/helpers
+source _common.sh
+
+
 ynh_setting() {
   app=${1}
   setting=${2}
