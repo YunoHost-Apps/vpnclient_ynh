@@ -36,35 +36,35 @@ domain=$(ynh_app_setting_get $app domain)
 #=================================================
 # The End
 ynh_systemctl stop ynh-vpnclient-checker.service
-sudo systemctl disable ynh-vpnclient-checker.service
+systemctl disable ynh-vpnclient-checker.service
 ynh_systemctl stop ynh-vpnclient-checker.timer && sleep 1
-sudo systemctl disable ynh-vpnclient-checker.timer
+systemctl disable ynh-vpnclient-checker.timer
 ynh_systemctl stop ynh-vpnclient
-sudo systemctl disable ynh-vpnclient
-sudo yunohost service remove ynh-vpnclient
-sudo ynh_secure_remove /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
-sudo ynh_secure_remove /tmp/.ynh-vpnclient-*
+systemctl disable ynh-vpnclient
+yunohost service remove ynh-vpnclient
+ynh_secure_remove /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
+ynh_secure_remove /tmp/.ynh-vpnclient-*
 
 # Remove confs
-sudo ynh_secure_remove /etc/openvpn/client.conf{.tpl,.tpl.restore,}
-sudo ynh_secure_remove /etc/nginx/conf.d/${domain}.d/${app}.conf
-sudo ynh_secure_remove /etc/php5/fpm/pool.d/${app}.conf
-sudo ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
-sudo ynh_secure_remove /etc/systemd/system/openvpn@.service
+ynh_secure_remove /etc/openvpn/client.conf{.tpl,.tpl.restore,}
+ynh_secure_remove /etc/nginx/conf.d/${domain}.d/${app}.conf
+ynh_secure_remove /etc/php5/fpm/pool.d/${app}.conf
+ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
+ynh_secure_remove /etc/systemd/system/openvpn@.service
 
 # Remove certificates
-sudo ynh_secure_remove /etc/openvpn/keys/
+ynh_secure_remove /etc/openvpn/keys/
 
 # Remove packages
 ynh_remove_app_dependencies
 
 # Restart services
-sudo systemctl restart php5-fpm
-sudo systemctl reload nginx
+systemctl restart php5-fpm
+systemctl reload nginx
 
 # Remove sources
-sudo ynh_secure_remove "/var/www/${app}/"
+ynh_secure_remove "/var/www/${app}/"
 
 # Removed system user
 ynh_system_user_delete ${app}
-sudo ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
+ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
