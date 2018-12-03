@@ -77,7 +77,7 @@ vpnclient_deploy_files_and_services "${domain}" "${app}"
 
 # Restore previously existing config files
 sudo cp -r ${tmpdir}/client* /etc/openvpn/
-sudo rm -rf ${tmpdir}
+sudo ynh_secure_remove ${tmpdir}
 
 #=================================================
 # RELOAD RELEVANT SERVICES
