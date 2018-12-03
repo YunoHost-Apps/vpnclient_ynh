@@ -39,23 +39,17 @@ ynh_abort_if_errors
 
 # Retrieve arguments
 domain=$1
-path_url=$2
-
+path_url=$(ynh_normalize_url_path "$2")
 app=$YNH_APP_INSTANCE_NAME
+final_path="/var/www/$app"
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
 
 # Check destination directory
-final_path="/var/www/$app"
 test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
 
-# Normalize the url path syntax
-path_url=$(ynh_normalize_url_path "$path_url")
-
-# Check web path availability
-ynh_webpath_available "$domain" "$path_url"
 # Register (book) web path
 ynh_webpath_register "$app" "$domain" "$path_url"
 
@@ -80,8 +74,6 @@ ynh_install_app_dependencies "$pkg_dependencies"
 
 vpnclient_deploy_files_and_services "${domain}" "${app}"
 
-ynh_app_setting_set $app final_path $final_path
-
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
@@ -101,6 +93,5 @@ ynh_systemctl start ynh-vpnclient-checker.service
 sudo systemctl enable ynh-vpnclient-checker.service
 ynh_systemctl start ynh-vpnclient-checker.timer
 sudo systemctl enable ynh-vpnclient-checker.timer
-
 
 sudo yunohost app ssowatconf
