@@ -27,13 +27,13 @@ server_name=$(ynh_app_setting_get $app server_name)
 
 # Apply renaming that occured in v1.2.0 ("vpnadmin" -> "${app}")
 if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
-  sudo sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-  sudo sed "s|vpnadmin.sock|${app}.sock|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  sed "s|vpnadmin.sock|${app}.sock|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
   mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 fi
 if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
-  sudo sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/vpnadmin.conf
-  sudo sed "s|vpnadmin.sock|${app}.sock|g" -i  /etc/php5/fpm/pool.d/vpnadmin.conf
+  sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/vpnadmin.conf
+  sed "s|vpnadmin.sock|${app}.sock|g" -i  /etc/php5/fpm/pool.d/vpnadmin.conf
   mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
 fi
 test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
@@ -70,14 +70,14 @@ ynh_install_app_dependencies "$pkg_dependencies"
 
 # Keep a copy of existing config files before overwriting them
 tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
-sudo cp -r /etc/openvpn/client* ${tmpdir}
+cp -r /etc/openvpn/client* ${tmpdir}
 
 # Deploy files from package
 vpnclient_deploy_files_and_services "${domain}" "${app}"
 
 # Restore previously existing config files
-sudo cp -r ${tmpdir}/client* /etc/openvpn/
-sudo ynh_secure_remove ${tmpdir}
+cp -r ${tmpdir}/client* /etc/openvpn/
+ynh_secure_remove ${tmpdir}
 
 #=================================================
 # RELOAD RELEVANT SERVICES
