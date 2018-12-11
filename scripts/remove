@@ -42,28 +42,34 @@ systemctl disable ynh-vpnclient-checker.timer
 ynh_systemctl stop ynh-vpnclient
 systemctl disable ynh-vpnclient
 yunohost service remove ynh-vpnclient
-ynh_secure_remove /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient*
-ynh_secure_remove /tmp/.ynh-vpnclient-*
+for FILE in $(ls /etc/systemd/system/ynh-vpnclient* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*)
+do
+    ynh_secure_remove "$FILE"
+done
 
 # Remove confs
-ynh_secure_remove /etc/openvpn/client.conf{.tpl,.tpl.restore,}
+ynh_secure_remove /etc/openvpn/client.conf
+ynh_secure_remove /etc/openvpn/client.conf.tpl
+ynh_secure_remove /etc/openvpn/client.conf.tpl.restore
 ynh_secure_remove /etc/nginx/conf.d/${domain}.d/${app}.conf
 ynh_secure_remove /etc/php5/fpm/pool.d/${app}.conf
 ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
 ynh_secure_remove /etc/systemd/system/openvpn@.service
 
 # Remove certificates
-ynh_secure_remove /etc/openvpn/keys/
+ynh_secure_remove /etc/openvpn/keys
 
 # Remove packages
 ynh_remove_app_dependencies
 
+# Remove sources
+ynh_secure_remove "/var/www/${app}"
+
 # Restart services
+# (this must happen before deleting the user, otherwise the user is
+# being used by one of the php pool process)
 systemctl restart php5-fpm
 systemctl reload nginx
-
-# Remove sources
-ynh_secure_remove "/var/www/${app}/"
 
 # Removed system user
 ynh_system_user_delete ${app}
