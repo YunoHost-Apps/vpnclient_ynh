@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleasead
 
 
+## 1.3.1 - 2018-12-19
+
+- [mod] Bug fixes and code cleaning
+
 ## 1.3.0 - 2018-12-02
 
 - [fix] Create a dedicated system user with proper sudo permissions. (#41)
