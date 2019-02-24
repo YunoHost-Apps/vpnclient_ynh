@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# VPN Client app for YunoHost 
+# VPN Client app for YunoHost
 # Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
 # Contribute at https://github.com/labriqueinternet/vpnclient_ynh
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -42,6 +42,9 @@ domain=$1
 path_url=$(ynh_normalize_url_path "$2")
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
+
+service_name="ynh-vpnclient"
+service_checker_name=$service_name"-checker"
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -77,7 +80,7 @@ vpnclient_deploy_files_and_services "${domain}" "${app}"
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
-# and the ynh-vpnclient service handles them.
+# and the vpnclient service handles them.
 systemctl disable openvpn
 systemctl stop openvpn
 
@@ -86,12 +89,17 @@ systemctl restart php5-fpm
 
 systemctl reload nginx
 
-systemctl enable ynh-vpnclient
-yunohost service add ynh-vpnclient
+# main service
 
-ynh_systemctl start ynh-vpnclient-checker.service
-systemctl enable ynh-vpnclient-checker.service
-ynh_systemctl start ynh-vpnclient-checker.timer
-systemctl enable ynh-vpnclient-checker.timer
+yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+yunohost service enable $service_name
+
+# checker service
+
+yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+yunohost service start $service_checker_name
+yunohost service enable $service_checker_name
+systemctl start $service_checker_name.timer
+systemctl enable $service_checker_name.timer
 
 yunohost app ssowatconf

@@ -57,41 +57,6 @@ ynh_abort_if_up_to_date () {
     fi
 }
 
-# Helper to start/stop/.. a systemd service from a yunohost context,
-# *and* the systemd service itself needs to be able to run yunohost
-# commands.
-#
-# Hence the need to release the lock during the operation
-#
-# usage : ynh_systemctl yolo restart
-#
-function ynh_systemctl()
-{
-  local ACTION="$1"
-  local SERVICE="$2"
-  local LOCKFILE="/var/run/moulinette_yunohost.lock"
-
-  # Launch the action
-  systemctl "$ACTION" "$SERVICE" &
-  local SYSCTLACTION=$!
-
-  # Save and release the lock...
-  cp $LOCKFILE $LOCKFILE.bkp.$$
-  rm $LOCKFILE
-
-  # Wait for the end of the action
-  wait $SYSCTLACTION
-
-  # Make sure the lock is released...
-  while [ -f $LOCKFILE ]
-  do
-    sleep 0.1
-  done
-
-  # Restore the old lock
-  mv $LOCKFILE.bkp.$$ $LOCKFILE
-}
-
 # Read the value of a key in a ynh manifest file
 #
 # usage: ynh_read_manifest manifest key
@@ -244,5 +209,6 @@ function vpnclient_deploy_files_and_services()
   install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
   install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
 
+  # Reload systemd configuration
   systemctl daemon-reload
 }
