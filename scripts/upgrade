@@ -21,6 +21,9 @@ is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 server_name=$(ynh_app_setting_get $app server_name)
 
+service_name="ynh-vpnclient"
+service_checker_name=$service_name"-checker"
+
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
 #=================================================
@@ -83,10 +86,44 @@ ynh_secure_remove ${tmpdir}
 # RELOAD RELEVANT SERVICES
 #=================================================
 
-ynh_systemctl reload php5-fpm
-ynh_systemctl reload nginx
+systemctl reload php5-fpm
+systemctl reload nginx
 
-if systemctl is-active ynh-vpnclient >/dev/null;
+### Make sure that the yunohost services have a description and need-lock enabled
+
+# main service
+
+yunohost service remove $service_name
+yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+
+# checker service
+
+yunohost service remove $service_checker_name
+yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+
+# Reload systemd configuration
+
+systemctl daemon-reload
+
+### Restart services
+
+# restart main service if needed
+
+if systemctl is-active $service_name >/dev/null;
 then
-    ynh_systemctl restart ynh-vpnclient
+    yunohost service restart $service_name
+fi
+
+# restart checker service if needed
+
+if systemctl is-active $service_checker_name >/dev/null;
+then
+    yunohost service restart $service_checker_name
+fi
+
+# restart checker service timer
+
+if systemctl is-active $service_name.timer >/dev/null;
+then
+    yunohost service restart $service_checker_name.timer
 fi
