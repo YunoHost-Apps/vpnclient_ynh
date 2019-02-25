@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -64,6 +65,7 @@ ynh_abort_if_errors
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
@@ -85,8 +87,9 @@ ynh_secure_remove ${tmpdir}
 #=================================================
 # RELOAD RELEVANT SERVICES
 #=================================================
+ynh_print_info "Reload services..."
 
-systemctl reload php5-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
 
 ### Make sure that the yunohost services have a description and need-lock enabled
@@ -133,3 +136,9 @@ if systemctl is-active $service_name.timer >/dev/null;
 then
     yunohost service restart $service_checker_name.timer
 fi
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"

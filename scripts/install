@@ -49,6 +49,7 @@ service_checker_name=$service_name"-checker"
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 # Check destination directory
 test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
@@ -59,6 +60,7 @@ ynh_webpath_register "$app" "$domain" "$path_url"
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
@@ -68,15 +70,21 @@ ynh_app_setting_set "$app" final_path "$final_path"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
 #=================================================
+ynh_print_info "Deploy files from package..."
 
 vpnclient_deploy_files_and_services "${domain}" "${app}"
 
+#=================================================
+# RELOAD SERVICES
+#=================================================
+ynh_print_info "Reloading services..."
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
@@ -102,4 +110,8 @@ yunohost service enable $service_checker_name
 systemctl start $service_checker_name.timer
 systemctl enable $service_checker_name.timer
 
-yunohost app ssowatconf
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"

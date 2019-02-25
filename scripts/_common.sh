@@ -3,23 +3,8 @@
 # Common variables and helpers
 #
 
-pkg_dependencies="php5-fpm sipcalc dnsutils openvpn curl fake-hwclock"
+pkg_dependencies="php7.0-fpm sipcalc dnsutils openvpn curl fake-hwclock"
 
-log() {
-  echo "${1}"
-}
-
-info() {
-  log "[INFO] ${1}"
-}
-
-warn() {
-  log "[WARN] ${1}"
-}
-
-err() {
-  log "[ERR] ${1}"
-}
 to_logs() {
 
   # When yunohost --verbose or bash -x
@@ -52,7 +37,7 @@ ynh_abort_if_up_to_date () {
     version=$(read_json "/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" 'version' 2> /dev/null || echo '20160501-7')
     last_version=$(read_manifest 'version')
     if [ "${version}" = "${last_version}" ]; then
-        info "Up-to-date, nothing to do"
+        ynh_print_info "Up-to-date, nothing to do"
         ynh_die "" 0
     fi
 }
@@ -63,9 +48,9 @@ ynh_abort_if_up_to_date () {
 # | arg: manifest - Path of the manifest to read
 # | arg: key - Name of the key to find
 ynh_read_manifest () {
-	manifest="$1"
-	key="$2"
-	python3 -c "import sys, json;print(json.load(open('$manifest', encoding='utf-8'))['$key'])"
+    manifest="$1"
+    key="$2"
+    python3 -c "import sys, json;print(json.load(open('$manifest', encoding='utf-8'))['$key'])"
 }
 
 # Read the upstream version from the manifest
@@ -78,7 +63,7 @@ ynh_read_manifest () {
 ynh_app_upstream_version () {
     manifest_path="../manifest.json"
     if [ ! -e "$manifest_path" ]; then
-        manifest_path="../settings/manifest.json"	# Into the restore script, the manifest is not at the same place
+        manifest_path="../settings/manifest.json"   # Into the restore script, the manifest is not at the same place
     fi
     version_key=$(ynh_read_manifest "$manifest_path" "version")
     echo "${version_key/~ynh*/}"
@@ -94,7 +79,7 @@ ynh_app_upstream_version () {
 ynh_app_package_version () {
     manifest_path="../manifest.json"
     if [ ! -e "$manifest_path" ]; then
-        manifest_path="../settings/manifest.json"	# Into the restore script, the manifest is not at the same place
+        manifest_path="../settings/manifest.json"   # Into the restore script, the manifest is not at the same place
     fi
     version_key=$(ynh_read_manifest "$manifest_path" "version")
     echo "${version_key/*~ynh/}"
@@ -111,24 +96,24 @@ ynh_app_package_version () {
 #
 # usage: ynh_abort_if_up_to_date
 ynh_abort_if_up_to_date () {
-	local force_upgrade=${YNH_FORCE_UPGRADE:-0}
-	local package_check=${PACKAGE_CHECK_EXEC:-0}
+    local force_upgrade=${YNH_FORCE_UPGRADE:-0}
+    local package_check=${PACKAGE_CHECK_EXEC:-0}
 
-	local version=$(ynh_read_manifest "/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" "version" || echo 1.0)
-	local last_version=$(ynh_read_manifest "../manifest.json" "version" || echo 1.0)
-	if [ "$version" = "$last_version" ]
-	then
-		if [ "$force_upgrade" != "0" ]
-		then
-			echo "Upgrade forced by YNH_FORCE_UPGRADE." >&2
-			unset YNH_FORCE_UPGRADE
-		elif [ "$package_check" != "0" ]
-		then
-			echo "Upgrade forced for package check." >&2
-		else
-			ynh_die "Up-to-date, nothing to do" 0
-		fi
-	fi
+    local version=$(ynh_read_manifest "/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" "version" || echo 1.0)
+    local last_version=$(ynh_read_manifest "../manifest.json" "version" || echo 1.0)
+    if [ "$version" = "$last_version" ]
+    then
+        if [ "$force_upgrade" != "0" ]
+        then
+            echo "Upgrade forced by YNH_FORCE_UPGRADE." >&2
+            unset YNH_FORCE_UPGRADE
+        elif [ "$package_check" != "0" ]
+        then
+            echo "Upgrade forced for package check." >&2
+        else
+            ynh_die "Up-to-date, nothing to do" 0
+        fi
+    fi
 }
 
 # Operations needed by both 'install' and 'upgrade' scripts
@@ -163,8 +148,6 @@ function vpnclient_deploy_files_and_services()
 
   install -b -o root -g ${sysuser} -m 0664 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
   install -o root -g root -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl.restore
-  install -b -o root -g root -m 0644 ../conf/nginx_vpnadmin.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  install -b -o root -g root -m 0644 ../conf/phpfpm_vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
   install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
@@ -183,22 +166,21 @@ function vpnclient_deploy_files_and_services()
   #=================================================
   # NGINX CONFIGURATION
   #=================================================
+  ynh_print_info "Configuring nginx web server..."
 
-  sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-  sed "s|<TPL:PHP_NAME>|${app}|g" -i "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+  ynh_add_nginx_config
 
   #=================================================
   # PHP-FPM CONFIGURATION
   #=================================================
+  ynh_print_info "Configuring php-fpm..."
 
-  sed "s|<TPL:PHP_NAME>|${app}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sed "s|<TPL:PHP_USER>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sed "s|<TPL:PHP_GROUP>|${sysuser}|g" -i /etc/php5/fpm/pool.d/${app}.conf
-  sed "s|<TPL:NGINX_REALPATH>|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/${app}.conf
+  ynh_add_fpm_config
+
+  #=================================================
 
   # Fix sources
-  sed "s|<TPL:NGINX_LOCATION>|${path_url}|g" -i /var/www/${app}/config.php
+  ynh_replace_string "__PATH__" "${path_url}" "/var/www/${app}/config.php"
 
   # Copy init script
   install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/

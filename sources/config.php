@@ -1,19 +1,19 @@
 <?php
 
-/* VPN Client app for YunoHost 
+/* VPN Client app for YunoHost
  * Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
  * Contribute at https://github.com/labriqueinternet/vpnclient_ynh
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,11 +22,11 @@
 function configure() {
   option('env', ENV_PRODUCTION);
   option('debug', false);
-  option('base_uri', '<TPL:NGINX_LOCATION>/');
+  option('base_uri', '__PATH__/');
 
   layout('layout.html.php');
 
-  define('PUBLIC_DIR', '<TPL:NGINX_LOCATION>/public');
+  define('PUBLIC_DIR', '__PATH__/public');
 }
 
 // Before routing

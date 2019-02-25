@@ -29,6 +29,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
@@ -37,8 +38,9 @@ service_name="ynh-vpnclient"
 service_checker_name=$service_name"-checker"
 
 #=================================================
-
-# Stop and remove yunohost services
+# STOP AND REMOVE SERVICES
+#=================================================
+ynh_print_info "Stopping and removing services"
 
 yunohost service stop $service_checker_name
 yunohost service disable $service_checker_name
@@ -55,19 +57,45 @@ do
     ynh_secure_remove "$FILE"
 done
 
-# Remove confs
+#=================================================
+# REMOVE NGINX CONFIGURATION
+#=================================================
+ynh_print_info "Removing nginx web server configuration"
+
+# Remove the dedicated nginx config
+ynh_remove_nginx_config
+
+#=================================================
+# REMOVE PHP-FPM CONFIGURATION
+#=================================================
+ynh_print_info "Removing php-fpm configuration"
+
+# Remove the dedicated php-fpm config
+ynh_remove_fpm_config
+
+#=================================================
+# SPECIFIC REMOVE
+#================================================
+ynh_print_info "Removing openvpn configuration"
+
+# Remove openvpn configurations
 ynh_secure_remove /etc/openvpn/client.conf
 ynh_secure_remove /etc/openvpn/client.conf.tpl
 ynh_secure_remove /etc/openvpn/client.conf.tpl.restore
-ynh_secure_remove /etc/nginx/conf.d/${domain}.d/${app}.conf
-ynh_secure_remove /etc/php5/fpm/pool.d/${app}.conf
+
+# Remove YunoHost hook
 ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
+
+# Remove openvpn service
 ynh_secure_remove /etc/systemd/system/openvpn@.service
 
-# Remove certificates
+# Remove openvpn certificates
 ynh_secure_remove /etc/openvpn/keys
 
-# Remove packages
+#=================================================
+# REMOVE DEPENDENCIES
+#=================================================
+ynh_print_info "Removing dependencies"
 ynh_remove_app_dependencies
 
 # Remove sources
@@ -82,6 +110,18 @@ systemctl daemon-reload
 systemctl restart php5-fpm
 systemctl reload nginx
 
-# Removed system user
+#=================================================
+# REMOVE DEDICATED USER
+#=================================================
+
+ynh_print_info "Removing the dedicated system user"
+
+# Delete a system user
 ynh_system_user_delete ${app}
 ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Removal of $app completed"
