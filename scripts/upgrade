@@ -93,12 +93,18 @@ systemctl reload nginx
 
 # main service
 
-yunohost service remove $service_name
+if service_is_managed_by_yunohost $service_name
+then
+  yunohost service remove $service_name
+fi
 yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
 
 # checker service
 
-yunohost service remove $service_checker_name
+if service_is_managed_by_yunohost $service_checker_name
+then
+  yunohost service remove $service_checker_name
+fi
 yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
 
 # Reload systemd configuration
