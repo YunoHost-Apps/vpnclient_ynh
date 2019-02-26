@@ -212,3 +212,7 @@ function vpnclient_deploy_files_and_services()
   # Reload systemd configuration
   systemctl daemon-reload
 }
+
+function service_is_managed_by_yunohost() {
+  yunohost service status $1 >/dev/null 2>&1
+}
