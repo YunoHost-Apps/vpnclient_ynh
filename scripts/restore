@@ -1,18 +1,13 @@
 #!/bin/bash
 
 #=================================================
+# GENERIC START
+#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-    # Fetch helpers file if not in current directory
-    cp ../settings/scripts/_common.sh ./_common.sh
-    chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-
-ynh_die "restore script is not implemented yet"
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -21,23 +16,123 @@ ynh_die "restore script is not implemented yet"
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-#sysuser="${app}"
-sysuser="vpnclient" # XXX hard-coded variable
+#=================================================
+# LOAD SETTINGS
+#=================================================
+ynh_print_info "Loading settings..."
 
-backup_dir="${1}/apps/vpnclient"
+app=$YNH_APP_INSTANCE_NAME
 
-mkdir -p /etc/openvpn/
-cp -a "${backup_dir}/keys/" /etc/openvpn/
-cp -a "${backup_dir}/client.conf.tpl" /etc/openvpn/
-chown -R root:${sysuser} /etc/openvpn/keys/
+domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+final_path=$(ynh_app_setting_get $app final_path)
+service_name=$(ynh_app_setting_get $app service_name)
+service_checker_name=$service_name"-checker"
 
-gitcommit=$(grep revision /etc/yunohost/apps/vpnclient/status.json | sed 's/.*"revision": "\([^"]\+\)".*/\1/')
-tmpdir=$(mktemp -dp /tmp/ vpnclient-restore-XXXXX)
+#=================================================
+# CHECK IF THE APP CAN BE RESTORED
+#=================================================
+ynh_print_info "Validating restoration parameters..."
 
-git clone https://github.com/labriqueinternet/vpnclient_ynh.git "${tmpdir}/"
-git --work-tree "${tmpdir}/" --git-dir "${tmpdir}/.git/" reset --hard "${gitcommit}"
+ynh_webpath_available $domain $path_url \
+	|| ynh_die "Path not available: ${domain}${path_url}"
+test ! -d $final_path \
+	|| ynh_die "There is already a directory: $final_path "
 
-cd "${tmpdir}/scripts/"
-bash ./upgrade 
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
 
-rm -r "${tmpdir}/"
+ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+ynh_print_info "Restoring the app main directory..."
+
+ynh_restore_file "$final_path"
+
+ynh_restore_file "/etc/sudoers.d/${app}_ynh"
+
+ynh_restore_file "/usr/local/bin/ipv6_expanded"
+ynh_restore_file "/usr/local/bin/ipv6_compressed"
+ynh_restore_file "/usr/local/bin/$service_checker-loadcubefile.sh"
+
+ynh_restore_file "/etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient"
+ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient"
+
+ynh_restore_file "/etc/openvpn/client.conf.tpl"
+ynh_restore_file "/etc/openvpn/client.conf.tpl.restore"
+ynh_restore_file "/etc/openvpn/keys/"
+
+ynh_restore_file "/usr/local/bin/$service_checker"
+ynh_restore_file "/usr/local/bin/$service_checker_name.sh"
+ynh_restore_file "/usr/local/bin/$service_checker_name.timer"
+
+#=================================================
+# RECREATE THE DEDICATED USER
+#=================================================
+ynh_print_info "Recreating the dedicated system user..."
+
+# Create the dedicated user (if not existing)
+ynh_system_user_create $app
+
+#=================================================
+# RESTORE USER RIGHTS
+#=================================================
+
+# Restore permissions on app files
+chown -R $app: $final_path
+
+#=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
+
+#=================================================
+# SPECIFIC RESTORATION
+#=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+ynh_print_info "Reinstalling dependencies..."
+
+# Define and install dependencies
+ynh_install_app_dependencies "$pkg_dependencies"
+
+#=================================================
+# RESTORE SYSTEMD
+#=================================================
+ynh_print_info "Restoring the systemd configuration..."
+
+ynh_restore_file "/etc/systemd/system/$service_name.service"
+ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
+ynh_restore_file "/etc/systemd/system/openvpn@.service"
+systemctl enable "$service_name.service"
+systemctl enable "$service_checker_name.service"
+systemctl enable "openvpn@.service"
+
+#=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# RELOAD NGINX AND PHP-FPM
+#=================================================
+ynh_print_info "Reloading nginx web server and php-fpm..."
+
+systemctl restart php7.0-fpm
+systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Restoration completed for $app"
