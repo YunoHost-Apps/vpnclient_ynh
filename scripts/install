@@ -92,9 +92,7 @@ ynh_print_info "Reloading services..."
 systemctl disable openvpn
 systemctl stop openvpn
 
-systemctl enable php5-fpm
-systemctl restart php5-fpm
-
+systemctl restart php7.0-fpm
 systemctl reload nginx
 
 # main service

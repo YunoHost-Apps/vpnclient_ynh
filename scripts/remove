@@ -107,7 +107,7 @@ systemctl daemon-reload
 # Restart services
 # (this must happen before deleting the user, otherwise the user is
 # being used by one of the php pool process)
-systemctl restart php5-fpm
+systemctl restart php7.0-fpm
 systemctl reload nginx
 
 #=================================================
