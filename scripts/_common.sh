@@ -196,9 +196,9 @@ function vpnclient_deploy_files_and_services()
   #=================================================
   ynh_print_info "Configuring a systemd service..."
 
-  ynh_add_systemd_config $service_name
+  ynh_add_systemd_config $service_name "$service_name.service"
 
-  ynh_add_systemd_config $service_checker_name
+  ynh_add_systemd_config $service_checker_name "$service_checker_name.service"
 }
 
 function service_is_managed_by_yunohost() {
