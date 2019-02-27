@@ -43,7 +43,7 @@ ynh_backup "/usr/local/bin/ipv6_expanded"
 ynh_backup "/usr/local/bin/ipv6_compressed"
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_backup "/etc/yunohost/hooks.d/90-vpnclient"
+ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
 ynh_backup "/etc/openvpn/client.conf.tpl"
 ynh_backup "/etc/openvpn/client.conf.tpl.restore"
@@ -51,7 +51,6 @@ ynh_backup "/etc/openvpn/keys/"
 
 ynh_backup "/usr/local/bin/$service_name"
 ynh_backup "/usr/local/bin/$service_checker_name.sh"
-ynh_backup "/usr/local/bin/$service_checker_name.timer"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
@@ -76,6 +75,7 @@ ynh_print_info "Backing up systemd configuration..."
 
 ynh_backup "/etc/systemd/system/$service_name.service"
 ynh_backup "/etc/systemd/system/$service_checker_name.service"
+ynh_backup "/etc/systemd/system/$service_checker_name.timer"
 ynh_backup "/etc/systemd/system/openvpn@.service"
 
 #=================================================

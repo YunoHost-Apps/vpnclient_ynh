@@ -60,7 +60,7 @@ ynh_restore_file "/usr/local/bin/ipv6_expanded"
 ynh_restore_file "/usr/local/bin/ipv6_compressed"
 ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient"
+ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
 ynh_restore_file "/etc/openvpn/client.conf.tpl"
 ynh_restore_file "/etc/openvpn/client.conf.tpl.restore"
@@ -68,7 +68,6 @@ ynh_restore_file "/etc/openvpn/keys/"
 
 ynh_restore_file "/usr/local/bin/$service_name"
 ynh_restore_file "/usr/local/bin/$service_checker_name.sh"
-ynh_restore_file "/usr/local/bin/$service_checker_name.timer"
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -108,6 +107,7 @@ ynh_print_info "Restoring the systemd configuration..."
 
 ynh_restore_file "/etc/systemd/system/$service_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
+ynh_restore_file "/etc/systemd/system/$service_checker_name.timer"
 ynh_restore_file "/etc/systemd/system/openvpn@.service"
 systemctl enable "$service_name.service"
 systemctl enable "$service_checker_name.service"
