@@ -38,8 +38,8 @@ ynh_abort_if_errors
 #=================================================
 
 # Retrieve arguments
-domain=$1
-path_url=$(ynh_normalize_url_path "$2")
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$(ynh_normalize_url_path "$YNH_APP_ARG_PATH")
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
 
