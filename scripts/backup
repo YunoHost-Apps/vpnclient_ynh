@@ -43,7 +43,6 @@ ynh_backup "/usr/local/bin/ipv6_expanded"
 ynh_backup "/usr/local/bin/ipv6_compressed"
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_backup "/etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient"
 ynh_backup "/etc/yunohost/hooks.d/90-vpnclient"
 
 ynh_backup "/etc/openvpn/client.conf.tpl"

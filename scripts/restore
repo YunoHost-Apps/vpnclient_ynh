@@ -60,7 +60,6 @@ ynh_restore_file "/usr/local/bin/ipv6_expanded"
 ynh_restore_file "/usr/local/bin/ipv6_compressed"
 ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_restore_file "/etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient"
 ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient"
 
 ynh_restore_file "/etc/openvpn/client.conf.tpl"
