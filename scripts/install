@@ -80,7 +80,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Deploy files from package..."
 
-vpnclient_deploy_files_and_services "${domain}" "${app}"
+vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
 
 #=================================================
 # RELOAD SERVICES

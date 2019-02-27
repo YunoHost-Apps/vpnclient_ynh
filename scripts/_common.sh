@@ -121,7 +121,9 @@ function vpnclient_deploy_files_and_services()
 {
   local domain=$1
   local app=$2
+  local service_name=$3
   local sysuser="${app}"
+  local service_checker_name="$service_name-checker"
 
   # Ensure vpnclient_ynh has its own system user
   if ! ynh_system_user_exists ${sysuser}
@@ -138,7 +140,7 @@ function vpnclient_deploy_files_and_services()
   install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
   # Install command-line cube file loader
-  install -o root -g root -m 0755 ../conf/$service_checker-loadcubefile.sh /usr/local/bin/
+  install -o root -g root -m 0755 ../conf/$service_name-loadcubefile.sh /usr/local/bin/
 
   # Copy confs
   mkdir -pm 0755 /var/log/nginx/
