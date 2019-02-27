@@ -138,7 +138,7 @@ function vpnclient_deploy_files_and_services()
   install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
 
   # Install command-line cube file loader
-  install -o root -g root -m 0755 ../conf/ynh-vpnclient-loadcubefile.sh /usr/local/bin/
+  install -o root -g root -m 0755 ../conf/$service_checker-loadcubefile.sh /usr/local/bin/
 
   # Copy confs
   mkdir -pm 0755 /var/log/nginx/
@@ -183,16 +183,20 @@ function vpnclient_deploy_files_and_services()
   ynh_replace_string "__PATH__" "${path_url}" "/var/www/${app}/config.php"
 
   # Copy init script
-  install -o root -g root -m 0755 ../conf/ynh-vpnclient /usr/local/bin/
-  install -o root -g root -m 0644 ../conf/ynh-vpnclient.service /etc/systemd/system/
+  install -o root -g root -m 0755 ../conf/$service_name /usr/local/bin/
 
   # Copy checker timer
-  install -o root -g root -m 0755 ../conf/ynh-vpnclient-checker.sh /usr/local/bin/
-  install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.service /etc/systemd/system/
-  install -o root -g root -m 0644 ../conf/ynh-vpnclient-checker.timer /etc/systemd/system/
+  install -o root -g root -m 0755 ../conf/$service_checker_name.sh /usr/local/bin/
+  install -o root -g root -m 0644 ../conf/$service_checker_name.timer /etc/systemd/system/
 
-  # Reload systemd configuration
-  systemctl daemon-reload
+  #=================================================
+  # SETUP SYSTEMD
+  #=================================================
+  ynh_print_info "Configuring a systemd service..."
+
+  ynh_add_systemd_config $service_name
+
+  ynh_add_systemd_config $service_checker_name
 }
 
 function service_is_managed_by_yunohost() {
