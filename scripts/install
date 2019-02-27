@@ -64,6 +64,7 @@ ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
+ynh_app_setting_set "$app" service_name "$service_name"
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -97,12 +98,12 @@ systemctl reload nginx
 
 # main service
 
-yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
 yunohost service enable $service_name
 
 # checker service
 
-yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
 yunohost service start $service_checker_name
 yunohost service enable $service_checker_name
 systemctl start $service_checker_name.timer
