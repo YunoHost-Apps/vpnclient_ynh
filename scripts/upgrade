@@ -21,9 +21,9 @@ path_url=$(ynh_app_setting_get $app path)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 server_name=$(ynh_app_setting_get $app server_name)
-
-service_name="ynh-vpnclient"
+service_name=$(ynh_app_setting_get $app service_name)
 service_checker_name=$service_name"-checker"
+
 
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
@@ -41,6 +41,12 @@ if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
   mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
 fi
 test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
+
+if [ -z $service_name ]; then
+  service_name="ynh-vpnclient"
+  service_checker_name=$service_name"-checker"
+  ynh_app_setting_set "$app" service_name "$service_name"
+fi
 
 ## Versions known to have a buggy backup script
 #buggy_versions="1.0.0 1.0.1 1.1.0"

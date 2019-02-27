@@ -33,8 +33,7 @@ ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
-
-service_name="ynh-vpnclient"
+service_name=$(ynh_app_setting_get $app service_name)
 service_checker_name=$service_name"-checker"
 
 #=================================================
