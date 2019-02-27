@@ -58,7 +58,7 @@ ynh_restore_file "/etc/sudoers.d/${app}_ynh"
 
 ynh_restore_file "/usr/local/bin/ipv6_expanded"
 ynh_restore_file "/usr/local/bin/ipv6_compressed"
-ynh_restore_file "/usr/local/bin/$service_checker-loadcubefile.sh"
+ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 
 ynh_restore_file "/etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient"
 ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient"
@@ -67,7 +67,7 @@ ynh_restore_file "/etc/openvpn/client.conf.tpl"
 ynh_restore_file "/etc/openvpn/client.conf.tpl.restore"
 ynh_restore_file "/etc/openvpn/keys/"
 
-ynh_restore_file "/usr/local/bin/$service_checker"
+ynh_restore_file "/usr/local/bin/$service_name"
 ynh_restore_file "/usr/local/bin/$service_checker_name.sh"
 ynh_restore_file "/usr/local/bin/$service_checker_name.timer"
 
