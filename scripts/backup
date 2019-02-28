@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #=================================================
 # GENERIC START
@@ -5,15 +6,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-
-ynh_die "backup script is not implemented yet"
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -25,54 +19,67 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app db_name)
+service_name=$(ynh_app_setting_get $app service_name)
+service_checker_name=$service_name"-checker"
 
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
-# LOAD SETTINGS
-#=================================================
-
-app=$YNH_APP_INSTANCE_NAME
-
-final_path=$(ynh_app_setting_get $app final_path)
-domain=$(ynh_app_setting_get $app domain)
-
-#=================================================
-# STANDARD BACKUP STEPS
-#=================================================
-# BACKUP THE APP MAIN DIR
-#=================================================
+ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "$final_path"
+
+ynh_backup "/etc/sudoers.d/${app}_ynh"
+
+ynh_backup "/usr/local/bin/ipv6_expanded"
+ynh_backup "/usr/local/bin/ipv6_compressed"
+ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
+
+ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+
+ynh_backup "/etc/openvpn/client.conf.tpl"
+ynh_backup "/etc/openvpn/client.conf.tpl.restore"
+ynh_backup "/etc/openvpn/keys/"
+
+ynh_backup "/usr/local/bin/$service_name"
+ynh_backup "/usr/local/bin/$service_checker_name.sh"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Backing up nginx web server configuration..."
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/${app}.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Backing up php-fpm configuration..."
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php/7.0/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC BACKUP
 #=================================================
 # BACKUP SYSTEMD
 #=================================================
+ynh_print_info "Backing up systemd configuration..."
 
-ynh_backup "/etc/systemd/system/ynh-vpnclient.service"
-ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.service"
-ynh_backup "/etc/systemd/system/ynh-vpnclient-checker.timer"
+ynh_backup "/etc/systemd/system/$service_name.service"
+ynh_backup "/etc/systemd/system/$service_checker_name.service"
+ynh_backup "/etc/systemd/system/$service_checker_name.timer"
+ynh_backup "/etc/systemd/system/openvpn@.service"
 
-ynh_backup "/etc/cron.d/$app"
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

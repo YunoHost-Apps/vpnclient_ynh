@@ -38,8 +38,8 @@ ynh_abort_if_errors
 #=================================================
 
 # Retrieve arguments
-domain=$1
-path_url=$(ynh_normalize_url_path "$2")
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$(ynh_normalize_url_path "$YNH_APP_ARG_PATH")
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
 
@@ -64,6 +64,7 @@ ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
+ynh_app_setting_set "$app" service_name "$service_name"
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -79,7 +80,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Deploy files from package..."
 
-vpnclient_deploy_files_and_services "${domain}" "${app}"
+vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
 
 #=================================================
 # RELOAD SERVICES
@@ -92,19 +93,17 @@ ynh_print_info "Reloading services..."
 systemctl disable openvpn
 systemctl stop openvpn
 
-systemctl enable php5-fpm
-systemctl restart php5-fpm
-
+systemctl restart php7.0-fpm
 systemctl reload nginx
 
 # main service
 
-yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
 yunohost service enable $service_name
 
 # checker service
 
-yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
 yunohost service start $service_checker_name
 yunohost service enable $service_checker_name
 systemctl start $service_checker_name.timer
