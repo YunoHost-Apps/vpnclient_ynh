@@ -1,6 +1,4 @@
 ;; Test complet
-    ; pre-install
-        echo -n "Si j'avais des commandes à exécuter ce serait ici "
     ; Manifest
         domain="domain.tld" (DOMAIN)
         path="/vpnconfig"   (PATH)
