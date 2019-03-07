@@ -109,6 +109,7 @@ ynh_restore_file "/etc/systemd/system/$service_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.timer"
 ynh_restore_file "/etc/systemd/system/openvpn@.service"
+systemctl daemon-reload
 systemctl enable "$service_name.service"
 systemctl enable "$service_checker_name.service"
 systemctl enable "openvpn@.service"
