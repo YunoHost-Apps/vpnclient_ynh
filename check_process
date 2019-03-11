@@ -31,8 +31,3 @@
 ;;; Options
 Email=pitchum@gramaton.org
 Notification=down
-#;;; Upgrade options
-#   ; commit=65c382d138596fcb32b4c97c39398815a1dcd4e8
-#       name=Name of this previous version
-#       manifest_arg=domain=DOMAIN&path=PATH&admin=USER&password=pass&is_public=1&
-#
