@@ -31,12 +31,16 @@ if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
   ynh_replace_string "vpnadmin.sock" "${app}.sock" "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
   mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 fi
+
 if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
-  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php/7.0/fpm/pool.d/vpnadmin.conf
-  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php/7.0/fpm/pool.d/vpnadmin.conf
+  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php5/fpm/pool.d/vpnadmin.conf
+  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php5/fpm/pool.d/vpnadmin.conf
   mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
 fi
-test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
+
+if [ -d /var/www/vpnadmin ]; then
+  mv /var/www/vpnadmin /var/www/${app}
+fi
 
 ## Versions known to have a buggy backup script
 #buggy_versions="1.0.0 1.0.1 1.1.0"
