@@ -43,9 +43,6 @@ path_url=$(ynh_normalize_url_path "$YNH_APP_ARG_PATH")
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
 
-service_name="ynh-vpnclient"
-service_checker_name=$service_name"-checker"
-
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
@@ -64,7 +61,6 @@ ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
-ynh_app_setting_set "$app" service_name "$service_name"
 
 #=================================================
 # STANDARD MODIFICATIONS

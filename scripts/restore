@@ -26,8 +26,6 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
-service_name=$(ynh_app_setting_get $app service_name)
-service_checker_name=$service_name"-checker"
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED

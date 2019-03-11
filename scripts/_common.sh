@@ -5,6 +5,9 @@
 
 pkg_dependencies="php7.0-fpm sipcalc dnsutils openvpn curl fake-hwclock"
 
+service_name="ynh-vpnclient"
+service_checker_name=$service_name"-checker"
+
 to_logs() {
 
   # When yunohost --verbose or bash -x
@@ -199,8 +202,4 @@ function vpnclient_deploy_files_and_services()
   ynh_add_systemd_config $service_name "$service_name.service"
 
   ynh_add_systemd_config $service_checker_name "$service_checker_name.service"
-}
-
-function service_is_managed_by_yunohost() {
-  yunohost service status $1 >/dev/null 2>&1
 }

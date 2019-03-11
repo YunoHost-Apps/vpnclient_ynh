@@ -25,8 +25,6 @@ app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
-service_name=$(ynh_app_setting_get $app service_name)
-service_checker_name=$service_name"-checker"
 
 #=================================================
 # STANDARD BACKUP STEPS
