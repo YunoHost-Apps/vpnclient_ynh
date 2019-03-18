@@ -2,11 +2,12 @@
   "name": "VPN Client",
   "id": "vpnclient",
   "packaging_format": 1,
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": {
     "en": "Tunnel the internet traffic through a VPN",
     "fr": "Fais passer le traffic internet à travers un VPN"
   },
+  "url": "https://labriqueinter.net",
   "license": "AGPL-3.0",
   "maintainer": {
     "name": "pitchum",
@@ -18,8 +19,7 @@
   },
   "services": [
     "nginx",
-    "php5-fpm",
-    "ynh-vpnclient"
+    "php7.0-fpm"
   ],
   "arguments": {
     "install": [

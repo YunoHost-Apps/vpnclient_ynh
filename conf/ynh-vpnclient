@@ -238,10 +238,10 @@ ynh_setting_set() {
 
 if [ "$1" != restart ]; then
 
-  # Restart php5-fpm at the first start (it needs to be restarted after the slapd start)
+  # Restart php-fpm at the first start (it needs to be restarted after the slapd start)
   if [ ! -e /tmp/.ynh-vpnclient-boot ]; then
     touch /tmp/.ynh-vpnclient-boot
-    systemctl restart php5-fpm
+    systemctl restart php7.0-fpm
   fi
 
   # Check configuration consistency

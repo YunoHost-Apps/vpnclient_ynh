@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -19,10 +20,6 @@ domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
-server_name=$(ynh_app_setting_get $app server_name)
-
-service_name="ynh-vpnclient"
-service_checker_name=$service_name"-checker"
 
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
@@ -30,16 +27,20 @@ service_checker_name=$service_name"-checker"
 
 # Apply renaming that occured in v1.2.0 ("vpnadmin" -> "${app}")
 if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
-  sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-  sed "s|vpnadmin.sock|${app}.sock|g" -i "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
+  ynh_replace_string "vpnadmin.sock" "${app}.sock" "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
   mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 fi
+
 if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
-  sed "s|/var/www/vpnadmin/|/var/www/${app}/|g" -i /etc/php5/fpm/pool.d/vpnadmin.conf
-  sed "s|vpnadmin.sock|${app}.sock|g" -i  /etc/php5/fpm/pool.d/vpnadmin.conf
-  mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php5/fpm/pool.d/${app}.conf
+  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php5/fpm/pool.d/vpnadmin.conf
+  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php5/fpm/pool.d/vpnadmin.conf
+  mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
 fi
-test -d /var/www/vpnadmin && mv /var/www/vpnadmin /var/www/${app}
+
+if [ -d /var/www/vpnadmin ]; then
+  mv /var/www/vpnadmin /var/www/${app}
+fi
 
 ## Versions known to have a buggy backup script
 #buggy_versions="1.0.0 1.0.1 1.1.0"
@@ -64,6 +65,7 @@ ynh_abort_if_errors
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
@@ -76,7 +78,7 @@ tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 cp -r /etc/openvpn/client* ${tmpdir}
 
 # Deploy files from package
-vpnclient_deploy_files_and_services "${domain}" "${app}"
+vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
 
 # Restore previously existing config files
 cp -r ${tmpdir}/client* /etc/openvpn/
@@ -85,27 +87,18 @@ ynh_secure_remove ${tmpdir}
 #=================================================
 # RELOAD RELEVANT SERVICES
 #=================================================
+ynh_print_info "Reload services..."
 
-systemctl reload php5-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
 
 ### Make sure that the yunohost services have a description and need-lock enabled
 
 # main service
-
-if service_is_managed_by_yunohost $service_name
-then
-  yunohost service remove $service_name
-fi
-yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
 
 # checker service
-
-if service_is_managed_by_yunohost $service_checker_name
-then
-  yunohost service remove $service_checker_name
-fi
-yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
 
 # Reload systemd configuration
 
@@ -133,3 +126,9 @@ if systemctl is-active $service_name.timer >/dev/null;
 then
     yunohost service restart $service_checker_name.timer
 fi
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"

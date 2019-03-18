@@ -38,17 +38,15 @@ ynh_abort_if_errors
 #=================================================
 
 # Retrieve arguments
-domain=$1
-path_url=$(ynh_normalize_url_path "$2")
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$(ynh_normalize_url_path "$YNH_APP_ARG_PATH")
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
-
-service_name="ynh-vpnclient"
-service_checker_name=$service_name"-checker"
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 # Check destination directory
 test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
@@ -59,6 +57,7 @@ ynh_webpath_register "$app" "$domain" "$path_url"
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
@@ -68,15 +67,21 @@ ynh_app_setting_set "$app" final_path "$final_path"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
 #=================================================
+ynh_print_info "Deploy files from package..."
 
-vpnclient_deploy_files_and_services "${domain}" "${app}"
+vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
 
+#=================================================
+# RELOAD SERVICES
+#=================================================
+ynh_print_info "Reloading services..."
 
 # Set default inits
 # The boot order of these services are important, so they are disabled by default
@@ -84,22 +89,24 @@ vpnclient_deploy_files_and_services "${domain}" "${app}"
 systemctl disable openvpn
 systemctl stop openvpn
 
-systemctl enable php5-fpm
-systemctl restart php5-fpm
-
+systemctl restart php7.0-fpm
 systemctl reload nginx
 
 # main service
 
-yunohost service add $service_name --description "tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
 yunohost service enable $service_name
 
 # checker service
 
-yunohost service add $service_checker_name --description "makes sure that the VPN service is running" --need_lock
+yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
 yunohost service start $service_checker_name
 yunohost service enable $service_checker_name
 systemctl start $service_checker_name.timer
 systemctl enable $service_checker_name.timer
 
-yunohost app ssowatconf
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"
