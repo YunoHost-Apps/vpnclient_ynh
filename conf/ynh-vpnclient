@@ -17,8 +17,44 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Functions
-## State functions
+###################################################################################
+# Logging helpers                                                                 #
+###################################################################################
+
+LOGFILE="/var/log/ynh-vpnclient.log"
+touch $LOGFILE
+chown root:root $LOFILE
+chmod 600 $LOGFILE
+
+function success()
+{
+  echo "[ OK ] $1" | tee -a $LOGFILE
+}
+
+function info()
+{
+  echo "[INFO] $1" | tee -a $LOGFILE
+}
+
+function warn()
+{
+  echo "[WARN] $1" | tee -a $LOGFILE >&2
+}
+
+function error()
+{
+  echo "[FAIL] $1" | tee -a $LOGFILE >&2
+}
+
+function critical()
+{
+  echo "[CRIT] $1" | tee -a $LOGFILE >&2
+  exit 1
+}
+
+###################################################################################
+# IPv6 and route config stuff                                                     #
+###################################################################################
 
 has_nativeip6() {
   ip -6 route | grep -q default\ via
@@ -28,26 +64,23 @@ has_ip6delegatedprefix() {
   [ "${ynh_ip6_addr}" != none ]
 }
 
-has_hotspot_app() {
-  [ -e /tmp/.ynh-hotspot-started ]
-}
-
-is_hotspot_knowme() {
-  hotspot_vpnclient=$(ynh_setting_get hotspot vpnclient)
-
-  [ "${hotspot_vpnclient}" == yes ]
-}
-
-is_firewall_set() {
-  wired_device=${1}
-
-  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
-  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
-}
-
 is_ip6addr_set() {
   ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/128"
 }
+
+set_ip6addr() {
+  info "Adding IPv6 from VPN configuration"
+  ip address add "${ynh_ip6_addr}/128" dev tun0
+}
+
+unset_ip6addr() {
+  info "Removing IPv6 from VPN configuration"
+  ip address delete "${ynh_ip6_addr}/128" dev tun0
+}
+
+#
+# Server IPv6 route
+#
 
 is_serverip6route_set() {
   server_ip6=${1}
@@ -59,28 +92,96 @@ is_serverip6route_set() {
   fi
 }
 
+set_serverip6route() {
+  server_ip6=${1}
+  ip6_gw=${2}
+  wired_device=${3}
+
+  info "Adding IPv6 server route"
+  ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+}
+
+
+unset_serverip6route() {
+  server_ip6=${1}
+  ip6_gw=${2}
+  wired_device=${3}
+
+  info "Removing IPv6 server route"
+  ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+}
+
+
+###################################################################################
+# Hotspot app                                                                     #
+###################################################################################
+
+has_hotspot_app() {
+  [ -e /tmp/.ynh-hotspot-started ]
+}
+
+is_hotspot_knowme() {
+  hotspot_vpnclient=$(ynh_setting_get hotspot vpnclient)
+
+  [ "${hotspot_vpnclient}" == yes ]
+}
+
+###################################################################################
+# DNS rules                                                                       #
+###################################################################################
+
 is_dns_set() {
+  # FIXME : having the ynh_dns0 in the resolv.dnsmasq.conf is not necessarily good enough
+  # We want it to be the only one (with ynh_dns1) but nowadays for example ARN's resolver is
+  # in the default list from yunohost...
   [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
   && ( grep -q ${ynh_dns0} /etc/resolv.conf || grep -q ${ynh_dns0} /etc/resolv.dnsmasq.conf )
 }
 
-is_openvpn_running() {
-  systemctl is-active openvpn@client.service &> /dev/null
+set_dns() {
+  info "Enforcing custom DNS resolvers from vpnclient"
+
+  resolvconf=/etc/resolv.conf
+  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+
+  cp -fa "${resolvconf}" "${resolvconf}.ynh"
+
+  cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+echo nameserver ${ynh_dns0} > ${resolvconf}
+echo nameserver ${ynh_dns1} >> ${resolvconf}
+EOF
+
+  bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
 }
 
-is_running() {
-  ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
-  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
-  && is_dns_set && is_firewall_set && is_openvpn_running
+unset_dns() {
+  resolvconf=/etc/resolv.conf
+  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+
+  info "Removing custom DNS resolvers from vpnclient"
+  rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  mv "${resolvconf}.ynh" "${resolvconf}"
+
+  # FIXME : this situation happened to a user ...
+  # We could try to force regen the dns conf 
+  # (though for now it's tightly coupled to dnsmasq)
+  grep -q "^nameserver" "${resolvconf}" || error "${resolvconf} does not have any nameserver line !?"
 }
 
-## Setters
+###################################################################################
+# Firewall rules management                                                       #
+###################################################################################
 
-set_ip6addr() {
-  ip address add "${ynh_ip6_addr}/128" dev tun0
+is_firewall_set() {
+  wired_device=${1}
+
+  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
+  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
 }
 
 set_firewall() {
+  info "Adding vpnclient custom rules to the firewall"
+
   wired_device=${1}
 
   cp /etc/yunohost/hooks.d/{90-vpnclient.tpl,post_iptable_rules/90-vpnclient}
@@ -95,29 +196,49 @@ set_firewall() {
   yunohost firewall reload
 }
 
-set_serverip6route() {
-  server_ip6=${1}
-  ip6_gw=${2}
-  wired_device=${3}
-
-  ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+unset_firewall() {
+  info "Cleaning vpnclient custom rules from the firewall"
+  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  yunohost firewall reload
 }
 
-set_dns() {
-  resolvconf=/etc/resolv.conf
-  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+###################################################################################
+# Time sync                                                                       #
+###################################################################################
 
-  cp -fa "${resolvconf}" "${resolvconf}.ynh"
+sync_time() {
+  info "Now synchronizing time using ntp..."
+  systemctl stop ntp
+  timeout 20 ntpd -qg &> /dev/null
+  
+  # Some networks drop ntp port (udp 123). 
+  # Try to get the date with an http request on the internetcube web site
+  if [ $? -ne 0 ]; then
+    info "ntp synchronization failed, falling back to curl method"
+    http_date=`curl -sD - labriqueinter.net | grep '^Date:' | cut -d' ' -f3-6`
+    http_date_seconds=`date -d "${http_date}" +%s`
+    curr_date_seconds=`date +%s`
 
-  cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
-echo nameserver ${ynh_dns0} > ${resolvconf}
-echo nameserver ${ynh_dns1} >> ${resolvconf}
-EOF
+    # Set the new date if it's greater than the current date
+    # So it does if 1970 year or if old fake-hwclock date is used
+    if [ $http_date_seconds -ge $curr_date_seconds ]; then
+      date -s "${http_date}"
+    fi
+  fi 
+  systemctl start ntp
+}
 
-  bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+###################################################################################
+# OpenVPN client start/stop procedures                                            #
+###################################################################################
+
+is_openvpn_running() {
+  systemctl is-active openvpn@client.service &> /dev/null
 }
 
 start_openvpn() {
+  info "Preparing openvpn configuration..."
+
   ip6_gw=${1}
   server_ip6=${2}
 
@@ -135,6 +256,7 @@ start_openvpn() {
 
   sync_time
 
+  info "Preparing openvpn configuration..."
   cp /etc/openvpn/client.conf{.tpl,}
 
   sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/openvpn/client.conf
@@ -165,61 +287,50 @@ start_openvpn() {
     sed 's|^<TPL:LOGIN_COMMENT>||' -i /etc/openvpn/client.conf
   fi
 
+  info "Now actually starting OpenVPN client..."
   systemctl start openvpn@client.service
-}
 
-## Unsetters
+  if [ ! $? -eq 0 ]
+  then
+    tail -n 20 /var/log/openvpn-client.log
+	critical "Failed to start OpenVPN :/"
+  else
+    info "OpenVPN client started ... waiting for tun0 interface to show up"
+  fi
 
-unset_ip6addr() {
-  ip address delete "${ynh_ip6_addr}/128" dev tun0
-}
-
-unset_firewall() {
-  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  yunohost firewall reload
-}
-
-unset_serverip6route() {
-  server_ip6=${1}
-  ip6_gw=${2}
-  wired_device=${3}
-
-  ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
-}
-
-unset_dns() {
-  resolvconf=/etc/resolv.conf
-  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
-
-  rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
-  mv "${resolvconf}.ynh" "${resolvconf}"
+  for attempt in $(seq 0 20)
+  do
+    sleep 1
+    if ip link show dev tun0 &> /dev/null
+    then
+       success "tun0 interface is up!"
+       return 0
+    fi
+  done
+  
+  tail -n 20 /var/log/openvpn-client.log
+  error "Tun0 interface did not show up ... possibly an issue with OpenVPN client"
+  stop_openvpn && exit 1
 }
 
 stop_openvpn() {
+  # FIXME : isn't openvpn@client ? (idk)
+  info "Stopping OpenVPN service"
   systemctl stop openvpn.service
-}
 
-## Tools
-
-sync_time() {
-  systemctl stop ntp
-  timeout 20 ntpd -qg &> /dev/null
-  
-  # Some networks drop ntp port (udp 123). 
-  # Try to get the date with an http request on the internetcube web site
-  if [ $? -ne 0 ]; then
-    http_date=`curl -sD - labriqueinter.net | grep '^Date:' | cut -d' ' -f3-6`
-    http_date_seconds=`date -d "${http_date}" +%s`
-    curr_date_seconds=`date +%s`
-
-    # Set the new date if it's greater than the current date
-    # So it does if 1970 year or if old fake-hwclock date is used
-    if [ $http_date_seconds -ge $curr_date_seconds ]; then
-      date -s "${http_date}"
+  info "(Waiting for tun0 to disappear if it was up)"
+  for attempt in $(seq 0 20)
+  do
+    if ip link show dev tun0 &> /dev/null
+    then
+       sleep 1
     fi
-  fi 
-  systemctl start ntp
+  done
 }
+
+###################################################################################
+# Yunohost settings interface                                                     #
+###################################################################################
 
 ynh_setting_get() {
   app=${1}
@@ -236,6 +347,17 @@ ynh_setting_set() {
   yunohost app setting "${app}" "${setting}" -v "${value}"
 }
 
+###################################################################################
+# The actual ynh vpnclient management thing                                       #
+###################################################################################
+
+is_running() {
+  ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
+  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
+  && is_dns_set && is_firewall_set && is_openvpn_running
+}
+
+
 if [ "$1" != restart ]; then
 
   # Restart php-fpm at the first start (it needs to be restarted after the slapd start)
@@ -247,25 +369,19 @@ if [ "$1" != restart ]; then
   # Check configuration consistency
 
   if [[ ! "${1}" =~ stop ]]; then
-    exitcode=0
-
     if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
-      echo "[WARN] You need a CA server (you can add it through the web admin)"
-      exitcode=1
+      critical "You need a CA server (you can add it through the web admin)"
     fi
 
     empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
     if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
-      echo "[WARN] You need either a client certificate, either a username, or both (you can add one through the web admin)"
-      exitcode=1
+      critical "You need either a client certificate, either a username, or both (you can add one through the web admin)"
     fi
-
-    [ "${exitcode}" -ne 0 ] && exit ${exitcode}
   fi
 
   # Variables
 
-  echo -n "Retrieving Yunohost settings... "
+  info "Retrieving Yunohost settings... "
 
   ynh_service_enabled=$(ynh_setting_get vpnclient service_enabled)
   ynh_server_name=$(ynh_setting_get vpnclient server_name)
@@ -285,201 +401,205 @@ if [ "$1" != restart ]; then
   new_server_ip6=$(host "${ynh_server_name}" 2> /dev/null | awk '/IPv6/ { print $NF; }')
 
   if [ -z "${new_server_ip6}" ]; then
+    # FIXME wtf is this hardcoded IP ...
     new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 2> /dev/null | awk '/IPv6/ { print $NF; }')
   fi
 
-  echo "OK"
+  success "Settings retrieved"
 
 fi
 
-# Script
+###################################################################################
+# Start / stop / restart / status handling                                        #
+###################################################################################
 
 case "${1}" in
+
+  # ########## #
+  #  Starting  #
+  # ########## #
+
   start)
+
     if is_running; then
-      echo "Already started"
+      info "Service is already running"
+      exit 0
     elif [ "${ynh_service_enabled}" -eq 0 ]; then
-      echo "Disabled service"
+      warn "Service is disabled, not starting it"
+      exit 0
+    fi
+
+    info "[vpnclient] Starting..."
+    touch /tmp/.ynh-vpnclient-started
+
+    # Run openvpn
+    if is_openvpn_running;
+    then
+      info "(openvpn is already running)"
     else
-      echo "[vpnclient] Starting..."
-      touch /tmp/.ynh-vpnclient-started
+      start_openvpn "${new_ip6_gw}" "${new_server_ip6}"
+    fi
 
-      # Run openvpn
-      if ! is_openvpn_running; then
-        echo "Run openvpn"
+    # Check old state of the server ipv6 route
+    if [ ! -z "${old_server_ip6}" -a ! -z "${old_ip6_gw}" -a ! -z "${old_wired_device}"\
+         -a \( "${new_server_ip6}" != "${old_server_ip6}" -o "${new_ip6_gw}" != "${old_ip6_gw}"\
+         -o "${new_wired_device}" != "${old_wired_device}" \) ]\
+       && is_serverip6route_set "${old_server_ip6}"
+    then
+       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
+    fi
 
-        start_openvpn "${new_ip6_gw}" "${new_server_ip6}"
+    # Set the new server ipv6 route
+    if has_nativeip6 && ! is_serverip6route_set "${new_server_ip6}"
+    then
+      set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
+    fi
 
-        if [ ! $? -eq 0 ]; then
-          exit 1
-        fi
+    # Set the ipv6 address
+    if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set
+    then
+      set_ip6addr
+    fi
 
-        i=0; false || while [ $? -ne 0 ]; do
-          sleep 1 && (( i++ ))
-          [ ${i} -gt 20 ] && stop_openvpn
-          [ ${i} -gt 20 ] && exit 1
-          ip link show dev tun0 &> /dev/null
-        done
-      fi
+    # Set host DNS resolvers
+    if ! is_dns_set
+    then
+       set_dns
+    fi
 
-      # Check old state of the server ipv6 route
-      if [ ! -z "${old_server_ip6}" -a ! -z "${old_ip6_gw}" -a ! -z "${old_wired_device}"\
-           -a \( "${new_server_ip6}" != "${old_server_ip6}" -o "${new_ip6_gw}" != "${old_ip6_gw}"\
-           -o "${new_wired_device}" != "${old_wired_device}" \) ]\
-         && is_serverip6route_set "${old_server_ip6}"; then
+    # Set ipv6/ipv4 firewall
+    if ! is_firewall_set "${new_wired_device}"
+    then
+      set_firewall "${new_wired_device}"
+    fi
 
-        unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
-      fi
+    # Update dynamic settings
+    ynh_setting_set vpnclient server_ip6 "${new_server_ip6}"
+    ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
+    ynh_setting_set vpnclient wired_device "${new_wired_device}"
 
-      # Set the new server ipv6 route
-      if has_nativeip6 && ! is_serverip6route_set "${new_server_ip6}"; then
-        echo "Set IPv6 server route"
-        set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
-      fi
-
-      # Set the ipv6 address
-      if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set; then
-        echo "Set IPv6 address"
-        set_ip6addr
-      fi
-
-      # Set host DNS resolvers
-      if ! is_dns_set; then
-        echo "Set host DNS resolvers"
-        set_dns
-      fi
-
-      # Set ipv6/ipv4 firewall
-      if ! is_firewall_set "${new_wired_device}"; then
-        echo "Set IPv6/IPv4 firewall"
-        set_firewall "${new_wired_device}"
-      fi
-
-      # Update dynamic settings
-      ynh_setting_set vpnclient server_ip6 "${new_server_ip6}"
-      ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
-      ynh_setting_set vpnclient wired_device "${new_wired_device}"
-
-      # Fix configuration
-      if has_hotspot_app && ! is_hotspot_knowme; then
-        ynh-hotspot start
-      fi
+    # Fix configuration
+    if has_hotspot_app && ! is_hotspot_knowme; then
+      ynh-hotspot start
     fi
   ;;
+
+  # ########## #
+  #  Stopping  #
+  # ########## #
+
   stop)
-    echo "[vpnclient] Stopping..."
+    info "[vpnclient] Stopping..."
     rm -f /tmp/.ynh-vpnclient-started
 
     if ! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set; then
-      echo "Unset IPv6 address"
       unset_ip6addr
     fi
 
     if is_serverip6route_set "${old_server_ip6}"; then
-      echo "Unset IPv6 server route"
       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
     fi
 
-    if is_firewall_set "${old_wired_device}"; then
-      echo "Unset IPv6/IPv4 firewall"
-      unset_firewall
-    fi
+    is_firewall_set "${old_wired_device}" && unset_firewall
 
-    if is_dns_set; then
-      echo "Unset forced host DNS resolvers"
-      unset_dns
-    fi
+    is_dns_set && unset_dns
 
-    if is_openvpn_running; then
-      echo "Stop openvpn"
-      stop_openvpn
-
-      i=0; true && while [ $? -eq 0 ]; do
-        sleep 1 && (( i++ ))
-        [ ${i} -gt 20 ] && exit 1
-        ip link show dev tun0 &> /dev/null
-      done
-    fi
+    is_openvpn_running && stop_openvpn
 
     # Fix configuration
     if has_hotspot_app && is_hotspot_knowme; then
       ynh-hotspot start
     fi
   ;;
+
+  # ########## #
+  #  Restart   #
+  # ########## #
+
   restart)
     $0 stop
     $0 start
   ;;
+
+  # ########## #
+  #   Status   #
+  # ########## #
+
   status)
     exitcode=0
 
     if [ "${ynh_service_enabled}" -eq 0 ]; then
-      echo "[ERR] VPN Client Service disabled"
+      error "VPN Client Service disabled"
       exitcode=1
     fi
 
-    echo "[INFO] Autodetected internet interface: ${new_wired_device} (last start: ${old_wired_device})"
-    echo "[INFO] Autodetected IPv6 address for the VPN server: ${new_server_ip6} (last start: ${old_server_ip6})"
+    info "Autodetected internet interface: ${new_wired_device} (last start: ${old_wired_device})"
+    info "Autodetected IPv6 address for the VPN server: ${new_server_ip6} (last start: ${old_server_ip6})"
 
     if has_ip6delegatedprefix; then
-      echo "[INFO] IPv6 delegated prefix found"
-      echo "[INFO] IPv6 address computed from the delegated prefix: ${ynh_ip6_addr}"
+      info "IPv6 delegated prefix found"
+      info "IPv6 address computed from the delegated prefix: ${ynh_ip6_addr}"
 
       if ! has_hotspot_app; then
-        echo "[INFO] No Hotspot app detected"
+        info "No Hotspot app detected"
 
         if is_ip6addr_set; then
-          echo "[OK] IPv6 address correctly set"
+          success "IPv6 address correctly set"
         else
-          echo "[ERR] No IPv6 address set"
+          error "No IPv6 address set"
           exitcode=1
         fi
       else
-        echo "[INFO] Hotspot app detected"
-        echo "[INFO] No IPv6 address to set"
+        info "Hotspot app detected"
+        info "No IPv6 address to set"
       fi
     else
-      echo "[INFO] No IPv6 delegated prefix found"
+      info "No IPv6 delegated prefix found"
     fi
 
     if has_nativeip6; then
-      echo "[INFO] Native IPv6 detected"
-      echo "[INFO] Autodetected native IPv6 gateway: ${new_ip6_gw} (last start: ${old_ip6_gw})"
+      info "Native IPv6 detected"
+      info "Autodetected native IPv6 gateway: ${new_ip6_gw} (last start: ${old_ip6_gw})"
 
       if is_serverip6route_set "${new_server_ip6}"; then
-        echo "[OK] IPv6 server route correctly set"
+        success "IPv6 server route correctly set"
       else
-        echo "[ERR] No IPv6 server route set"
+        error "No IPv6 server route set"
         exitcode=1
       fi
     else
-      echo "[INFO] No native IPv6 detected"
-      echo "[INFO] No IPv6 server route to set"
+      info "No native IPv6 detected"
+      info "No IPv6 server route to set"
     fi
 
     if is_firewall_set "${new_wired_device}"; then
-      echo "[OK] IPv6/IPv4 firewall set"
+      success "IPv6/IPv4 firewall set"
     else
-      echo "[ERR] No IPv6/IPv4 firewall set"
+      info "No IPv6/IPv4 firewall set"
       exitcode=1
     fi
 
     if is_dns_set; then
-      echo "[OK] Host DNS correctly set"
+      success "Host DNS correctly set"
     else
-      echo "[ERR] No host DNS set"
+      error "No host DNS set"
       exitcode=1
     fi
 
     if is_openvpn_running; then
-      echo "[OK] Openvpn is running"
+      success "Openvpn is running"
     else
-      echo "[ERR] Openvpn is not running"
+      error "Openvpn is not running"
       exitcode=1
     fi
 
     exit ${exitcode}
   ;;
+
+  # ########## #
+  #    Halp    #
+  # ########## #
+
   *)
     echo "Usage: $0 {start|stop|restart|status}"
     exit 1
