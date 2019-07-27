@@ -193,13 +193,15 @@ set_firewall() {
   sed "s|<TPL:DNS0>|${ynh_dns0}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
   sed "s|<TPL:DNS1>|${ynh_dns1}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
-  yunohost firewall reload
+  info "Restarting yunohost firewall..."
+  yunohost firewall reload && success "Firewall restarted!"
 }
 
 unset_firewall() {
   info "Cleaning vpnclient custom rules from the firewall"
   rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  yunohost firewall reload
+  info "Restarting yunohost firewall..."
+  yunohost firewall reload && success "Firewall restarted!"
 }
 
 ###################################################################################
@@ -237,7 +239,6 @@ is_openvpn_running() {
 }
 
 start_openvpn() {
-  info "Preparing openvpn configuration..."
 
   ip6_gw=${1}
   server_ip6=${2}
@@ -292,7 +293,7 @@ start_openvpn() {
 
   if [ ! $? -eq 0 ]
   then
-    tail -n 20 /var/log/openvpn-client.log
+    tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
 	critical "Failed to start OpenVPN :/"
   else
     info "OpenVPN client started ... waiting for tun0 interface to show up"
@@ -308,9 +309,10 @@ start_openvpn() {
     fi
   done
   
-  tail -n 20 /var/log/openvpn-client.log
-  error "Tun0 interface did not show up ... possibly an issue with OpenVPN client"
-  stop_openvpn && exit 1
+  error "Tun0 interface did not show up ... most likely an issue happening in OpenVPN client ... below is an extract of the log that might be relevant to pinpoint the issue"
+  tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
+  stop_openvpn
+  critical "Failed to start OpenVPN client : tun0 interface did not show up"
 }
 
 stop_openvpn() {
@@ -318,11 +320,11 @@ stop_openvpn() {
   info "Stopping OpenVPN service"
   systemctl stop openvpn.service
 
-  info "(Waiting for tun0 to disappear if it was up)"
   for attempt in $(seq 0 20)
   do
     if ip link show dev tun0 &> /dev/null
     then
+       info "(Waiting for tun0 to disappear if it was up)"
        sleep 1
     fi
   done
@@ -474,14 +476,18 @@ case "${1}" in
     fi
 
     # Update dynamic settings
+    info "Saving settings..."
     ynh_setting_set vpnclient server_ip6 "${new_server_ip6}"
     ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
     ynh_setting_set vpnclient wired_device "${new_wired_device}"
 
     # Fix configuration
     if has_hotspot_app && ! is_hotspot_knowme; then
+      info "Now starting the hotspot"
       ynh-hotspot start
     fi
+
+    success "YunoHost VPN client started!"
   ;;
 
   # ########## #
@@ -508,6 +514,7 @@ case "${1}" in
 
     # Fix configuration
     if has_hotspot_app && is_hotspot_knowme; then
+      info "Now starting the hotspot"
       ynh-hotspot start
     fi
   ;;
