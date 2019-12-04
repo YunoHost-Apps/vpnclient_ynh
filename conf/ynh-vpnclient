@@ -23,7 +23,7 @@
 
 LOGFILE="/var/log/ynh-vpnclient.log"
 touch $LOGFILE
-chown root:root $LOFILE
+chown root:root $LOGFILE
 chmod 600 $LOGFILE
 
 function success()
