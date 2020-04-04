@@ -6,10 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleasead
 
+## 1.4.1 - 2020-04-04
+
+- [fix] ynh-vpnclient-loadcubefile.sh broken with ssowat 3.7.x (#60)
+
+## 1.4.0 - 2019-03-18
+
+- refactoring scripts
+
 
 ## 1.3.1 - 2018-12-19
 
 - [mod] Bug fixes and code cleaning
+
 
 ## 1.3.0 - 2018-12-02
 
