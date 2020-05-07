@@ -185,7 +185,7 @@ function vpnclient_deploy_files_and_services()
   #=================================================
 
   # Fix sources
-  ynh_replace_string "__PATH__" "${path_url}" "/var/www/${app}/config.php"
+  ynh_replace_string "__PATH__" "${path_url%%/}" "/var/www/${app}/config.php"
 
   # Copy init script
   install -o root -g root -m 0755 ../conf/$service_name /usr/local/bin/
