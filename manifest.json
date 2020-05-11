@@ -2,7 +2,7 @@
   "name": "VPN Client",
   "id": "vpnclient",
   "packaging_format": 1,
-  "version": "1.4.1",
+  "version": "1.4.1~ynh1",
   "description": {
     "en": "Tunnel the internet traffic through a VPN",
     "fr": "Fais passer le traffic internet à travers un VPN"
