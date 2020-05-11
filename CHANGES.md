@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleasead
 
+## 1.4.1~ynh1 - 2020-05-11
+
+- [fix] app cannot be deployed as main app
+
+
 ## 1.4.1 - 2020-04-04
 
 - [fix] ynh-vpnclient-loadcubefile.sh broken with ssowat 3.7.x (#60)
+
 
 ## 1.4.0 - 2019-03-18
 
