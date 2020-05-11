@@ -30,3 +30,11 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 
 ![Screenshot of the web interface](https://raw.githubusercontent.com/labriqueinternet/vpnclient_ynh/master/screenshot.png)
 
+
+## Running vpnclient inside lxc
+If you want to run openvpn inside lxc, you should add this to your container:
+```
+lxc.hook.autodev = sh -c "modprobe tun"
+lxc.mount.entry=/dev/net/tun dev/net/tun none bind,create=file
+lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
+```
