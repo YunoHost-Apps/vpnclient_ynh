@@ -97,8 +97,11 @@ systemctl reload nginx
 # main service
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
 
-# checker service
-yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
+# checker service (this service was previously integrated in yunohost but we do not do this anymore)
+if ynh_exec_warn_less yunohost service status $service_checker_name >/dev/null
+then
+    yunohost service remove $service_checker_name
+fi
 
 # Reload systemd configuration
 

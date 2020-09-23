@@ -99,9 +99,8 @@ yunohost service enable $service_name
 
 # checker service
 
-yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
-yunohost service start $service_checker_name
-yunohost service enable $service_checker_name
+systemctl start $service_checker_name
+systemctl enable $service_checker_name
 systemctl start $service_checker_name.timer
 systemctl enable $service_checker_name.timer
 
