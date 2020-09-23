@@ -23,8 +23,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source /usr/share/yunohost/helpers
 source _common.sh
+source /usr/share/yunohost/helpers
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -76,7 +76,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Deploy files from package..."
 
-vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
+vpnclient_deploy_files_and_services
 
 #=================================================
 # RELOAD SERVICES
@@ -88,9 +88,6 @@ ynh_print_info "Reloading services..."
 # and the vpnclient service handles them.
 systemctl disable openvpn
 systemctl stop openvpn
-
-systemctl restart php7.0-fpm
-systemctl reload nginx
 
 # main service
 
