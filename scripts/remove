@@ -91,6 +91,9 @@ ynh_secure_remove /etc/systemd/system/openvpn@.service
 # Remove openvpn certificates
 ynh_secure_remove /etc/openvpn/keys
 
+# Reload systemd configuration
+systemctl daemon-reload
+
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
@@ -99,15 +102,6 @@ ynh_remove_app_dependencies
 
 # Remove sources
 ynh_secure_remove "/var/www/${app}"
-
-# Reload systemd configuration
-systemctl daemon-reload
-
-# Restart services
-# (this must happen before deleting the user, otherwise the user is
-# being used by one of the php pool process)
-systemctl restart php7.0-fpm
-systemctl reload nginx
 
 #=================================================
 # REMOVE DEDICATED USER

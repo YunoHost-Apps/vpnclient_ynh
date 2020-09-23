@@ -32,10 +32,10 @@ if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
   mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 fi
 
-if [ -f /etc/php5/fpm/pool.d/vpnadmin.conf ]; then
-  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php5/fpm/pool.d/vpnadmin.conf
-  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php5/fpm/pool.d/vpnadmin.conf
-  mv /etc/php5/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
+if [ -f /etc/php/7.0/fpm/pool.d/vpnadmin.conf ]; then
+  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php/7.0/fpm/pool.d/vpnadmin.conf
+  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php/7.0/fpm/pool.d/vpnadmin.conf
+  mv /etc/php/7.0/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
 fi
 
 if [ -d /var/www/vpnadmin ]; then
@@ -78,19 +78,15 @@ tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 cp -r /etc/openvpn/client* ${tmpdir}
 
 # Deploy files from package
-vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
+vpnclient_deploy_files_and_services
 
 # Restore previously existing config files
 cp -r ${tmpdir}/client* /etc/openvpn/
 ynh_secure_remove ${tmpdir}
 
 #=================================================
-# RELOAD RELEVANT SERVICES
+# SERVICE INTEGRATION IN YUNOHOST
 #=================================================
-ynh_print_info "Reload services..."
-
-systemctl reload php7.0-fpm
-systemctl reload nginx
 
 ### Make sure that the yunohost services have a description and need-lock enabled
 
@@ -103,32 +99,16 @@ then
     yunohost service remove $service_checker_name
 fi
 
-# Reload systemd configuration
+#=================================================
+# RESTART RELEVANT SERVICES
+#=================================================
+ynh_print_info "Restart services..."
 
-systemctl daemon-reload
+# this is meant to propagate the new files and configs
 
-### Restart services
-
-# restart main service if needed
-
-if systemctl is-active $service_name >/dev/null;
-then
-    yunohost service restart $service_name
-fi
-
-# restart checker service if needed
-
-if systemctl is-active $service_checker_name >/dev/null;
-then
-    yunohost service restart $service_checker_name
-fi
-
-# restart checker service timer
-
-if systemctl is-active $service_name.timer >/dev/null;
-then
-    yunohost service restart $service_checker_name.timer
-fi
+systemctl -q is-active $service_name               && yunohost service restart $service_name
+systemctl -q is-active $service_checker_name       && yunohost service restart $service_checker_name
+systemctl -q is-active $service_checker_name.timer && yunohost service restart $service_checker_name.timer
 
 #=================================================
 # END OF SCRIPT

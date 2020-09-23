@@ -125,7 +125,7 @@ yunohost service add $service_name --description "Tunnels the internet traffic t
 #=================================================
 ynh_print_info "Reloading nginx web server and php-fpm..."
 
-systemctl restart php7.0-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
 
 #=================================================
