@@ -29,6 +29,7 @@ for i in <TPL:DNS0> <TPL:DNS1>; do
 done
 
 sudo ip6tables -w -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
+sudo ip6tables -w -A vpnclient_out -p udp --dport 5353 -d ff02::fb -j ACCEPT
 sudo ip6tables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 sudo ip6tables -w -A vpnclient_out -j DROP
 
@@ -64,6 +65,7 @@ for i in <TPL:DNS0> <TPL:DNS1>; do
 done
 
 sudo iptables -w -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
+sudo iptables -w -A vpnclient_out -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
 sudo iptables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -w -A vpnclient_out -j DROP
 
