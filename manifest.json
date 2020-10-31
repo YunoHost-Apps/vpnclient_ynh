@@ -19,7 +19,7 @@
   },
   "services": [
     "nginx",
-    "php-fpm"
+    "php7.0-fpm"
   ],
   "arguments": {
     "install": [
