@@ -3,7 +3,7 @@
 # Common variables and helpers
 #
 
-pkg_dependencies="php7.0-fpm sipcalc dnsutils openvpn curl fake-hwclock"
+pkg_dependencies="php-fpm sipcalc dnsutils openvpn curl fake-hwclock"
 
 service_name="ynh-vpnclient"
 service_checker_name=$service_name"-checker"
