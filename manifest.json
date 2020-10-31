@@ -5,7 +5,7 @@
   "version": "1.4.1~ynh2",
   "description": {
     "en": "Tunnel the internet traffic through a VPN",
-    "fr": "Fais passer le traffic internet à travers un VPN"
+    "fr": "Fait passer le trafic internet à travers un VPN"
   },
   "url": "https://labriqueinter.net",
   "license": "AGPL-3.0",
