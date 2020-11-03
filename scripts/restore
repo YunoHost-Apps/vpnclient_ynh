@@ -117,7 +117,6 @@ systemctl enable "openvpn@.service"
 #=================================================
 
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
-yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
 
 #=================================================
 # GENERIC FINALIZATION
@@ -126,7 +125,7 @@ yunohost service add $service_checker_name --description "Makes sure that the VP
 #=================================================
 ynh_print_info "Reloading nginx web server and php-fpm..."
 
-systemctl restart php7.0-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
 
 #=================================================

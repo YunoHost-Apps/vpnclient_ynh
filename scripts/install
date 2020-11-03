@@ -23,8 +23,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source /usr/share/yunohost/helpers
 source _common.sh
+source /usr/share/yunohost/helpers
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -76,7 +76,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Deploy files from package..."
 
-vpnclient_deploy_files_and_services "${domain}" "${app}" "${service_name}"
+vpnclient_deploy_files_and_services
 
 #=================================================
 # RELOAD SERVICES
@@ -89,9 +89,6 @@ ynh_print_info "Reloading services..."
 systemctl disable openvpn
 systemctl stop openvpn
 
-systemctl restart php7.0-fpm
-systemctl reload nginx
-
 # main service
 
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
@@ -99,9 +96,8 @@ yunohost service enable $service_name
 
 # checker service
 
-yunohost service add $service_checker_name --description "Makes sure that the VPN service is running" --need_lock
-yunohost service start $service_checker_name
-yunohost service enable $service_checker_name
+systemctl start $service_checker_name
+systemctl enable $service_checker_name
 systemctl start $service_checker_name.timer
 systemctl enable $service_checker_name.timer
 
