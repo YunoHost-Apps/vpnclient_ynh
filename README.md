@@ -1,4 +1,6 @@
-# VPN Client [![Build Status](https://travis-ci.org/labriqueinternet/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/labriqueinternet/vpnclient_ynh) [![Integration level](https://dash.yunohost.org/integration/vpnclient.svg)](https://dash.yunohost.org/appci/app/vpnclient)
+# VPN Client
+
+[![Build Status](https://travis-ci.org/labriqueinternet/vpnclient_ynh.svg?branch=master)](https://travis-ci.org/labriqueinternet/vpnclient_ynh) [![Integration level](https://dash.yunohost.org/integration/vpnclient.svg)](https://dash.yunohost.org/appci/app/vpnclient)  
 [![Install LaBriqueInterNet VPNclient with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=vpnclient)
 
 This YunoHost app is a part of the "[La Brique Internet](http://labriqueinter.net)" project but can be used independently.

@@ -26,6 +26,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
+phpversion=$(ynh_app_setting_get $app phpversion)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -86,7 +87,7 @@ chown -R $app: $final_path
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
+ynh_restore_file "/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -123,9 +124,9 @@ yunohost service add $service_name --description "Tunnels the internet traffic t
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
-ynh_print_info "Reloading nginx web server and php-fpm..."
+ynh_print_info "Reloading NGINX web server and PHP-FPM..."
 
-systemctl reload php7.0-fpm
+systemctl reload php$phpversion-fpm
 systemctl reload nginx
 
 #=================================================
