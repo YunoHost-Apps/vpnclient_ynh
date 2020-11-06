@@ -25,7 +25,7 @@ final_path=$(ynh_app_setting_get $app final_path)
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
 #=================================================
 
-# Removing config files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
+# Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
 rm /etc/nginx/conf.d/${domain}.d/vpnadmin.conf 2>/dev/null 
 
 rm -f /etc/php/*/fpm/pool.d/vpnadmin.conf 2>/dev/null 
