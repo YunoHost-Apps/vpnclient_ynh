@@ -105,4 +105,4 @@ systemctl enable $service_checker_name.timer --quiet
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression "Installation of $app completed"
+ynh_script_progression "Installation of $app completed" --last
