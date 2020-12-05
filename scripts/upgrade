@@ -25,18 +25,9 @@ final_path=$(ynh_app_setting_get $app final_path)
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
 #=================================================
 
-# Apply renaming that occured in v1.2.0 ("vpnadmin" -> "${app}")
-if [ -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf ]; then
-  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-  ynh_replace_string "vpnadmin.sock" "${app}.sock" "/etc/nginx/conf.d/${domain}.d/vpnadmin.conf"
-  mv /etc/nginx/conf.d/${domain}.d/vpnadmin.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
-fi
-
-if [ -f /etc/php/7.0/fpm/pool.d/vpnadmin.conf ]; then
-  ynh_replace_string "/var/www/vpnadmin/" "/var/www/${app}/" /etc/php/7.0/fpm/pool.d/vpnadmin.conf
-  ynh_replace_string "vpnadmin.sock" "${app}.sock"  /etc/php/7.0/fpm/pool.d/vpnadmin.conf
-  mv /etc/php/7.0/fpm/pool.d/vpnadmin.conf /etc/php/7.0/fpm/pool.d/${app}.conf
-fi
+# Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
+rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf 2>/dev/null 
+rm -f /etc/php/*/fpm/pool.d/vpnadmin.conf 2>/dev/null 
 
 if [ -d /var/www/vpnadmin ]; then
   mv /var/www/vpnadmin /var/www/${app}
@@ -91,7 +82,7 @@ ynh_secure_remove ${tmpdir}
 ### Make sure that the yunohost services have a description and need-lock enabled
 
 # main service
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
 # checker service (this service was previously integrated in yunohost but we do not do this anymore)
 if ynh_exec_warn_less yunohost service status $service_checker_name >/dev/null

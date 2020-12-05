@@ -40,15 +40,15 @@ domain=$(ynh_app_setting_get $app domain)
 ynh_print_info "Stopping and removing services"
 
 systemctl stop $service_checker_name
-systemctl disable $service_checker_name
+systemctl disable $service_checker_name --quiet
 systemctl stop $service_checker_name.timer && sleep 1
-systemctl disable $service_checker_name.timer
+systemctl disable $service_checker_name.timer --quiet
 
 if ynh_exec_warn_less yunohost service status $service_name >/dev/null
 then
     yunohost service stop $service_name
-    yunohost service disable $service_name
-    yunohost service remove $service_checker
+    yunohost service disable $service_name --quiet
+    yunohost service remove $service_name
 fi
 
 for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*)
@@ -59,17 +59,17 @@ done
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Removing nginx web server configuration"
+ynh_print_info "Removing NGINX web server configuration"
 
-# Remove the dedicated nginx config
+# Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
 #=================================================
 # REMOVE PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Removing php-fpm configuration"
+ynh_print_info "Removing PHP-FPM configuration"
 
-# Remove the dedicated php-fpm config
+# Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
 
 #=================================================

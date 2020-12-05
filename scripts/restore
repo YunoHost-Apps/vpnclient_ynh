@@ -26,6 +26,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
+phpversion=$(ynh_app_setting_get $app phpversion)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -86,7 +87,7 @@ chown -R $app: $final_path
 # RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
+ynh_restore_file "/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -108,24 +109,24 @@ ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.timer"
 ynh_restore_file "/etc/systemd/system/openvpn@.service"
 systemctl daemon-reload
-systemctl enable "$service_name.service"
-systemctl enable "$service_checker_name.service"
-systemctl enable "openvpn@.service"
+systemctl enable "$service_name.service" --quiet
+systemctl enable "$service_checker_name.service" --quiet
+systemctl enable "openvpn@.service" --quiet
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
 
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
-ynh_print_info "Reloading nginx web server and php-fpm..."
+ynh_print_info "Reloading NGINX web server and PHP-FPM..."
 
-systemctl reload php7.0-fpm
+systemctl reload php$phpversion-fpm
 systemctl reload nginx
 
 #=================================================

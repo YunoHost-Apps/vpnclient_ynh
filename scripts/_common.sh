@@ -3,10 +3,13 @@
 # Common variables and helpers
 #
 
-pkg_dependencies="php7.0-fpm sipcalc dnsutils openvpn curl fake-hwclock"
+YNH_PHP_VERSION="7.3"
+
+pkg_dependencies="sipcalc dnsutils openvpn curl fake-hwclock"
 
 service_name="ynh-vpnclient"
 service_checker_name=$service_name"-checker"
+
 
 # Operations needed by both 'install' and 'upgrade' scripts
 function vpnclient_deploy_files_and_services()
@@ -61,9 +64,11 @@ function vpnclient_deploy_files_and_services()
   #=================================================
   # PHP-FPM CONFIGURATION
   #=================================================
-  ynh_print_info "Configuring php-fpm..."
+  ynh_print_info "Configuring PHP-FPM..."
 
-  ynh_add_fpm_config
+  # Create a dedicated PHP-FPM config
+  ynh_add_fpm_config --phpversion=$YNH_PHP_VERSION
+  phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
   #=================================================
 
