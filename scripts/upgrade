@@ -82,7 +82,7 @@ ynh_secure_remove ${tmpdir}
 ### Make sure that the yunohost services have a description and need-lock enabled
 
 # main service
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
 # checker service (this service was previously integrated in yunohost but we do not do this anymore)
 if ynh_exec_warn_less yunohost service status $service_checker_name >/dev/null
