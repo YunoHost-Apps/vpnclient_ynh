@@ -135,7 +135,7 @@ is_dns_set() {
   # We want it to be the only one (with ynh_dns1) but nowadays for example ARN's resolver is
   # in the default list from yunohost...
   [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
-  && ( grep -q ${ynh_dns0} /etc/resolv.conf || grep -q ${ynh_dns0} /etc/resolv.dnsmasq.conf )
+  && ( grep -q "${ynh_dns0}" /etc/resolv.conf || grep -q "${ynh_dns0}" /etc/resolv.dnsmasq.conf )
 }
 
 set_dns() {
@@ -146,12 +146,22 @@ set_dns() {
 
   cp -fa "${resolvconf}" "${resolvconf}.ynh"
 
-  cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  if [ -n "${ynh_dns0}" ] && [ -n "${ynh_dns1}" ]
+  then
+      cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
 echo nameserver ${ynh_dns0} > ${resolvconf}
 echo nameserver ${ynh_dns1} >> ${resolvconf}
 EOF
-
-  bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+      bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  elif [ -n "${ynh_dns0}" ]
+  then
+      cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+echo nameserver ${ynh_dns0} > ${resolvconf}
+EOF
+      bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  else
+      warn "Uhoh, neither dns0 nor dns1 is defined ... You should probably configure these in the vpnclient interface !"
+  fi
 }
 
 unset_dns() {
