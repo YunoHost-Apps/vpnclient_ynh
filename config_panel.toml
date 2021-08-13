@@ -14,16 +14,16 @@ name = "Auto-configuration"
         [main.cube.service_enabled]
         ask = "Enable VPN"
         type = "boolean"
-        choices = ["on", "off"]
-        default = "off"
-        help = "If you select 'off' your VPN will not run even if you restart your server"
+        default = 0
+        help = "If you disable, your VPN will not run even if you restart your server"
 
         [main.cube.cube_file]
         ask = "Load a cube File"
         type = "file"
         optional = true
         default = ""
-        helpLink = "<a href='' target='_BLANK'>See the list of .cube file providers</a><br><a href='https://labriqueinter.net/dotcubefiles.html' target='_BLANK'>Info about cube file format</a>"
+        accept = ".cube"
+        helpLink = { href = "https://labriqueinter.net/dotcubefiles.html", text = "Info about cube file format" }
         
 [manual]
 name = "Manual configuration"
@@ -33,7 +33,7 @@ name = "Manual configuration"
         
         [manual.vpn.warning]
         ask = "If you have not a .cube file you can configure your VPN manually.<br/>IMPORTANT: this app only supports fixed and dedicated public ip VPNs."
-        helpLink = "<a href='' target='_BLANK'>See the list of public ip vpn providers</a>"
+        helpLink = { href = "https://labriqueinter.net/dotcubefiles.html", text = "See the list of public ip vpn providers" }
         type = "warning"
 
         
@@ -49,8 +49,8 @@ name = "Manual configuration"
         ask = "Server Port"
         type = "number"
         default = "1194"
-        min = "1"
-        max = "65535"
+        min = 1
+        max = 65535
         help = "Default openvpn port is 1194. If your server is connected to a restricted network and if your VPN provider support it, set 443 should work better."
         
         [manual.vpn.server_proto]
@@ -59,31 +59,38 @@ name = "Manual configuration"
         default = "udp"
         help = "UDP is preferred for performance reason. If your server is connected to a restricted network, and UDP does not work, try with TCP."
         
-        [manual.vpn.server_ip6]
+        [manual.vpn.ip4_addr]
+        ask = "IPv4"
+        type = "string"
+        default = ""
+        example = "141.125.36.75"
+        
+        [manual.vpn.ip6_net]
         ask = "Delegated prefix (IPv6)"
         type = "string"
         default = ""
         optional = true
+        example = "2001:db8:42::"
         pattern = "^[0-9a-fA-F:]+$"
 
     [manual.auth]
     name = "Authentication"
         
-        [manual.auth.server_ca]
+        [manual.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
         default = ""
-        optional = true
         help = "You should upload a CA certificate to start"
         source="/etc/openvpn/keys/ca-server.crt"
         
-        [manual.auth.crt]
+        [manual.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
         default = ""
+        optional = true
         source="/etc/openvpn/keys/user.crt"
         
-        [manual.auth.key]
+        [manual.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
         default = ""
@@ -92,17 +99,19 @@ name = "Manual configuration"
         example = "-----BEGIN PRIVATE KEY-----"
         source="/etc/openvpn/keys/user.key"
         
-        [manual.auth.ta]
+        [manual.auth.crt_client_ta]
         ask = "Upload Shared-Secret"
         type = "file"
         default = ""
         optional = true
+        example = "ta.key"
         source="/etc/openvpn/keys/user_ta.key"
         
         [manual.auth.login_user]
         ask = "Username"
         type = "string"
         default = ""
+        example = "camille"
         optional = true
         pattern = "^[^/ ]+$"
         
@@ -110,7 +119,7 @@ name = "Manual configuration"
         ask = "Password"
         type = "password"
         default = ""
-        optional = true
+        visibleif = "login_user"
 
     [manual.dns]
     name = "DNS"
@@ -118,14 +127,14 @@ name = "Manual configuration"
         [manual.dns.dns0]
         ask = "First resolver"
         type = "string"
-        default = ""
+        default = "89.234.141.66"
         optional = true
         pattern = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
 
         [manual.dns.dns1]
         ask = "Second resolver"
         type = "string"
-        default = ""
+        default = "2a00:5881:8100:1000::3"
         optional = true
         pattern = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
 
