@@ -10,165 +10,19 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
-#=================================================
-# SPECIFIC CODE
-#=================================================
-# DECLARE GENERIC FUNCTION
-#=================================================
-
-lowerdot_to_uppersnake() {
-    local lowerdot
-    lowerdot=$(echo "$1" | cut -d= -f1 | sed "s/\./_/g")
-    echo "${lowerdot^^}"
-}
-
-_ynh_panel_get() {
-    
-    # From settings
-    local params_sources
-    params_sources=`python << EOL
-import toml
-from collections import OrderedDict
-with open("/etc/yunohost/apps/vpnclient/config_panel.toml", "r") as f:
-    file_content = f.read()
-loaded_toml = toml.loads(file_content, _dict=OrderedDict)
-
-for panel_name,panel in loaded_toml.items():
-    if isinstance(panel, dict):
-        for section_name, section in panel.items():
-            if isinstance(section, dict):
-                for name, param in section.items():
-                    if isinstance(param, dict) and param.get('source', '') == 'settings':
-                        print("%s.%s.%s=%s" %(panel_name, section_name, name, param.get('source', 'settings')))
-EOL
-`
-    for param_source in params_sources
-    do
-        local _dot_setting=$(echo "$param_source" | cut -d= -f1)
-        local _snake_setting="YNH_CONFIG_$(lowerdot_to_uppersnake $dot_setting)"
-        local short_setting=$(echo "$_dot_setting" | cut -d. -f3)
-        local _getter="get__${short_setting}"
-        local source="$(echo $param_source | cut -d= -f2)"
-
-        # Get value from getter if exists
-        if type $getter | grep -q '^function$' 2>/dev/null; then
-            old[$short_setting]="$($getter)"
-
-        # 
-        elif [[ "$source" != "settings" ]]
-        then
-            old[$short_setting]="$source"
-        
-        # By default, get value from settings.yml
-        else
-            old[$short_setting]="$(ynh_app_setting_get $app $short_setting)"
-        fi
-
-    done
-    
-    
-}
-
-_ynh_panel_apply() {
-    for short_setting in "${!dot_settings[@]}"
-    do
-        local setter="set__${short_setting}"
-        local source="$sources[$short_setting]"
-        
-        # Apply setter if exists
-        if type $setter | grep -q '^function$' 2>/dev/null; then
-            $setter
-
-        # Copy file in right place 
-        elif [[ "$source" != "settings" ]]
-        then
-            cp "$new[$short_setting]" "$source"
-
-        # By default, set value into settings.yml
-        else
-            ynh_app_setting_get $app $short_setting "$new[$short_setting]"
-        fi
-    done
-}
-
-_ynh_panel_show() {
-    for short_setting in "${!old[@]}"
-    do
-        local key="YNH_CONFIG_$(lowerdot_to_uppersnake $dot_settings[$short_setting])"
-	    ynh_return "$key=${old[$short_setting]}"
-    done
-}
-
-_ynh_panel_validate() {
-    # Change detection
-    local is_error=true
-    #for changed_status in "${!changed[@]}"
-    for short_setting in "${!dot_settings[@]}"
-    do
-        #TODO file hash
-                file_hash[$setting]=$(sha256sum "$_source" | cut -d' ' -f1)
-                file_hash[$form_setting]=$(sha256sum "${!form_setting}" | cut -d' ' -f1)
-                if [[ "${file_hash[$setting]}" != "${file_hash[$form_setting]}" ]]
-                then
-                    changed[$setting]=true
-                fi
-        if [[ "$new[$short_setting]" == "$old[$short_setting]" ]]
-        then
-            changed[$short_setting]=false
-        else
-            changed[$short_setting]=true
-            is_error=false
-        fi
-    done
-    
-    # Run validation if something is changed
-    if [[ "$is_error" == "false" ]]
-    then
-
-        for short_setting in "${!dot_settings[@]}"
-        do
-            local result="$(validate__$short_setting)"
-            local key="YNH_ERROR_$(lowerdot_to_uppersnake $dot_settings[$short_setting])"
-            if [ -n "$result" ]
-            then
-                ynh_return "$key=$result"
-                is_error=true
-            fi
-        done
-    fi
-
-    if [[ "$is_error" == "true" ]]
-    then
-        ynh_die
-    fi 
-    
-}
-
-ynh_panel_init() {
-    declare -A old=()
-    declare -A changed=()
-    declare -A file_hash=()
-    
-    ynh_panel_get
-}
-
-ynh_panel_show() {
-    _ynh_panel_show
-}
-
-ynh_panel_validate() {
-    _ynh_panel_validate
-}
-
-ynh_panel_apply() {
-    _ynh_panel_apply
-}
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
@@ -202,47 +56,40 @@ get__login_passphrase() {
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
 #=================================================
 validate__login_user() {
-    [[ -n "$login_passphrase" && -z "$login_user" ]] &&
+    [[ -n "${new[login_passphrase]}" && -z "${new[login_user]}" ]] &&
         echo 'A Username is needed when you suggest a Password'
 }
 
 validate__login_passphrase() {
-    [[ -n "$login_user" && -z "$login_passphrase" ]] &&
+    [[ -n "${new[login_user]}" && -z "${new[login_passphrase]}" ]] &&
         echo 'A Password is needed when you suggest a Username'
 }
 
 validate__crt() {
-    [[ -n "$key" && -z "$crt" ]] &&
+    [[ -n "${new[key]}" && -z "${new[crt]}" ]] &&
         echo "A Client Certificate is needed when you suggest a Key"
 }
 
 validate__key() {
-    [[ -n "$crt" && -z "$key" ]] &&
+    [[ -n "${new[crt]}" && -z "${new[key]}" ]] &&
         echo "A Key is needed when you suggest a Client Certificate"
 }
 
 # TODO
-validate__server_ip6() {
-    $ipv6_expanded=$(ipv6_expanded "$server_ip6")
-    if [[ -z "$ipv6_expanded" ]]
+validate__ip6_net() {
+    if [[ -z "${new[ip6_net]}" ]]
     then 
-        echo 'The IPv6 Delegated Prefix format looks bad'
+        echo 'The IPv6 Delegated Prefix is empty'
     fi
-
-    #        $ip6_blocs = explode(':', $ip6_net);
-    #    $ip6_addr = "${ip6_blocs[0]}:${ip6_blocs[1]}:${ip6_blocs[2]}:${ip6_blocs[3]}:${ip6_blocs[4]}:${ip6_blocs[5]}:${ip6_blocs[6]}:42";
-
-    #    $ip6_net = ipv6_compressed($ip6_net);
-    #    $ip6_addr = ipv6_compressed($ip6_addr);
 }
 
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 set__login_user() {
-    if [ -z "$login_user" ]
+    if [ -z "${new[login_user]}" ]
     then
-        echo "$login_user\n$login_passphrase" > /etc/openvpn/keys/credentials 
+        echo "${new[login_user]}\n${new[login_passphrase]}" > /etc/openvpn/keys/credentials 
     else
         echo "" > /etc/openvpn/keys/credentials
     fi
@@ -254,7 +101,7 @@ set__login_passphrase() {
 
 # TODO
 set__cube_file() {
-    if [ -f "$cube_file" ]
+    if [ -f "${new[cube_file]}" ]
     then
         cp -f $tmp_dir/client.conf.tpl /etc/openvpn/client.conf.tpl
     fi
@@ -264,15 +111,16 @@ set__cube_file() {
 # OVERWRITING VALIDATE STEP 
 #=================================================
 ynh_panel_validate() {
-    
+    set +x 
     # Overwrite form response with cube files data before validation process
-    if [[ "$cube_file" ]]
+    if [ -f "${new[cube_file]}" ]
     then
-        # TODO
         declare -A settings
         settings[server_name]=""
         settings[server_port]=""
         settings[server_proto]=""
+        settings[ip6_net]=""
+        settings[ip4_addr]=""
         settings[login_user]=""
         settings[login_passphrase]=""
         settings[dns0]=""
@@ -282,45 +130,39 @@ ynh_panel_validate() {
         settings[crt_client_key]="file"
         settings[crt_client_ta]="file"
 
-        tmp_dir=$(dirname "$cube_file")
+        tmp_dir=$(dirname "${new[cube_file]}")
         for setting_name in "${!settings[@]}"
         do
-            setting_value="$(jq --raw-output '.$setting_name' '$cube_file')"
+            setting_value="$(jq --raw-output ".$setting_name" "${new[cube_file]}")"
             if [[ "$setting_value" == "null" ]]
             then
                 setting_value=''
             # Save file in tmp dir
             elif [[ "${settings[$setting_name]}" == "file" ]]
             then
-                echo "${settings[$setting_name]}" | sed s/|/\n/g > $tmp_dir/$setting_name
+                echo "${settings[$setting_name]}" | sed 's/|/\n/g' > $tmp_dir/$setting_name
                 setting_value="$tmp_dir/$setting_name"
             fi
 
-            # Change settings value and changed status if needed
-            if [[ "$setting_value" != "${!setting}" ]]
-            then
-                declare "$setting='$setting_value'"
-                changed[$setting]=false
-                if [[ "$setting_value" != "${old[$setting]}" ]]
-                then
-                    changed[$setting]=true
-                fi
-            fi
+            new[$setting_name]="$setting_value"
         done
         
         # Build specific OVPN template
         cp -f /etc/openvpn/client.conf.tpl.restore $tmp_dir/client.conf.tpl
         # Remove some lines
-        for rm_regex in "$(jq --raw-output '.openvpn_rm[]' '$cube_file')"
+        for rm_regex in "$(jq --raw-output '.openvpn_rm[]' "${new[cube_file]}")"
         do
-            sed -i "/$rm_regex/di" $tmp_dir/client.conf.tpl
+            if [ ! -z "${rm_regex}" ] ; then
+                sed -i "/$rm_regex/di" $tmp_dir/client.conf.tpl
+            fi
         done
 
         # Add some other lines
         echo "# Custom" >> $tmp_dir/client.conf.tpl
-        jq --raw-output ".openvpn_add[]" "$cube_file" >> $tmp_dir/client.conf.tpl
+        jq --raw-output ".openvpn_add[]" "${new[cube_file]}" >> $tmp_dir/client.conf.tpl
     fi
 
+    set -x
     _ynh_panel_validate
 }
 
@@ -341,16 +183,4 @@ ynh_panel_apply() {
 
 }
 
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# Please don't change that code.
-# You can overwrite these functions if you need it
-#=================================================
-
-ynh_panel_init
-case $1 in
-  show) ynh_panel_show;;
-  apply) ynh_panel_validate && ynh_panel_apply;;
-esac
-
+ynh_panel_run $1
