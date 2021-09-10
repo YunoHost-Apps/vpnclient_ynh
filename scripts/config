@@ -31,9 +31,34 @@ final_path=$(ynh_app_setting_get $app final_path)
 get__status() {
     if [ -f "/sys/class/net/tun0/operstate" ] && [ "$(cat /sys/class/net/tun0/operstate)" == "up" ]
     then
-        echo "running"
+        if [ $old[service_enabled] -eq 1 ]
+        then
+            cat << EOF
+style: success
+ask:
+  en: Your VPN is running :)
+EOF
+        else
+            cat << EOF
+style: warning
+ask:
+  en: Your VPN is running, but it shouldn't !
+EOF
+        fi
+    elif [ $old[service_enabled] -eq 1 ]
+    then
+        cat << EOF
+style: danger
+ask:
+  en: Your VPN is down !
+EOF
     else
-        echo "not running"
+        cat << EOF
+style: info
+ask:
+  en: Your VPN is down has expected.
+EOF
+
     fi
 }
 
@@ -56,40 +81,65 @@ get__login_passphrase() {
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
 #=================================================
 validate__login_user() {
-    [[ -n "${new[login_passphrase]}" && -z "${new[login_user]}" ]] &&
-        echo 'A Username is needed when you suggest a Password'
-}
 
-validate__login_passphrase() {
-    [[ -n "${new[login_user]}" && -z "${new[login_passphrase]}" ]] &&
-        echo 'A Password is needed when you suggest a Username'
-}
-
-validate__crt() {
-    [[ -n "${new[key]}" && -z "${new[crt]}" ]] &&
-        echo "A Client Certificate is needed when you suggest a Key"
-}
-
-validate__key() {
-    [[ -n "${new[crt]}" && -z "${new[key]}" ]] &&
-        echo "A Key is needed when you suggest a Client Certificate"
-}
-
-# TODO
-validate__ip6_net() {
-    if [[ -z "${new[ip6_net]}" ]]
-    then 
-        echo 'The IPv6 Delegated Prefix is empty'
+    if grep -q '^\s*auth-user-pass' ${config_file}
+    then
+        [[ -z "${login_user}" ]] &&
+            echo 'A Username is needed with this configuration file'
     fi
 }
 
+validate__login_passphrase() {
+    if grep -q '^\s*auth-user-pass' ${config_file}
+    then
+        [[ -z "${login_passphrase}" ]] &&
+            echo 'A Password is needed with this configuration file'
+    fi
+}
+
+validate__crt_server_ca() {
+    if grep -q '^\s*ca\s' ${config_file}
+    then
+        [[ ! -e "${crt_server_ca}" ]] &&
+            echo "A server CA certificate is needed"
+    fi
+}
+
+validate__crt_client() {
+    if grep -q '^\s*cert\s' ${config_file}
+    then
+        [[ ! -e "${crt_client}" ]] &&
+            echo "A Client certificate is needed with this configuration file"
+    fi
+}
+
+validate__crt_client_key() {
+    if grep -q '^\s*key\s' ${config_file}
+    then
+        [[ ! -e "${crt_client_key}" ]] &&
+            echo "A client private key is needed with this configuration file"
+    fi
+}
+
+validate__crt_client_ta() {
+    if grep -q '^\s*tls-auth\s' ${config_file}
+    then
+        [[ ! -e "${crt_client_ta}" ]] &&
+            echo "A TLS auth shared secret is needed with this configuration file"
+    fi
+}
+
+validate__nameservers() {
+    [[ "$dns_method" == "custom" ]] && [[ -z "$nameservers" ]]
+        echo "You need to choose DNS resolvers or select an other method to provide DNS resolvers"
+}
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 set__login_user() {
-    if [ -z "${new[login_user]}" ]
+    if [ -n "${login_user}" ]
     then
-        echo "${new[login_user]}\n${new[login_passphrase]}" > /etc/openvpn/keys/credentials 
+        echo "${login_user}\n${login_passphrase}" > /etc/openvpn/keys/credentials 
     else
         echo "" > /etc/openvpn/keys/credentials
     fi
@@ -99,28 +149,19 @@ set__login_passphrase() {
     :
 }
 
-# TODO
-set__cube_file() {
-    if [ -f "${new[cube_file]}" ]
-    then
-        cp -f $tmp_dir/client.conf.tpl /etc/openvpn/client.conf.tpl
-    fi
-}
-
 #=================================================
 # OVERWRITING VALIDATE STEP 
 #=================================================
 ynh_panel_validate() {
-    set +x 
+    tmp_dir=$(dirname "${config_file}")
     # Overwrite form response with cube files data before validation process
-    if [ -f "${new[cube_file]}" ]
+    if [ -f "${config_file}" ] && [[ $config_file == *.cube ]]
     then
         declare -A settings
         settings[server_name]=""
         settings[server_port]=""
         settings[server_proto]=""
         settings[ip6_net]=""
-        settings[ip4_addr]=""
         settings[login_user]=""
         settings[login_passphrase]=""
         settings[dns0]=""
@@ -130,27 +171,30 @@ ynh_panel_validate() {
         settings[crt_client_key]="file"
         settings[crt_client_ta]="file"
 
-        tmp_dir=$(dirname "${new[cube_file]}")
         for setting_name in "${!settings[@]}"
         do
-            setting_value="$(jq --raw-output ".$setting_name" "${new[cube_file]}")"
+            setting_value="$(jq --raw-output ".$setting_name" "${config_file}")"
             if [[ "$setting_value" == "null" ]]
             then
                 setting_value=''
             # Save file in tmp dir
             elif [[ "${settings[$setting_name]}" == "file" ]]
             then
-                echo "${settings[$setting_name]}" | sed 's/|/\n/g' > $tmp_dir/$setting_name
-                setting_value="$tmp_dir/$setting_name"
+                if [ -n "${settings_value}" ]
+                then
+                    echo "${setting_value}" | sed 's/|/\n/g' > $tmp_dir/$setting_name
+                    setting_value="$tmp_dir/$setting_name"
+                fi
             fi
 
-            new[$setting_name]="$setting_value"
+            $setting_name="$setting_value"
         done
-        
+        dns_method="custom"
+        nameservers="$dns0,$dns1" 
         # Build specific OVPN template
         cp -f /etc/openvpn/client.conf.tpl.restore $tmp_dir/client.conf.tpl
         # Remove some lines
-        for rm_regex in "$(jq --raw-output '.openvpn_rm[]' "${new[cube_file]}")"
+        for rm_regex in "$(jq --raw-output '.openvpn_rm[]' "${config_file}")"
         do
             if [ ! -z "${rm_regex}" ] ; then
                 sed -i "/$rm_regex/di" $tmp_dir/client.conf.tpl
@@ -159,10 +203,75 @@ ynh_panel_validate() {
 
         # Add some other lines
         echo "# Custom" >> $tmp_dir/client.conf.tpl
-        jq --raw-output ".openvpn_add[]" "${new[cube_file]}" >> $tmp_dir/client.conf.tpl
+        jq --raw-output ".openvpn_add[]" "${config_file}" >> $tmp_dir/client.conf.tpl
+
+        # Build directly the OVPN file
+        cp /etc/openvpn/client.conf.tpl "${config_file}"
+        sed "s|<TPL:SERVER_NAME>|${settings[server_name]}|g" -i "${config_file}"
+        sed "s|<TPL:SERVER_PORT>|${settings[server_port]}|g" -i "${config_file}"
+        sed "s|<TPL:PROTO>|${settings[server_proto]}|g" -i "${config_file}"
+        if [ -e "${settings[crt_client_key]}" ]; then
+            sed 's|^<TPL:CERT_COMMENT>||g' -i "${config_file}"
+        else
+            sed 's|^<TPL:CERT_COMMENT>|;|g' -i "${config_file}"
+        fi
+        if [ -e "${settings[crt_client_ta]}" ]; then
+            sed 's|^<TPL:TA_COMMENT>||' -i "${config_file}"
+        else
+            sed 's|^<TPL:TA_COMMENT>|;|' -i "${config_file}"
+        fi
+        if [[ "${settings[server_proto]}" =~ udp ]]; then
+            sed 's|^<TPL:UDP_COMMENT>||' -i "${config_file}"
+        else
+            sed 's|^<TPL:UDP_COMMENT>|;|' -i "${config_file}"
+        fi
+        if [ -n "${settings[login_user]}" ]; then
+            sed 's|^<TPL:LOGIN_COMMENT>||' -i "${config_file}"
+        else
+            sed 's|^<TPL:LOGIN_COMMENT>|;|' -i "${config_file}"
+        fi
+
+
+    elif [ -f "${config_file}" ] && [[ "${config_file}" =~ ^.*\.(ovpn|conf)$ ]]
+    then
+        if grep -q '^\s*<ca>' ${config_file}
+        then
+            grep -Poz '(?<=<ca>)(.*\n)*.*(?=</ca>)' ${config_file} > $tmp_dir/crt_server_ca
+            crt_server_ca=$tmp_dir/crt_server_ca
+            sed -i '/^\s*<ca>/,/\s*<\/ca>/d' ${config_file}
+            sed -i '/^\s*ca\s/d' ${config_file}
+            echo "ca /etc/openvpn/keys/ca-server.crt" >> ${config_file}
+        fi
+        if grep -q '^\s*<cert>' ${config_file}
+        then
+            grep -Poz '(?<=<cert>)(.*\n)*.*(?=</cert>)' ${config_file} > $tmp_dir/crt_client
+            crt_client=$tmp_dir/crt_client
+            sed -i '/^\s*<cert>/,/\s*<\/cert>/d' ${config_file}
+            sed -i '/^\s*cert\s/d' ${config_file}
+            echo "cert /etc/openvpn/keys/user.crt" >> ${config_file}
+        fi
+        if grep -q '^\s*<key>' ${config_file}
+        then
+            grep -Poz '(?<=<key>)(.*\n)*.*(?=</key>)' ${config_file} > $tmp_dir/crt_client_key
+            crt_client_key=$tmp_dir/crt_client_key
+            sed -i '/^\s*<key>/,/\s*<\/key>/d' ${config_file}
+            sed -i '/^\s*key\s/d' ${config_file}
+            echo "key /etc/openvpn/keys/user.key" >> ${config_file}
+        fi
+        if grep -q '^\s*<tls-auth>' ${config_file}
+        then
+            grep -Poz '(?<=<tls-auth>)(.*\n)*.*(?=</tls-auth>)' ${config_file} > $tmp_dir/crt_client_ta
+            crt_client_ta=$tmp_dir/crt_client_ta
+            sed -i '/^\s*<tls-auth>/,/\s*<\/tls-auth>/d' ${config_file}
+            sed -i '/^\s*tls-auth\s/d' ${config_file}
+            echo "tls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
+        fi
+        sed -i 's@^\s*ca\s.*$@ca /etc/openvpn/keys/ca-server.crt@g' ${config_file}
+        sed -i 's@^\s*cert\s.*$@cert /etc/openvpn/keys/user.crt@g' ${config_file}
+        sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
+        sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user-ta.key@g' ${config_file}
     fi
 
-    set -x
     _ynh_panel_validate
 }
 
