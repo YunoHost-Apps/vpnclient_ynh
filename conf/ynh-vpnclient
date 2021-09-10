@@ -65,7 +65,7 @@ has_ip6delegatedprefix() {
 }
 
 is_ip6addr_set() {
-  ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/128"
+  ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/"
 }
 
 set_ip6addr() {
@@ -83,32 +83,41 @@ unset_ip6addr() {
 #
 
 is_serverip6route_set() {
-  server_ip6=${1}
+  server_ip6s=${1}
 
   if [ -z "${server_ip6}" ]; then
     false
   else
-    ip -6 route | grep -q "${server_ip6}/"
+    for server_ip6 in ${server_ip6s};
+    do
+        ip -6 route | grep -q "${server_ip6}/" || return 1
+    done
   fi
 }
 
 set_serverip6route() {
-  server_ip6=${1}
+  server_ip6s=${1}
   ip6_gw=${2}
   wired_device=${3}
 
   info "Adding IPv6 server route"
-  ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+    for server_ip6 in ${server_ip6s};
+    do
+        ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+    done
 }
 
 
 unset_serverip6route() {
-  server_ip6=${1}
+  server_ip6s=${1}
   ip6_gw=${2}
   wired_device=${3}
 
   info "Removing IPv6 server route"
-  ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+    for server_ip6 in ${server_ip6s};
+    do
+        ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+    done
 }
 
 
@@ -131,11 +140,11 @@ is_hotspot_knowme() {
 ###################################################################################
 
 is_dns_set() {
-  # FIXME : having the ynh_dns0 in the resolv.dnsmasq.conf is not necessarily good enough
-  # We want it to be the only one (with ynh_dns1) but nowadays for example ARN's resolver is
-  # in the default list from yunohost...
+  
+  current_dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq)
+  wanted_dns=$(echo "${ynh_dns}" | sort | uniq)
   [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
-  && ( grep -q ${ynh_dns0} /etc/resolv.conf || grep -q ${ynh_dns0} /etc/resolv.dnsmasq.conf )
+  && [[ "$current_dns" == "wanted_dns" ]]
 }
 
 set_dns() {
@@ -147,8 +156,7 @@ set_dns() {
   cp -fa "${resolvconf}" "${resolvconf}.ynh"
 
   cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
-echo nameserver ${ynh_dns0} > ${resolvconf}
-echo nameserver ${ynh_dns1} >> ${resolvconf}
+echo "${ynh_dns}" | sed 's/,/\n/g' | sort | uniq | sed 's/^/nameserver /g' > ${resolvconf}
 EOF
 
   bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
@@ -173,7 +181,7 @@ unset_dns() {
 ###################################################################################
 
 is_firewall_set() {
-  wired_device=${1}
+  wired_device=$(ip route | awk '/default via/ { print $NF; }')
 
   ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
   && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
@@ -182,16 +190,7 @@ is_firewall_set() {
 set_firewall() {
   info "Adding vpnclient custom rules to the firewall"
 
-  wired_device=${1}
-
   cp /etc/yunohost/hooks.d/{90-vpnclient.tpl,post_iptable_rules/90-vpnclient}
-
-  sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  sed "s|<TPL:PROTO>|${ynh_server_proto}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  sed "s|<TPL:WIRED_DEVICE>|${wired_device}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  sed "s|<TPL:DNS0>|${ynh_dns0}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  sed "s|<TPL:DNS1>|${ynh_dns1}|g" -i /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
   info "Restarting yunohost firewall..."
   yunohost firewall reload && success "Firewall restarted!"
@@ -240,53 +239,11 @@ is_openvpn_running() {
 
 start_openvpn() {
 
-  ip6_gw=${1}
-  server_ip6=${2}
-
-  if [ ! -z "${ip6_gw}" -a ! -z "${server_ip6}" ]; then
-    proto=udp6
-    [ "${ynh_server_proto}" == tcp ] && proto=tcp6-client
-  else
-    proto=udp
-    [ "${ynh_server_proto}" == tcp ] && proto=tcp-client
-  fi
-
   # Unset firewall to let DNS and NTP resolution works
   # Firewall is reset after vpn is mounted (more details on #1016)
   unset_firewall
 
   sync_time
-
-  info "Preparing openvpn configuration..."
-  cp /etc/openvpn/client.conf{.tpl,}
-
-  sed "s|<TPL:SERVER_NAME>|${ynh_server_name}|g" -i /etc/openvpn/client.conf
-  sed "s|<TPL:SERVER_PORT>|${ynh_server_port}|g" -i /etc/openvpn/client.conf
-  sed "s|<TPL:PROTO>|${proto}|g" -i /etc/openvpn/client.conf
-
-  if [ -e /etc/openvpn/keys/user.key ]; then
-    sed 's|^<TPL:CERT_COMMENT>||' -i /etc/openvpn/client.conf
-  else
-    sed 's|^<TPL:CERT_COMMENT>|;|' -i /etc/openvpn/client.conf
-  fi
-
-  if [ -e /etc/openvpn/keys/user_ta.key ]; then
-    sed 's|^<TPL:TA_COMMENT>||' -i /etc/openvpn/client.conf
-  else
-    sed 's|^<TPL:TA_COMMENT>|;|' -i /etc/openvpn/client.conf
-  fi
-
-  if [[ "${proto}" =~ udp ]]; then
-    sed 's|^<TPL:UDP_COMMENT>||' -i /etc/openvpn/client.conf
-  else
-    sed 's|^<TPL:UDP_COMMENT>|;|' -i /etc/openvpn/client.conf
-  fi
-
-  if [ -z "${ynh_login_user}" ]; then
-    sed 's|^<TPL:LOGIN_COMMENT>|;|' -i /etc/openvpn/client.conf
-  else
-    sed 's|^<TPL:LOGIN_COMMENT>||' -i /etc/openvpn/client.conf
-  fi
 
   info "Now actually starting OpenVPN client..."
   systemctl start openvpn@client.service
@@ -339,6 +296,7 @@ ynh_setting_get() {
   setting=${2}
 
   grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
+  # '"
 }
 
 ynh_setting_set() {
@@ -380,13 +338,8 @@ if [ "$1" != restart ]; then
   info "Retrieving Yunohost settings... "
 
   ynh_service_enabled=$(ynh_setting_get vpnclient service_enabled)
-  ynh_server_name=$(ynh_setting_get vpnclient server_name)
-  ynh_server_port=$(ynh_setting_get vpnclient server_port)
-  ynh_server_proto=$(ynh_setting_get vpnclient server_proto)
   ynh_ip6_addr=$(ynh_setting_get vpnclient ip6_addr)
-  ynh_login_user=$(ynh_setting_get vpnclient login_user)
-  ynh_dns0=$(ynh_setting_get vpnclient dns0)
-  ynh_dns1=$(ynh_setting_get vpnclient dns1)
+  ynh_dns=$(ynh_setting_get vpnclient nameservers)
 
   old_ip6_gw=$(ynh_setting_get vpnclient ip6_gw)
   old_wired_device=$(ynh_setting_get vpnclient wired_device)
@@ -394,12 +347,13 @@ if [ "$1" != restart ]; then
 
   new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
   new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
-  new_server_ip6=$(host "${ynh_server_name}" 2> /dev/null | awk '/IPv6/ { print $NF; }')
-
-  if [ -z "${new_server_ip6}" ]; then
-    # FIXME wtf is this hardcoded IP ...
-    new_server_ip6=$(host "${ynh_server_name}" 80.67.188.188 2> /dev/null | awk '/IPv6/ { print $NF; }')
-  fi
+  ynh_server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
+  new_server_ip6=$(dig AAAA +short $ynh_server_names | grep -v '\.$' | sort | uniq)
+  for i in $ynh_server_names; do
+    if [[ "${i}" =~ : ]] && [[ ! "$new_server_ip6" == *"${i}"* ]] ; then
+        new_server_ip6+=" ${i}"
+    fi
+  done
 
   success "Settings retrieved"
 
@@ -438,7 +392,7 @@ case "${1}" in
     then
       info "(openvpn is already running)"
     else
-      start_openvpn "${new_ip6_gw}" "${new_server_ip6}"
+      start_openvpn
     fi
 
     # Check old state of the server ipv6 route
@@ -469,9 +423,9 @@ case "${1}" in
     fi
 
     # Set ipv6/ipv4 firewall
-    if ! is_firewall_set "${new_wired_device}"
+    if ! is_firewall_set
     then
-      set_firewall "${new_wired_device}"
+      set_firewall
     fi
 
     # Update dynamic settings
@@ -505,7 +459,7 @@ case "${1}" in
       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
     fi
 
-    is_firewall_set "${old_wired_device}" && unset_firewall
+    is_firewall_set && unset_firewall
 
     is_dns_set && unset_dns
 
@@ -578,7 +532,7 @@ case "${1}" in
       info "No IPv6 server route to set"
     fi
 
-    if is_firewall_set "${new_wired_device}"; then
+    if is_firewall_set; then
       success "IPv6/IPv4 firewall set"
     else
       info "No IPv6/IPv4 firewall set"

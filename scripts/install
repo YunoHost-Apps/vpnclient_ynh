@@ -62,6 +62,12 @@ ynh_script_progression "Storing installation settings..."
 ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
 
+# Default values for config panel
+ynh_app_setting_set "$app" service_enabled 0
+ynh_app_setting_set "$app" dns_method "pushed"
+ynh_app_setting_set "$app" nameservers ""
+ynh_app_setting_set "$app" ip6_addr ""
+
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================

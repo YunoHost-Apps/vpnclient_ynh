@@ -1,148 +1,107 @@
-version = "0.1"
-name = "VPN Client configuration panel"
+version = "1.0"
 
 [main]
 name = "Auto-configuration"
 
-    [main.cube]
+    [main.vpn]
     name = ""
         
-        [main.cube.warning]
-        ask = "To configure your vpn client, the use of a VPN supporting the .cube file is recommended."
-        type = "warning"
+        [main.vpn.status]
+        ask = "The status of your VPN is unknown."
+        type = "alert"
+        style = "info"
         
-        [main.cube.service_enabled]
+        [main.vpn.doc]
+        ask = "Only VPN with a dedicated public ip that accept input traffic are compatible. See the compatible providers list."
+        type = "warning"
+
+        [main.vpn.service_enabled]
         ask = "Enable VPN"
         type = "boolean"
-        default = 0
         help = "If you disable, your VPN will not run even if you restart your server"
-
-        [main.cube.cube_file]
-        ask = "Load a cube File"
+        
+        [main.vpn.config_file]
+        ask = "Configuration file"
         type = "file"
-        optional = true
-        default = ""
-        accept = ".cube"
-        helpLink = { href = "https://labriqueinter.net/dotcubefiles.html", text = "Info about cube file format" }
+        accept = [".cube", ".ovpn", ".conf"]
+        help = ".cube file recommended, .ovpn file accepted"
+        bind = "/etc/openvpn/client.conf"
         
-[manual]
-name = "Manual configuration"
-
-    [manual.vpn]
-    name = "VPN"
-        
-        [manual.vpn.warning]
-        ask = "If you have not a .cube file you can configure your VPN manually.<br/>IMPORTANT: this app only supports fixed and dedicated public ip VPNs."
-        helpLink = { href = "https://labriqueinter.net/dotcubefiles.html", text = "See the list of public ip vpn providers" }
-        type = "warning"
-
-        
-        [manual.vpn.server_name]
-        ask = "Server address"
-        type = "string"
-        default = ""
-        optional = true
-        pattern = "^[^/ ]*$"
-        help = "Prefer to put directly the IP address of your VPN server here instead of domain name"
-        
-        [manual.vpn.server_port]
-        ask = "Server Port"
-        type = "number"
-        default = "1194"
-        min = 1
-        max = 65535
-        help = "Default openvpn port is 1194. If your server is connected to a restricted network and if your VPN provider support it, set 443 should work better."
-        
-        [manual.vpn.server_proto]
-        ask = "Protocol"
-        choices = ["udp", "tcp"]
-        default = "udp"
-        help = "UDP is preferred for performance reason. If your server is connected to a restricted network, and UDP does not work, try with TCP."
-        
-        [manual.vpn.ip4_addr]
-        ask = "IPv4"
-        type = "string"
-        default = ""
-        example = "141.125.36.75"
-        
-        [manual.vpn.ip6_net]
-        ask = "Delegated prefix (IPv6)"
-        type = "string"
-        default = ""
-        optional = true
-        example = "2001:db8:42::"
-        pattern = "^[0-9a-fA-F:]+$"
-
-    [manual.auth]
+    [main.auth]
     name = "Authentication"
-        
-        [manual.auth.crt_server_ca]
+
+        [main.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
-        default = ""
         help = "You should upload a CA certificate to start"
-        source="/etc/openvpn/keys/ca-server.crt"
+        bind="/etc/openvpn/keys/ca-server.crt"
+        visible = "! match(config_file,'^\s*<ca>')"
         
-        [manual.auth.crt_client]
+        [main.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
-        default = ""
         optional = true
-        source="/etc/openvpn/keys/user.crt"
+        bind="/etc/openvpn/keys/user.crt"
+        visible = "match(config_file,'^\s*crt\s') && ! match(config_file,'^\s*<crt>')"
         
-        [manual.auth.crt_client_key]
+        [main.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
-        default = ""
         help = "This file begins with -----BEGIN PRIVATE KEY-----"
         optional = true
-        example = "-----BEGIN PRIVATE KEY-----"
-        source="/etc/openvpn/keys/user.key"
+        bind="/etc/openvpn/keys/user.key"
+        visible = "match(config_file,'^\s*key\s') && ! match(config_file,'^\s*<key>')"
         
-        [manual.auth.crt_client_ta]
-        ask = "Upload Shared-Secret"
-        type = "file"
-        default = ""
-        optional = true
-        example = "ta.key"
-        source="/etc/openvpn/keys/user_ta.key"
-        
-        [manual.auth.login_user]
+        [main.auth.login_user]
         ask = "Username"
         type = "string"
-        default = ""
         example = "camille"
         optional = true
-        pattern = "^[^/ ]+$"
+        pattern = "^[a-zA-Z_-\.@]+$"
+        visible = "match(config_file,'^\s*auth-user-pass\s')"
         
-        [manual.auth.login_passphrase]
+        [main.auth.login_passphrase]
         ask = "Password"
         type = "password"
-        default = ""
-        visibleif = "login_user"
-
-    [manual.dns]
+        optional = true
+        visible = "match(config_file,'^\s*auth-user-pass\s')"
+        
+        [main.auth.crt_client_ta]
+        ask = "TLS Auth shared secret"
+        type = "file"
+        optional = true
+        example = "ta.key"
+        help = "Some servers have an additional protection agains Deny of Service attack. If you have no tls-auth key in your ovpn, skip this question."
+        bind="/etc/openvpn/keys/user_ta.key"
+        visible = "match(config_file,'^\s*tls-auth\s') && ! match(config_file,'^\s*<tls-auth>')"
+        
+[advanced]
+name = "DNS & IPv6"
+    [advanced.dns]
     name = "DNS"
 
-        [manual.dns.dns0]
-        ask = "First resolver"
-        type = "string"
-        default = "89.234.141.66"
+        [advanced.dns.dns_method]
+        ask = "DNS provider"
+        type = "select"
+        choices.pushed = "Use DNS from my VPN provider"
+        choices.yunohost = "Keep DNS from YunoHost"
+        choices.custom = "Use custom DNS"
+
+        [advanced.dns.nameservers]
+        ask = "DNS resolvers"
+        type = "tags"
         optional = true
+        visible = "dns_method == 'custom'"
         pattern = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
+        
+    [advanced.ipv6]
+    name = "IPv6"
 
-        [manual.dns.dns1]
-        ask = "Second resolver"
+        [advanced.ipv6.ip6_addr]
+        ask = "IPv6"
         type = "string"
-        default = "2a00:5881:8100:1000::3"
         optional = true
-        pattern = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
-
-    [manual.advanced]
-    name = "Advanced configuration"
-
-        [manual.advanced.ovpn]
-        ask = "OVPN template"
-        type = "text"
-        optional = true
-        source="/etc/openvpn/client.conf.tpl"
+        example = "2001:db8:42::2"
+        help = "If ipv6 address is not pushed directly by your openvpn server, you can indicate a specific ip to use."
+        pattern.regexp = "^[0-9a-fA-F:]+$"
+        pattern.error = "Please provide a valid IPv6"
