@@ -144,7 +144,7 @@ is_dns_set() {
   current_dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq)
   wanted_dns=$(echo "${ynh_dns}" | sort | uniq)
   [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
-  && [[ "$current_dns" == "wanted_dns" ]]
+  && [[ "$current_dns" == "$wanted_dns" ]]
 }
 
 set_dns() {
