@@ -12,7 +12,7 @@ name = "Auto-configuration"
         style = "info"
         
         [main.vpn.doc]
-        ask = "Only VPN with a dedicated public ip that accept input traffic are compatible. See the compatible providers list."
+        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the compatible providers list."
         type = "warning"
 
         [main.vpn.service_enabled]
