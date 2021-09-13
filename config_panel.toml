@@ -18,7 +18,7 @@ name = "Auto-configuration"
         [main.vpn.service_enabled]
         ask = "Enable VPN"
         type = "boolean"
-        help = "If you disable, your VPN will not run even if you restart your server"
+        help = "If disabled, the VPN service will not automatically be started at boot."
         
         [main.vpn.config_file]
         ask = "Configuration file"
