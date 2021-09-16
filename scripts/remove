@@ -32,7 +32,6 @@ source /usr/share/yunohost/helpers
 ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
-domain=$(ynh_app_setting_get $app domain)
 
 #=================================================
 # STOP AND REMOVE SERVICES
@@ -55,22 +54,6 @@ for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient
 do
     ynh_secure_remove "$FILE"
 done
-
-#=================================================
-# REMOVE NGINX CONFIGURATION
-#=================================================
-ynh_print_info "Removing NGINX web server configuration"
-
-# Remove the dedicated NGINX config
-ynh_remove_nginx_config
-
-#=================================================
-# REMOVE PHP-FPM CONFIGURATION
-#=================================================
-ynh_print_info "Removing PHP-FPM configuration"
-
-# Remove the dedicated PHP-FPM config
-ynh_remove_fpm_config
 
 #=================================================
 # SPECIFIC REMOVE

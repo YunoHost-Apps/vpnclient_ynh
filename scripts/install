@@ -38,8 +38,6 @@ ynh_abort_if_errors
 #=================================================
 
 # Retrieve arguments
-domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
 app=$YNH_APP_INSTANCE_NAME
 final_path="/var/www/$app"
 
@@ -51,15 +49,12 @@ ynh_script_progression "Validating installation parameters..."
 # Check destination directory
 test ! -e "$final_path" || ynh_die "Path is already in use: ${final_path}."
 
-# Register (book) web path
-ynh_webpath_register "$app" "$domain" "$path_url"
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 ynh_script_progression "Storing installation settings..."
 
-ynh_app_setting_set "$app" domain "$domain"
 ynh_app_setting_set "$app" final_path "$final_path"
 
 # Default values for config panel

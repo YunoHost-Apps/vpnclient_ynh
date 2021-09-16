@@ -24,8 +24,6 @@ ynh_print_info "Loading installation settings..."
 app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
-domain=$(ynh_app_setting_get $app domain)
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # STANDARD BACKUP STEPS
@@ -38,8 +36,6 @@ ynh_backup "$final_path"
 
 ynh_backup "/etc/sudoers.d/${app}_ynh"
 
-ynh_backup "/usr/local/bin/ipv6_expanded"
-ynh_backup "/usr/local/bin/ipv6_compressed"
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 
 ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
@@ -50,20 +46,6 @@ ynh_backup "/etc/openvpn/keys/"
 
 ynh_backup "/usr/local/bin/$service_name"
 ynh_backup "/usr/local/bin/$service_checker_name.sh"
-
-#=================================================
-# BACKUP THE NGINX CONFIGURATION
-#=================================================
-ynh_print_info "Backing up NGINX web server configuration..."
-
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
-#=================================================
-ynh_print_info "Backing up PHP-FPM configuration..."
-
-ynh_backup "/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC BACKUP
