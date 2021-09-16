@@ -5,75 +5,75 @@ name = "Auto-configuration"
 
     [main.vpn]
     name = ""
+    optional = false
         
         [main.vpn.status]
         ask = "The status of your VPN is unknown."
         type = "alert"
         style = "info"
         
-        [main.vpn.doc]
-        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the compatible providers list."
-        type = "warning"
-
         [main.vpn.service_enabled]
         ask = "Enable VPN"
         type = "boolean"
         help = "If disabled, the VPN service will not automatically be started at boot."
         
+        [main.vpn.doc]
+        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the compatible providers list."
+        type = "alert"
+        style = "warning"
+
         [main.vpn.config_file]
         ask = "Configuration file"
         type = "file"
-        accept = [".cube", ".ovpn", ".conf"]
+        accept = ".cube, .ovpn, .conf"
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
         
     [main.auth]
     name = "Authentication"
+    optional = true
+    visible = 'config_file && ((match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")) || (match(config_file,"^\s*cert\s") && ! match(config_file,"^\s*<cert>")) || (match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")) || (match(config_file,"^\s*tls-auth\s") && ! match(config_file,"^\s*<tls-auth>")) || match(config_file,"^\s*auth-user-pass(\s.*)?$"))'
 
         [main.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
         help = "You should upload a CA certificate to start"
-        bind="/etc/openvpn/keys/ca-server.crt"
-        visible = "! match(config_file,'^\s*<ca>')"
+        bind = "/etc/openvpn/keys/ca-server.crt"
+        visible = 'config_file && match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")'
         
         [main.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
-        optional = true
-        bind="/etc/openvpn/keys/user.crt"
-        visible = "match(config_file,'^\s*crt\s') && ! match(config_file,'^\s*<crt>')"
+        bind = "/etc/openvpn/keys/user.crt"
+        visible = 'config_file && match(config_file,"^\s*cert\s") && ! match(config_file,"^\s*<cert>")'
         
         [main.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
         help = "This file begins with -----BEGIN PRIVATE KEY-----"
-        optional = true
-        bind="/etc/openvpn/keys/user.key"
-        visible = "match(config_file,'^\s*key\s') && ! match(config_file,'^\s*<key>')"
+        bind = "/etc/openvpn/keys/user.key"
+        visible = 'config_file && match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")'
         
         [main.auth.login_user]
         ask = "Username"
         type = "string"
         example = "camille"
-        optional = true
-        pattern = "^[a-zA-Z_-\.@]+$"
-        visible = "match(config_file,'^\s*auth-user-pass\s')"
+        pattern.regexp = '^[a-zA-Z_\-\\\.@]+$'
+        pattern.error = "OpenVPN accept only alphabetic chars and -_\\.@"
+        visible = 'config_file && match(config_file,"^\s*auth-user-pass\s")'
         
         [main.auth.login_passphrase]
         ask = "Password"
         type = "password"
-        optional = true
-        visible = "match(config_file,'^\s*auth-user-pass\s')"
+        visible = 'config_file && match(config_file,"^\s*auth-user-pass(\s.*)?$")'
         
         [main.auth.crt_client_ta]
         ask = "TLS Auth shared secret"
         type = "file"
-        optional = true
         example = "ta.key"
         help = "Some servers have an additional protection agains Deny of Service attack. If you have no tls-auth key in your ovpn, skip this question."
-        bind="/etc/openvpn/keys/user_ta.key"
-        visible = "match(config_file,'^\s*tls-auth\s') && ! match(config_file,'^\s*<tls-auth>')"
+        bind = "/etc/openvpn/keys/user_ta.key"
+        visible = 'config_file && match(config_file,"^\s*tls-auth\s") && ! match(config_file,"^\s*<tls-auth>")'
         
 [advanced]
 name = "DNS & IPv6"
@@ -92,7 +92,8 @@ name = "DNS & IPv6"
         type = "tags"
         optional = true
         visible = "dns_method == 'custom'"
-        pattern = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
+        pattern.regexp = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
+        pattern.error = "Not an ip"
         
     [advanced.ipv6]
     name = "IPv6"

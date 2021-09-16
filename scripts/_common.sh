@@ -3,8 +3,6 @@
 # Common variables and helpers
 #
 
-YNH_PHP_VERSION="7.3"
-
 pkg_dependencies="sipcalc dnsutils openvpn curl fake-hwclock"
 
 service_name="ynh-vpnclient"
@@ -24,15 +22,10 @@ function vpnclient_deploy_files_and_services()
   install -b -o root -g root -m 0440 ../conf/sudoers.conf /etc/sudoers.d/${app}_ynh
   ynh_replace_string "__VPNCLIENT_SYSUSER__" "${app}" /etc/sudoers.d/${app}_ynh
 
-  # Install IPv6 scripts
-  install -o root -g root -m 0755 ../conf/ipv6_expanded /usr/local/bin/
-  install -o root -g root -m 0755 ../conf/ipv6_compressed /usr/local/bin/
-
   # Install command-line cube file loader
   install -o root -g root -m 0755 ../conf/$service_name-loadcubefile.sh /usr/local/bin/
 
   # Copy confs
-  mkdir -pm 0755 /var/log/nginx/
   chown root:${app} /etc/openvpn/
   chmod 775 /etc/openvpn/
   mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
@@ -42,38 +35,11 @@ function vpnclient_deploy_files_and_services()
   install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/
 
-  # Copy web sources
-  mkdir -pm 0755 /var/www/${app}/
-  cp -a ../sources/* /var/www/${app}/
-
-  chown -R root: /var/www/${app}/
-  chmod -R 0644 /var/www/${app}/*
-  find /var/www/${app}/ -type d -exec chmod +x {} \;
-
   # Create certificates directory
   mkdir -pm 0770 /etc/openvpn/keys/
   chown root:${app} /etc/openvpn/keys/
 
   #=================================================
-  # NGINX CONFIGURATION
-  #=================================================
-  ynh_print_info "Configuring nginx web server..."
-
-  ynh_add_nginx_config
-
-  #=================================================
-  # PHP-FPM CONFIGURATION
-  #=================================================
-  ynh_print_info "Configuring PHP-FPM..."
-
-  # Create a dedicated PHP-FPM config
-  ynh_add_fpm_config --phpversion=$YNH_PHP_VERSION
-  phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-  #=================================================
-
-  # Fix sources
-  ynh_replace_string "__PATH__" "${path_url%%/}" "/var/www/${app}/config.php"
 
   # Copy init script
   install -o root -g root -m 0755 ../conf/$service_name /usr/local/bin/

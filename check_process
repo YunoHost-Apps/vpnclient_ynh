@@ -1,20 +1,18 @@
 ;; Test complet
     ; Manifest
-        domain="domain.tld" (DOMAIN)
-        path="/vpnconfig"   (PATH)
     ; Checks
         pkg_linter=1
-        setup_sub_dir=1
+        setup_sub_dir=0
         setup_root=1
         setup_nourl=0
-        setup_private=1
+        setup_private=0
         setup_public=0
         upgrade=1
         upgrade=1   from_commit=623d8a30453a26ee21aa2ce1142674a2ffdb85b9
         upgrade=1   from_commit=73aa672346e40fc1857aef7441c449f0bd322082
         backup_restore=1
         multi_instance=0
-        incorrect_path=1
+        incorrect_path=0
         port_already_use=0
         change_url=0
 ;;; Options

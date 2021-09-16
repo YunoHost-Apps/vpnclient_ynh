@@ -26,11 +26,12 @@ VPN Client app for [YunoHost](http://yunohost.org/).
 * Strong firewalling (internet access and self-hosted services only available through the VPN)
 * Advanced mode for editing the default OpenVPN configuration
 * Auto-configuration mode, with [dot cube files](http://internetcu.be/dotcubefiles.html)
-* Web interface
+and OVPN file with embeded certificates.
+* Web interface available from the web admin of YunoHost
 
 ## Screenshot
 
-![Screenshot of the web interface](https://raw.githubusercontent.com/labriqueinternet/vpnclient_ynh/master/screenshot.png)
+![Screenshot of the web interface](https://raw.githubusercontent.com/labriqueinternet/vpnclient_ynh/master/doc/screenshorts/vpnclient.png)
 
 
 ## Running vpnclient inside lxc

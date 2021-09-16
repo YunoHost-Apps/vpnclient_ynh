@@ -20,18 +20,25 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
-
 final_path=$(ynh_app_setting_get $app final_path)
+
+set_right() {
+    if [ -f $1 ]
+    then
+        chown $app:$app $1
+        chmod go=--- $1
+    fi
+}
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 
 get__status() {
+    local service_enabled=$(ynh_app_setting_get $app service_enabled)
     if [ -f "/sys/class/net/tun0/operstate" ] && [ "$(cat /sys/class/net/tun0/operstate)" == "up" ]
     then
-        if [ $old[service_enabled] -eq 1 ]
+        if [ $service_enabled -eq 1 ]
         then
             cat << EOF
 style: success
@@ -45,7 +52,7 @@ ask:
   en: Your VPN is running, but it shouldn't !
 EOF
         fi
-    elif [ $old[service_enabled] -eq 1 ]
+    elif [ $service_enabled -eq 1 ]
     then
         cat << EOF
 style: danger
@@ -65,14 +72,18 @@ EOF
 get__login_user() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        sed -n 1p /etc/openvpn/keys/credentials 
+        echo "value: $(sed -n 1p /etc/openvpn/keys/credentials)" 
+    else
+        echo ""
     fi
 }
 
 get__login_passphrase() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        sed -n 2p /etc/openvpn/keys/credentials 
+        echo "value: $(sed -n 2p /etc/openvpn/keys/credentials)"
+    else
+        echo ""
     fi
 }
 
@@ -84,54 +95,68 @@ validate__login_user() {
 
     if grep -q '^\s*auth-user-pass' ${config_file}
     then
-        [[ -z "${login_user}" ]] &&
+        if [[ -z "${login_user}" ]]
+        then
             echo 'A Username is needed with this configuration file'
+        fi
     fi
 }
 
 validate__login_passphrase() {
     if grep -q '^\s*auth-user-pass' ${config_file}
     then
-        [[ -z "${login_passphrase}" ]] &&
+        if [[ -z "${login_passphrase}" ]]
+        then
             echo 'A Password is needed with this configuration file'
+        fi
     fi
 }
 
 validate__crt_server_ca() {
     if grep -q '^\s*ca\s' ${config_file}
     then
-        [[ ! -e "${crt_server_ca}" ]] &&
+        if [[ ! -e "${crt_server_ca}" ]]
+        then
             echo "A server CA certificate is needed"
+        fi
     fi
 }
 
 validate__crt_client() {
     if grep -q '^\s*cert\s' ${config_file}
     then
-        [[ ! -e "${crt_client}" ]] &&
+        if [[ ! -e "${crt_client}" ]]
+        then
             echo "A Client certificate is needed with this configuration file"
+        fi
     fi
 }
 
 validate__crt_client_key() {
     if grep -q '^\s*key\s' ${config_file}
     then
-        [[ ! -e "${crt_client_key}" ]] &&
+        if [[ ! -e "${crt_client_key}" ]]
+        then
             echo "A client private key is needed with this configuration file"
+        fi
     fi
 }
 
 validate__crt_client_ta() {
     if grep -q '^\s*tls-auth\s' ${config_file}
     then
-        [[ ! -e "${crt_client_ta}" ]] &&
+        if [[ ! -e "${crt_client_ta}" ]]
+        then
             echo "A TLS auth shared secret is needed with this configuration file"
+        fi
     fi
 }
 
 validate__nameservers() {
-    [[ "$dns_method" == "custom" ]] && [[ -z "$nameservers" ]]
+    if [[ "$dns_method" == "custom" ]] && [[ -z "$nameservers" ]]
+    then
         echo "You need to choose DNS resolvers or select an other method to provide DNS resolvers"
+    fi
 }
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
@@ -139,7 +164,8 @@ validate__nameservers() {
 set__login_user() {
     if [ -n "${login_user}" ]
     then
-        echo "${login_user}\n${login_passphrase}" > /etc/openvpn/keys/credentials 
+        echo "${login_user}\n${login_passphrase}" > /etc/openvpn/keys/credentials
+        set_right /etc/openvpn/keys/credentials
     else
         echo "" > /etc/openvpn/keys/credentials
     fi
@@ -152,11 +178,12 @@ set__login_passphrase() {
 #=================================================
 # OVERWRITING VALIDATE STEP 
 #=================================================
-ynh_panel_validate() {
+ynh_app_config_validate() {
     tmp_dir=$(dirname "${config_file}")
     # Overwrite form response with cube files data before validation process
     if [ -f "${config_file}" ] && [[ $config_file == *.cube ]]
     then
+        ynh_print_info --message="Transforming .cube into OVPN file"
         declare -A settings
         settings[server_name]=""
         settings[server_port]=""
@@ -207,6 +234,7 @@ ynh_panel_validate() {
 
         # Build directly the OVPN file
         cp /etc/openvpn/client.conf.tpl "${config_file}"
+        [ "${settings[server_proto]}" == tcp ] && settings[server_proto]=tcp-client
         sed "s|<TPL:SERVER_NAME>|${settings[server_name]}|g" -i "${config_file}"
         sed "s|<TPL:SERVER_PORT>|${settings[server_port]}|g" -i "${config_file}"
         sed "s|<TPL:PROTO>|${settings[server_proto]}|g" -i "${config_file}"
@@ -234,6 +262,7 @@ ynh_panel_validate() {
 
     elif [ -f "${config_file}" ] && [[ "${config_file}" =~ ^.*\.(ovpn|conf)$ ]]
     then
+        ynh_print_info --message="Extracting TLS keys from .ovpn file"
         if grep -q '^\s*<ca>' ${config_file}
         then
             grep -Poz '(?<=<ca>)(.*\n)*.*(?=</ca>)' ${config_file} > $tmp_dir/crt_server_ca
@@ -241,6 +270,8 @@ ynh_panel_validate() {
             sed -i '/^\s*<ca>/,/\s*<\/ca>/d' ${config_file}
             sed -i '/^\s*ca\s/d' ${config_file}
             echo "ca /etc/openvpn/keys/ca-server.crt" >> ${config_file}
+        else
+            crt_server_ca=""
         fi
         if grep -q '^\s*<cert>' ${config_file}
         then
@@ -249,6 +280,8 @@ ynh_panel_validate() {
             sed -i '/^\s*<cert>/,/\s*<\/cert>/d' ${config_file}
             sed -i '/^\s*cert\s/d' ${config_file}
             echo "cert /etc/openvpn/keys/user.crt" >> ${config_file}
+        else
+            crt_client=""
         fi
         if grep -q '^\s*<key>' ${config_file}
         then
@@ -257,6 +290,8 @@ ynh_panel_validate() {
             sed -i '/^\s*<key>/,/\s*<\/key>/d' ${config_file}
             sed -i '/^\s*key\s/d' ${config_file}
             echo "key /etc/openvpn/keys/user.key" >> ${config_file}
+        else
+            crt_client_key=""
         fi
         if grep -q '^\s*<tls-auth>' ${config_file}
         then
@@ -265,6 +300,8 @@ ynh_panel_validate() {
             sed -i '/^\s*<tls-auth>/,/\s*<\/tls-auth>/d' ${config_file}
             sed -i '/^\s*tls-auth\s/d' ${config_file}
             echo "tls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
+        else
+            crt_client_ta=""
         fi
         sed -i 's@^\s*ca\s.*$@ca /etc/openvpn/keys/ca-server.crt@g' ${config_file}
         sed -i 's@^\s*cert\s.*$@cert /etc/openvpn/keys/user.crt@g' ${config_file}
@@ -272,24 +309,44 @@ ynh_panel_validate() {
         sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user-ta.key@g' ${config_file}
     fi
 
-    _ynh_panel_validate
+    # Restrict permission
+    if [ -f "${config_file}" ]
+    then
+        sed -i '/^\s*user\s/d' ${config_file}
+        sed -i '/^\s*group\s/d' ${config_file}
+        echo "user vpnclient" >> ${config_file}
+        echo "group vpnclient" >> ${config_file}
+    fi
+
+    _ynh_app_config_validate
 }
 
 #=================================================
 # OVERWRITING APPLY STEP 
 #=================================================
-ynh_panel_apply() {
+ynh_app_config_apply() {
     
     # Stop vpn client
+    ynh_print_info --message="Stopping vpnclient in order to edit files"
     touch /tmp/.ynh-vpnclient-stopped
-    systemctl stop ynh-vpnclient
+    /usr/local/bin/ynh-vpnclient stop
 
-    _ynh_panel_apply
-
+    chown $app:$app /etc/openvpn/keys
+    chmod go=--- /etc/openvpn/keys
+    
+    _ynh_app_config_apply
+    
+    set_right /etc/openvpn/client.conf
+    set_right /etc/openvpn/keys/ca-server.crt
+    set_right /etc/openvpn/keys/user.crt
+    set_right /etc/openvpn/keys/user.key
+    set_right /etc/openvpn/keys/user_ta.key
+    
     # Start vpn client
-    systemctl start ynh-vpnclient
+    ynh_print_info --message="Starting vpnclient service if needed"
+    /usr/local/bin/ynh-vpnclient start
     rm -f /tmp/.ynh-vpnclient-stopped
 
 }
 
-ynh_panel_run $1
+ynh_app_config_run $1
