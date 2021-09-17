@@ -83,7 +83,6 @@ name = "DNS & IPv6"
         [advanced.dns.dns_method]
         ask = "DNS provider"
         type = "select"
-        choices.pushed = "Use DNS from my VPN provider"
         choices.yunohost = "Keep DNS from YunoHost"
         choices.custom = "Use custom DNS"
 
