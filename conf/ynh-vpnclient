@@ -143,8 +143,8 @@ is_dns_set() {
   if [[ "$ynh_dns_method" == "custom" ]]
   then
   
-    current_dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq)
-    wanted_dns=$(echo "${ynh_dns}" | sort | uniq)
+    current_dns=$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq)
+    wanted_dns=$(echo "${ynh_dns}" | sed 's/,/\n/g'  | sort | uniq)
     [ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]\
     && [[ "$current_dns" == "$wanted_dns" ]]
   else

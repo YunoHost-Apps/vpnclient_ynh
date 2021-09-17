@@ -17,9 +17,9 @@ ynh_print_info "Loading installation settings..."
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
+dns_method=$(ynh_app_setting_get $app dns_method)
+nameservers=$(ynh_app_setting_get $app nameservers)
 
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
@@ -30,9 +30,22 @@ rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf 2>/dev/null
 rm -f /etc/php/*/fpm/pool.d/vpnadmin.conf 2>/dev/null 
 
 if [ -d /var/www/vpnadmin ]; then
-  mv /var/www/vpnadmin /var/www/${app}
+  ynh_secure_remove /var/www/vpnadmin
+fi
+if [ -d /var/www/${app} ]; then
+  ynh_secure_remove /var/www/${app}
 fi
 
+#=================================================
+# SPECIAL UPGRADE FOR VERSIONS < 2.0
+#=================================================
+if [ -z "$dns_method" ]; then
+    ynh_app_setting_set --app=$app --key=dns_method --value=custom
+fi
+if [ -z "$nameservers" ]; then
+    nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
+    ynh_app_setting_set --app=$app --key=nameservers --value="$nameservers"
+fi
 ## Versions known to have a buggy backup script
 #buggy_versions="1.0.0 1.0.1 1.1.0"
 #curr_version=$(read_manifest version)
