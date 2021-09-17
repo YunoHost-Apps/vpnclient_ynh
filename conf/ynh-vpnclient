@@ -175,7 +175,7 @@ unset_dns() {
 
   info "Removing custom DNS resolvers from vpnclient"
   rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
-  mv "${resolvconf}.ynh" "${resolvconf}"
+  [ -e "${resolvconf}.ynh" ] && mv "${resolvconf}.ynh" "${resolvconf}"
 
   # FIXME : this situation happened to a user ...
   # We could try to force regen the dns conf 

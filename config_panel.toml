@@ -98,6 +98,14 @@ name = "DNS & IPv6"
     [advanced.ipv6]
     name = "IPv6"
 
+        [advanced.ipv6.ip6_net]
+        ask = "Prefix IPv6"
+        type = "string"
+        optional = true
+        example = "2001:db8:42::"
+        pattern.regexp = "^[0-9a-fA-F:]+$"
+        pattern.error = "Please provide a valid IPv6 Prefix"
+        
         [advanced.ipv6.ip6_addr]
         ask = "IPv6"
         type = "string"
