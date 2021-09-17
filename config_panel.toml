@@ -91,7 +91,7 @@ name = "DNS & IPv6"
         type = "tags"
         optional = true
         visible = "dns_method == 'custom'"
-        pattern.regexp = "^([0-9.]{8,16}|[0-9a-fA-F:]+)$"
+        pattern.regexp = "^([0-9.]{7,15}|[0-9a-fA-F:]+)$"
         pattern.error = "Not an ip"
         
     [advanced.ipv6]
