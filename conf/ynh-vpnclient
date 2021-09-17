@@ -61,7 +61,7 @@ has_nativeip6() {
 }
 
 has_ip6delegatedprefix() {
-  [ "${ynh_ip6_addr}" != none ]
+  [ "${ynh_ip6_addr}" != none ] && [ "${ynh_ip6_addr}" != "" ]
 }
 
 is_ip6addr_set() {
