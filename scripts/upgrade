@@ -16,7 +16,6 @@ ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
 final_path=$(ynh_app_setting_get $app final_path)
 dns_method=$(ynh_app_setting_get $app dns_method)
 nameservers=$(ynh_app_setting_get $app nameservers)
@@ -26,14 +25,18 @@ nameservers=$(ynh_app_setting_get $app nameservers)
 #=================================================
 
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
-rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf 2>/dev/null 
-rm -f /etc/php/*/fpm/pool.d/vpnadmin.conf 2>/dev/null 
+if [ -d /etc/nginx/conf.d/*.d/$app.conf ]; then
+	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
+fi
+if [ -d /etc/php/*/fpm/pool.d/$app.conf ]; then
+	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
+fi
+if [ -d /var/www/$app ]; then
+	ynh_secure_remove /var/www/$app
+fi
 
 if [ -d /var/www/vpnadmin ]; then
   ynh_secure_remove /var/www/vpnadmin
-fi
-if [ -d /var/www/${app} ]; then
-  ynh_secure_remove /var/www/${app}
 fi
 
 #=================================================

@@ -83,8 +83,19 @@ systemctl daemon-reload
 ynh_print_info "Removing dependencies"
 ynh_remove_app_dependencies
 
-# Remove sources
-ynh_secure_remove "/var/www/${app}"
+#=================================================
+# REMOVE LEGACY INTERFACES
+#=================================================
+if [ -d /etc/nginx/conf.d/*.d/$app.conf ]; then
+	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
+fi
+if [ -d /etc/php/*/fpm/pool.d/$app.conf ]; then
+	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
+fi
+if [ -d /var/www/$app ]; then
+	ynh_secure_remove /var/www/$app
+fi
+
 
 #=================================================
 # REMOVE DEDICATED USER
