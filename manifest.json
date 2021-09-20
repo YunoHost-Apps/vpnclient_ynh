@@ -15,7 +15,7 @@
   },
   "multi_instance": false,
   "requirements": {
-    "yunohost": ">= 4.2"
+    "yunohost": ">= 4.3"
   },
   "services": [],
   "arguments": {
