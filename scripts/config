@@ -71,7 +71,7 @@ EOF
         cat << EOF
 style: info
 ask:
-  en: Your VPN is down has expected.
+  en: Your VPN is down as expected.
 EOF
 
     fi
