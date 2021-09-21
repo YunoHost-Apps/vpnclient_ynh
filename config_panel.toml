@@ -18,7 +18,7 @@ name = "Auto-configuration"
         help = "If disabled, the VPN service will not automatically be started at boot."
         
         [main.vpn.doc]
-        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the [compatible providers list](https://yunohost.org/en/providers/vpn)."
+        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the [compatible providers list](https://yunohost.org/providers/vpn)."
         type = "alert"
         style = "warning"
 
@@ -37,7 +37,6 @@ name = "Auto-configuration"
         [main.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
-        help = "You should upload a CA certificate to start"
         bind = "/etc/openvpn/keys/ca-server.crt"
         visible = 'config_file && match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")'
         
@@ -81,13 +80,13 @@ name = "DNS & IPv6"
     name = "DNS"
 
         [advanced.dns.dns_method]
-        ask = "DNS provider"
+        ask = "DNS resolvers"
         type = "select"
-        choices.yunohost = "Keep DNS from YunoHost"
-        choices.custom = "Use custom DNS"
+        choices.yunohost = "Default DNS resolvers from YunoHost"
+        choices.custom = "Use custom DNS resolvers"
 
         [advanced.dns.nameservers]
-        ask = "DNS resolvers"
+        ask = "Custom DNS resolvers"
         type = "tags"
         optional = true
         visible = "dns_method == 'custom'"
@@ -98,7 +97,7 @@ name = "DNS & IPv6"
     name = "IPv6"
 
         [advanced.ipv6.ip6_net]
-        ask = "Prefix IPv6"
+        ask = "IPv6 prefix"
         type = "string"
         optional = true
         example = "2001:db8:42::"
@@ -110,6 +109,6 @@ name = "DNS & IPv6"
         type = "string"
         optional = true
         example = "2001:db8:42::2"
-        help = "If ipv6 address is not pushed directly by your openvpn server, you can indicate a specific ip to use."
+        help = "If no IPv6 address is pushed directly by your VPN provider, you can indicate a specific IP to use here."
         pattern.regexp = "^[0-9a-fA-F:]+$"
         pattern.error = "Please provide a valid IPv6"
