@@ -18,7 +18,7 @@ name = "Auto-configuration"
         help = "If disabled, the VPN service will not automatically be started at boot."
         
         [main.vpn.doc]
-        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the compatible providers list."
+        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the [compatible providers list](https://yunohost.org/en/providers/vpn)."
         type = "alert"
         style = "warning"
 
