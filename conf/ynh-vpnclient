@@ -57,7 +57,7 @@ function critical()
 ###################################################################################
 
 has_nativeip6() {
-  ip -6 route | grep -q default\ via
+  ip -6 route | grep -q "default via"
 }
 
 has_ip6delegatedprefix() {
@@ -155,8 +155,7 @@ is_dns_set() {
 set_dns() {
   info "Enforcing custom DNS resolvers from vpnclient"
 
-  resolvconf=/etc/resolv.conf
-  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+  resolvconf=/etc/resolv.dnsmasq.conf
 
   cp -fa "${resolvconf}" "${resolvconf}.ynh"
   if [[ "$ynh_dns_method" == "custom" ]]
@@ -170,8 +169,7 @@ EOF
 }
 
 unset_dns() {
-  resolvconf=/etc/resolv.conf
-  [ -e /etc/resolv.dnsmasq.conf ] && resolvconf=/etc/resolv.dnsmasq.conf
+  resolvconf=/etc/resolv.dnsmasq.conf
 
   info "Removing custom DNS resolvers from vpnclient"
   rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
@@ -223,9 +221,9 @@ sync_time() {
   # Try to get the date with an http request on the internetcube web site
   if [ $? -ne 0 ]; then
     info "ntp synchronization failed, falling back to curl method"
-    http_date=`curl -sD - labriqueinter.net | grep '^Date:' | cut -d' ' -f3-6`
-    http_date_seconds=`date -d "${http_date}" +%s`
-    curr_date_seconds=`date +%s`
+    http_date=$(curl --max-time 5 -sD - labriqueinter.net | grep '^Date:' | cut -d' ' -f3-6)
+    http_date_seconds=$(date -d "${http_date}" +%s)
+    curr_date_seconds=$(date +%s)
 
     # Set the new date if it's greater than the current date
     # So it does if 1970 year or if old fake-hwclock date is used
@@ -253,14 +251,13 @@ start_openvpn() {
   sync_time
 
   info "Now actually starting OpenVPN client..."
-  systemctl start openvpn@client.service
 
-  if [ ! $? -eq 0 ]
+  if systemctl start openvpn@client.service
   then
+    info "OpenVPN client started ... waiting for tun0 interface to show up"
+  else
     tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
 	critical "Failed to start OpenVPN :/"
-  else
-    info "OpenVPN client started ... waiting for tun0 interface to show up"
   fi
 
   for attempt in $(seq 0 20)
@@ -353,7 +350,7 @@ if [ "$1" != restart ]; then
   old_wired_device=$(ynh_setting_get vpnclient wired_device)
   old_server_ip6=$(ynh_setting_get vpnclient server_ip6)
 
-  new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
+  new_ip6_gw=$(ip -6 route | awk '/default via/ { print $3 }')
   new_wired_device=$(ip route | awk '/default via/ { print $5; }')
   ynh_server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
   new_server_ip6=$(dig AAAA +short $ynh_server_names | grep -v '\.$' | sort | uniq)
