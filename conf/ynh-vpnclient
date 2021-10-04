@@ -188,7 +188,7 @@ unset_dns() {
 ###################################################################################
 
 is_firewall_set() {
-  wired_device=$(ip route | awk '/default via/ { print $NF; }')
+  wired_device=$(ip route | awk '/default via/ { print $5; }')
 
   ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"\
   && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
@@ -354,7 +354,7 @@ if [ "$1" != restart ]; then
   old_server_ip6=$(ynh_setting_get vpnclient server_ip6)
 
   new_ip6_gw=$(ip -6 route | grep default\ via | awk '{ print $3 }')
-  new_wired_device=$(ip route | awk '/default via/ { print $NF; }')
+  new_wired_device=$(ip route | awk '/default via/ { print $5; }')
   ynh_server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
   new_server_ip6=$(dig AAAA +short $ynh_server_names | grep -v '\.$' | sort | uniq)
   for i in $ynh_server_names; do
