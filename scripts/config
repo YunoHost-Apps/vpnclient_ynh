@@ -20,8 +20,6 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-final_path=$(ynh_app_setting_get $app final_path)
-
 set_right() {
     if [ -f $1 ]
     then

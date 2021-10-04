@@ -23,16 +23,12 @@ ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get $app final_path)
-
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
 ynh_print_info "Backing up the main app directory..."
-
-ynh_backup "$final_path"
 
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 

@@ -16,7 +16,6 @@ ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get $app final_path)
 dns_method=$(ynh_app_setting_get $app dns_method)
 nameservers=$(ynh_app_setting_get $app nameservers)
 
