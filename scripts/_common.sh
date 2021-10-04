@@ -18,10 +18,6 @@ function vpnclient_deploy_files_and_services()
     ynh_system_user_create ${app}
   fi
 
-  # Ensure the system user has enough permissions
-  install -b -o root -g root -m 0440 ../conf/sudoers.conf /etc/sudoers.d/${app}_ynh
-  ynh_replace_string "__VPNCLIENT_SYSUSER__" "${app}" /etc/sudoers.d/${app}_ynh
-
   # Install command-line cube file loader
   install -o root -g root -m 0755 ../conf/$service_name-loadcubefile.sh /usr/local/bin/
 

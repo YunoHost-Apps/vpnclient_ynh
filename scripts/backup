@@ -34,8 +34,6 @@ ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "$final_path"
 
-ynh_backup "/etc/sudoers.d/${app}_ynh"
-
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 
 ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"

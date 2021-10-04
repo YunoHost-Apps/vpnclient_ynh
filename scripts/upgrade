@@ -39,6 +39,11 @@ if [ -d /var/www/vpnadmin ]; then
   ynh_secure_remove /var/www/vpnadmin
 fi
 
+# Removing sudoer file from before 2.x / Yunohost 4.3
+if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
+  ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
+fi
+
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 2.0
 #=================================================

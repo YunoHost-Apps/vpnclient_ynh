@@ -105,7 +105,6 @@ ynh_print_info "Removing the dedicated system user"
 
 # Delete a system user
 ynh_system_user_delete ${app}
-ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
 
 #=================================================
 # END OF SCRIPT

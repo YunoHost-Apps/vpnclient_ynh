@@ -44,8 +44,6 @@ ynh_print_info "Restoring the app main directory..."
 
 ynh_restore_file "$final_path"
 
-ynh_restore_file "/etc/sudoers.d/${app}_ynh"
-
 ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 
 ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient.tpl"
