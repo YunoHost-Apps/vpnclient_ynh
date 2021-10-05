@@ -211,7 +211,7 @@ ynh_app_config_validate() {
 
     # We don't have the extension, so we use this ugly hack to check that this is a json-like
     # (i.e. it starts with { ..)
-    elif [ -f "${config_file}" ] && [ "$(cat ${config_file} | tr -d ' ' | grep -v "^$" | head -c1)" == "{" ]]
+    elif [ -f "${config_file}" ] && [[ "$(cat ${config_file} | tr -d ' ' | grep -v "^$" | head -c1)" == "{" ]]
     then
         ynh_print_info --message="Transforming .cube into OVPN file"
         server_name="$(read_cube $config_file server_name)"

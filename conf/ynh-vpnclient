@@ -353,7 +353,8 @@ if [ "$1" != restart ]; then
   new_ip6_gw=$(ip -6 route | awk '/default via/ { print $3 }')
   new_wired_device=$(ip route | awk '/default via/ { print $5; }')
   ynh_server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
-  new_server_ip6=$(dig AAAA +short $ynh_server_names | grep -v '\.$' | sort | uniq)
+  new_server_ip6=$(dig AAAA +short $ynh_server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | sort | uniq)
+
   for i in $ynh_server_names; do
     if [[ "${i}" =~ : ]] && [[ ! "$new_server_ip6" == *"${i}"* ]] ; then
         new_server_ip6+=" ${i}"

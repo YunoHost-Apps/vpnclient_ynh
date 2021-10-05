@@ -1,14 +1,14 @@
 #!/bin/bash
 
 server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
-host6=$(dig AAAA +short $server_names @127.0.0.1 | grep -v '\.$')
-host4=$(dig A +short $server_names @127.0.0.1 | grep -v '\.$')
+host6=$(dig AAAA +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
+host4=$(dig A +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
 
 # In case an ip has been provided in ovpn conf
 for i in ${server_names}; do
   if [[ "${i}" =~ : ]]; then
       host6+=" ${i}"
-  elif [[ "${i}" =~ ^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$ ]]; then
+  elif [[ "${i}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       host4+=" ${i}"
   fi
 done
