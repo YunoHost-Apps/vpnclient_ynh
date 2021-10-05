@@ -44,8 +44,8 @@ ask:
   en: |-
     Your VPN is running :)
 
-    **IPv4:** \`$(curl https://ip.yunohost.org --silent)\`
-    **IPv6:** \`$(curl https://ip6.yunohost.org --silent)\`
+    **IPv4:** \`$(curl --max-time 5 https://ip.yunohost.org --silent)\`
+    **IPv6:** \`$(curl --max-time 5 https://ip6.yunohost.org --silent)\`
 EOF
         else
             cat << EOF
