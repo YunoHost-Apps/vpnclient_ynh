@@ -208,7 +208,10 @@ ynh_app_config_validate() {
         config_file="${old[config_file]}"
 
     # Overwrite form response with cube files data before validation process
-    elif [ -f "${config_file}" ] && [[ $config_file == *.cube ]]
+
+    # We don't have the extension, so we use this ugly hack to check that this is a json-like
+    # (i.e. it starts with { ..)
+    elif [ -f "${config_file}" ] && [ "$(cat ${config_file} | tr -d ' ' | grep -v "^$" | head -c1)" == "{" ]]
     then
         ynh_print_info --message="Transforming .cube into OVPN file"
         server_name="$(read_cube $config_file server_name)"
@@ -271,7 +274,8 @@ ynh_app_config_validate() {
         [ "$server_proto" == tcp-client ] && server_proto=tcp
 
 
-    elif [ -f "${config_file}" ] && [[ "${config_file}" =~ ^.*\.(ovpn|conf)$ ]]
+    # Othewise, assume that it's a .ovpn / .conf
+    elif [ -f "${config_file}" ]
     then
         tmp_dir=$(dirname "${config_file}")
         ynh_print_info --message="Extracting TLS keys from .ovpn file"
