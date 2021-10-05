@@ -33,6 +33,9 @@ set_permissions() {
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 
+BACKTICK='`'
+TRIPLEBACKTICKS='```'
+
 get__status() {
     local service_enabled=$(ynh_app_setting_get $app service_enabled)
     if ip route get 1.2.3.4 | grep -q tun0
@@ -45,9 +48,10 @@ ask:
   en: |-
     Your VPN is running :)
 
-    **IPv4:** \`$(curl --max-time 5 https://ip.yunohost.org --silent)\`
-    **IPv6:** \`$(curl --max-time 5 https://ip6.yunohost.org --silent)\`
+    **IPv4:** $BACKTICK$(curl --max-time 5 https://ip.yunohost.org --silent)$BACKTICK
+    **IPv6:** $BACKTICK$(curl --max-time 5 https://ip6.yunohost.org --silent)$BACKTICK
 EOF
+
         else
             cat << EOF
 style: warning
@@ -62,9 +66,9 @@ style: danger
 ask:
   en: |-
     Your VPN is down ! Here are errors logged in the last 5 minutes
-    \`\`\`
+    $TRIPLEBACKTICKS
 $(journalctl -u openvpn@client -p0..3 --since "- 20 minutes" -o cat | sed 's/^/    /g' | tail -n 15)
-    \`\`\`
+    $TRIPLEBACKTICKS
 EOF
     else
         cat << EOF
