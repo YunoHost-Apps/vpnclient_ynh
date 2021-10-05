@@ -20,11 +20,12 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-set_right() {
-    if [ -f $1 ]
+set_permissions() {
+    local file="$1"
+    if [ -f $file ]
     then
-        chown $app:$app $1
-        chmod go=--- $1
+        chown $app:$app $file
+        chmod go=--- $file
     fi
 }
 
@@ -171,7 +172,7 @@ set__login_user() {
     if [ -n "${login_user}" ]
     then
         echo "${login_user}\n${login_passphrase}" > /etc/openvpn/keys/credentials
-        set_right /etc/openvpn/keys/credentials
+        set_permissions /etc/openvpn/keys/credentials
     else
         echo "" > /etc/openvpn/keys/credentials
     fi
@@ -351,11 +352,11 @@ ynh_app_config_apply() {
     
     _ynh_app_config_apply
     
-    set_right /etc/openvpn/client.conf
-    set_right /etc/openvpn/keys/ca-server.crt
-    set_right /etc/openvpn/keys/user.crt
-    set_right /etc/openvpn/keys/user.key
-    set_right /etc/openvpn/keys/user_ta.key
+    set_permissions /etc/openvpn/client.conf
+    set_permissions /etc/openvpn/keys/ca-server.crt
+    set_permissions /etc/openvpn/keys/user.crt
+    set_permissions /etc/openvpn/keys/user.key
+    set_permissions /etc/openvpn/keys/user_ta.key
     
     # Start vpn client
     ynh_print_info --message="Starting vpnclient service if needed"
