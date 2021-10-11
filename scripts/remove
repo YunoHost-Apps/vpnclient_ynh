@@ -86,10 +86,10 @@ ynh_remove_app_dependencies
 #=================================================
 # REMOVE LEGACY INTERFACES
 #=================================================
-if [ -d /etc/nginx/conf.d/*.d/$app.conf ]; then
+if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
 	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
 fi
-if [ -d /etc/php/*/fpm/pool.d/$app.conf ]; then
+if [ -f /etc/php/*/fpm/pool.d/$app.conf ]; then
 	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
 fi
 if [ -d /var/www/$app ]; then
