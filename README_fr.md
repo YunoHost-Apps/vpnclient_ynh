@@ -18,14 +18,6 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 * Pare-feu strict (le traffice entrant et sortant se fait seulement via le pare-feu et ne fuite pas de données à votre FAI commercial)
 * Peut-être combiné avec [l'application Hotspot](https://github.com/YunoHost-Apps/hotspot_ynh) pour diffuser un WiFi protégé par le VPN à d'autres laptop sans configuration technique requise sur les machines clientes.
 
-## Faire tourner VPNclient dans un LXC
-
-Si vous souhaitez faire tourner OpenVPN dans un LXC, il vous faudra rajouter la configuration suivante dans votre conteneur:
-```
-lxc.hook.autodev = sh -c "modprobe tun"
-lxc.mount.entry=/dev/net/tun dev/net/tun none bind,create=file
-lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
-```
 
 
 **Version incluse :** 2.0~ynh1
@@ -39,6 +31,15 @@ lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
 ## Avertissements / informations importantes
 
 Notez que cette application est prévue pour fonctionner avec des **VPN dédiés et à IP publique qui acceptent le traffic entrant**, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Un VPN acheté au hasard sur Internet ne fonctionnera sans doute pas ! Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos.
+
+## Faire tourner VPNclient dans un LXC
+
+Si vous souhaitez faire tourner OpenVPN dans un LXC, il vous faudra rajouter la configuration suivante dans votre conteneur:
+```
+lxc.hook.autodev = sh -c "modprobe tun"
+lxc.mount.entry=/dev/net/tun dev/net/tun none bind,create=file
+lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
+```
 
 ## Documentations et ressources
 
