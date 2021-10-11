@@ -11,7 +11,22 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Fait passer le trafic internet à travers un VPN
+* Installez une connexion VPN sur votre serveur auto-hébergé
+* Utile pour héberger votre serveur derrière un accès internet filtré (et/ou non-neutre)
+* Utile pour obtenir une IP statique (v4 et v6)
+* Utile pour pouvoir facilement déplacer votre serveur
+* Pare-feu strict (le traffice entrant et sortant se fait seulement via le pare-feu et ne fuite pas de données à votre FAI commercial)
+* Peut-être combiné avec [l'application Hotspot](https://github.com/YunoHost-Apps/hotspot_ynh) pour diffuser un WiFi protégé par le VPN à d'autres laptop sans configuration technique requise sur les machines clientes.
+
+## Faire tourner VPNclient dans un LXC
+
+Si vous souhaitez faire tourner OpenVPN dans un LXC, il vous faudra rajouter la configuration suivante dans votre conteneur:
+```
+lxc.hook.autodev = sh -c "modprobe tun"
+lxc.mount.entry=/dev/net/tun dev/net/tun none bind,create=file
+lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
+```
+
 
 **Version incluse :** 2.0~ynh1
 
@@ -20,6 +35,10 @@ Fait passer le trafic internet à travers un VPN
 ## Captures d'écran
 
 ![](./doc/screenshots/vpnclient.png)
+
+## Avertissements / informations importantes
+
+Notez que cette application est prévue pour fonctionner avec des **VPN dédiés et à IP publique qui acceptent le traffic entrant**, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Un VPN acheté au hasard sur Internet ne fonctionnera sans doute pas ! Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos.
 
 ## Documentations et ressources
 

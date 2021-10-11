@@ -15,7 +15,22 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Tunnel the internet traffic through a VPN
+* Install a VPN connection on your self-hosted server.
+* Useful for hosting your server behind a filtered (and/or non-neutral) internet access.
+* Useful to have static IP addresses (IPv6 and IPv4).
+* Useful to easily move your server anywhere.
+* Strong firewalling (internet access and self-hosted services only available through the VPN, not leaking to your commercial ISP)
+* Combine with the [Hotspot app](https://github.com/YunoHost-Apps/hotspot_ynh) to broadcast VPN-protected WiFi to other laptops without any further technical configuration needed.
+
+## Running vpnclient inside lxc
+
+If you want to run openvpn inside lxc, you should add this to your container:
+```
+lxc.hook.autodev = sh -c "modprobe tun"
+lxc.mount.entry=/dev/net/tun dev/net/tun none bind,create=file
+lxc.hook.autodev = sh -c "chmod 0666 dev/net/tun"
+```
+
 
 **Shipped version:** 2.0~ynh1
 
@@ -24,6 +39,10 @@ Tunnel the internet traffic through a VPN
 ## Screenshots
 
 ![](./doc/screenshots/vpnclient.png)
+
+## Disclaimers / important information
+
+Please note that this application is designed to interface with **dedicated, public IP VPNs accepting inbound traffic**, preferably with an associated `.cube` (or `.ovpn/.conf`) configuration file. **Do not** expect that any VPN you randomly bought on the Internet can be used! Checkout the [list of known compatible providers](https://yunohost.org/providers/vpn) for more info.
 
 ## Documentation and resources
 
