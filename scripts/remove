@@ -84,20 +84,6 @@ ynh_print_info "Removing dependencies"
 ynh_remove_app_dependencies
 
 #=================================================
-# REMOVE LEGACY INTERFACES
-#=================================================
-if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
-	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
-fi
-if [ -f /etc/php/*/fpm/pool.d/$app.conf ]; then
-	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
-fi
-if [ -d /var/www/$app ]; then
-	ynh_secure_remove /var/www/$app
-fi
-
-
-#=================================================
 # REMOVE DEDICATED USER
 #=================================================
 

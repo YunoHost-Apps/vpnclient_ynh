@@ -9,6 +9,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 #=================================================
 # LOAD SETTINGS
 #=================================================
@@ -24,16 +26,6 @@ nameservers=$(ynh_app_setting_get $app nameservers)
 #=================================================
 
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
-if [ -d /etc/nginx/conf.d/*.d/$app.conf ]; then
-	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
-fi
-if [ -d /etc/php/*/fpm/pool.d/$app.conf ]; then
-	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
-fi
-if [ -d /var/www/$app ]; then
-	ynh_secure_remove /var/www/$app
-fi
-
 if [ -d /var/www/vpnadmin ]; then
   ynh_secure_remove /var/www/vpnadmin
 fi
@@ -43,6 +35,19 @@ fi
 #=================================================
 
 # Old stuff
+
+if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
+	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
+    ynh_systemd_action --service_name=nginx --action=reload
+fi
+if [ -f /etc/php/*/fpm/pool.d/$app.conf ]; then
+	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
+    ynh_systemd_action --service_name=php$YNH_DEFAULT_PHP_VERSION-fpm --action=reload
+fi
+
+if [ -d /var/www/$app ]; then
+	ynh_secure_remove /var/www/$app
+fi
 
 [ -z "$(ynh_app_setting_get $app domain)" ] || ynh_app_setting_delete $app domain
 [ -z "$(ynh_app_setting_get $app path)" ] || ynh_app_setting_delete $app path
@@ -68,9 +73,6 @@ fi
 ##=================================================
 
 # Not done because vpnclient backup ain't so relevant I guess ?
-
-## Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
 
 #=================================================
 # DO UPGRADE
