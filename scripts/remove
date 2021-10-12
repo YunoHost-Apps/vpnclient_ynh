@@ -38,10 +38,10 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_print_info "Stopping and removing services"
 
-systemctl stop $service_checker_name
-systemctl disable $service_checker_name --quiet
 systemctl stop $service_checker_name.timer && sleep 1
 systemctl disable $service_checker_name.timer --quiet
+systemctl stop $service_checker_name
+systemctl disable $service_checker_name --quiet
 
 if ynh_exec_warn_less yunohost service status $service_name >/dev/null
 then
