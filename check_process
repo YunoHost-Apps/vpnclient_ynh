@@ -8,8 +8,7 @@
         setup_private=0
         setup_public=0
         upgrade=1
-        upgrade=1   from_commit=623d8a30453a26ee21aa2ce1142674a2ffdb85b9
-        upgrade=1   from_commit=73aa672346e40fc1857aef7441c449f0bd322082
+        upgrade=1   from_commit=0d2a6b1d9a71f63dedfc2b05b35c93c73a130886
         backup_restore=1
         multi_instance=0
         incorrect_path=0
