@@ -21,14 +21,24 @@
   "arguments": {
       "install": [
           {
-            "name": "disclaimer",
-            "type": "display_text",
+            "name": "disclaimer1",
+            "type": "alert",
             "style": "warning",
             "ask": {
                 "en": "Please note that this application only interfaces with **dedicated, public IP VPNs accepting inbound traffic**, preferably with an associated `.cube` (or `.ovpn/.conf`) configuration file. **Do not** expect that any VPN you randomly bought on the Internet can be used! Checkout the [list of known compatible providers](https://yunohost.org/providers/vpn) for more info.",
                 "fr": "Notez que cette application est prévue pour fonctionner avec des **VPN dédiés et à IP publique qui acceptent le traffic entrant**, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Un VPN acheté au hasard sur Internet ne fonctionnera sans doute pas ! Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos."
             }
+        },
+        {
+            "name": "disclaimer2",
+            "type": "alert",
+            "style": "info",
+            "ask": {
+                "en": "After installing the application, you can configure the application from YunoHost's webadmin in Applications > VPNclient > Configuration.",
+                "fr": "Après avoir installé l'application, vous pourrez la configurer depuis la webadmin de YunoHost dans Applications > VPNclient > Configuration."
+            }
         }
+
     ]
   }
 }
