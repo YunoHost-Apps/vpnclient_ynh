@@ -38,7 +38,11 @@ TRIPLEBACKTICKS='```'
 
 get__status() {
     local service_enabled=$(ynh_app_setting_get $app service_enabled)
-    if ip route get 1.2.3.4 | grep -q tun0
+
+    ipv4=$(ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
+    ipv6=$(ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
+
+    if ip route get 1.2.3.4 | grep -q tun0 && [[ -n "$ipv4" -o -n "$ipv6" ]]
     then
         if [ $service_enabled -eq 1 ]
         then
@@ -46,17 +50,18 @@ get__status() {
 style: success
 ask:
   en: |-
-    Your VPN is running :)
+    The VPN is enabled and running ! :)
 
-    **IPv4:** $BACKTICK$(curl --max-time 5 https://ip.yunohost.org --silent)$BACKTICK
-    **IPv6:** $BACKTICK$(curl --max-time 5 https://ip6.yunohost.org --silent)$BACKTICK
+    **IPv4:** $BACKTICK$ipv4$BACKTICK
+
+    **IPv6:** $BACKTICK$ipv6$BACKTICK
 EOF
 
         else
             cat << EOF
 style: warning
 ask:
-  en: Your VPN is running, but it shouldn't !
+  en: The VPN is running, but it shouldn't !?
 EOF
         fi
     elif [ $service_enabled -eq 1 ]
@@ -65,16 +70,16 @@ EOF
 style: danger
 ask:
   en: |-
-    Your VPN is down ! Here are errors logged in the last 5 minutes
+    The VPN is down ! Here are errors logged in the last few minutes
     $TRIPLEBACKTICKS
-$(journalctl -u openvpn@client -p0..3 --since "- 20 minutes" -o cat | sed 's/^/    /g' | tail -n 15)
+$(journalctl -u ynh-vpnclient -o cat | sed 's/^/    /g' | tail -n 15)
     $TRIPLEBACKTICKS
 EOF
     else
         cat << EOF
 style: info
 ask:
-  en: Your VPN is down as expected.
+  en: The VPN is not enabled
 EOF
 
     fi

@@ -198,14 +198,14 @@ set_firewall() {
   cp /etc/yunohost/hooks.d/{90-vpnclient.tpl,post_iptable_rules/90-vpnclient}
 
   info "Restarting yunohost firewall..."
-  yunohost firewall reload && success "Firewall restarted!"
+  yunohost firewall reload >/dev/null && success "Firewall restarted!"
 }
 
 unset_firewall() {
   info "Cleaning vpnclient custom rules from the firewall"
   rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
   info "Restarting yunohost firewall..."
-  yunohost firewall reload && success "Firewall restarted!"
+  yunohost firewall reload >/dev/null && success "Firewall restarted!"
 }
 
 ###################################################################################
