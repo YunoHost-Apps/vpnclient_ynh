@@ -76,6 +76,10 @@ ynh_secure_remove /etc/openvpn/keys
 # Reload systemd configuration
 systemctl daemon-reload
 
+# Make sure to reload the firewall now that the post_iptables_rules ain't there anymore
+ynh_print_info "Reloading firewall"
+yunohost firewall reload
+
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
