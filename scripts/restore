@@ -33,7 +33,6 @@ ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
 ynh_restore_file "/etc/openvpn/client.conf.tpl"
-ynh_restore_file "/etc/openvpn/client.conf.tpl.restore"
 ynh_restore_file "/etc/openvpn/keys/"
 
 ynh_restore_file "/usr/local/bin/$service_name"

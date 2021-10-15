@@ -88,7 +88,7 @@ EOF
 get__login_user() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        echo "$(sed -n 1p /etc/openvpn/keys/credentials)" 
+        echo "$(sed -n 1p /etc/openvpn/keys/credentials)"
     else
         echo ""
     fi
@@ -192,7 +192,7 @@ set__login_passphrase() {
 }
 
 #=================================================
-# OVERWRITING VALIDATE STEP 
+# OVERWRITING VALIDATE STEP
 #=================================================
 read_cube() {
     tmp_dir=$(dirname "$1")
@@ -242,7 +242,7 @@ ynh_app_config_validate() {
 
         # Build specific OVPN template
         tmp_dir=$(dirname "${config_file}")
-        cp -f /etc/openvpn/client.conf.tpl.restore $tmp_dir/client.conf.tpl
+        cp -f /etc/openvpn/client.conf.tpl $tmp_dir/client.conf.tpl
         # Remove some lines
         for rm_regex in "$(jq --raw-output '.openvpn_rm[]' "${config_file}")"
         do
@@ -252,35 +252,21 @@ ynh_app_config_validate() {
         done
 
         # Add some other lines
-        echo "# Custom" >> $tmp_dir/client.conf.tpl
+        echo "# Custom additions from .cube" >> $tmp_dir/client.conf.tpl
         jq --raw-output ".openvpn_add[]" "${config_file}" >> $tmp_dir/client.conf.tpl
 
-        # Build directly the OVPN file
-        cp /etc/openvpn/client.conf.tpl "${config_file}"
+        # Temporarily tweak sever_proto for template hydratation
         [ "$server_proto" == tcp ] && server_proto=tcp-client
-        sed "s|<TPL:SERVER_NAME>|$server_name|g" -i "${config_file}"
-        sed "s|<TPL:SERVER_PORT>|$server_port|g" -i "${config_file}"
-        sed "s|<TPL:PROTO>|$server_proto|g" -i "${config_file}"
-        if [ -e "$crt_client_key" ]; then
-            sed 's|^<TPL:CERT_COMMENT>||g' -i "${config_file}"
-        else
-            sed 's|^<TPL:CERT_COMMENT>|;|g' -i "${config_file}"
-        fi
-        if [ -e "$crt_client_ta" ]; then
-            sed 's|^<TPL:TA_COMMENT>||' -i "${config_file}"
-        else
-            sed 's|^<TPL:TA_COMMENT>|;|' -i "${config_file}"
-        fi
-        if [[ "$server_proto" =~ udp ]]; then
-            sed 's|^<TPL:UDP_COMMENT>||' -i "${config_file}"
-        else
-            sed 's|^<TPL:UDP_COMMENT>|;|' -i "${config_file}"
-        fi
-        if [ -n "$login_user" ]; then
-            sed 's|^<TPL:LOGIN_COMMENT>||' -i "${config_file}"
-        else
-            sed 's|^<TPL:LOGIN_COMMENT>|;|' -i "${config_file}"
-        fi
+
+        # Define other needed vars for template hydratation
+        [ -e "$crt_client_key" ] && cert_comment="" || cert_comment="#"
+        [ -e "$crt_client_ta" ] && ta_comment="" || ta_comment="#"
+        [[ "$server_proto" =~ udp ]] && udp_comment="" || udp_comment="#"
+        [ -n "$login_user" ] && login_comment="" || login_comment="#"
+
+        # Actually generate/hydrate the final configuration
+        ynh_add_config --template="$tmp_dir/client.conf.tpl" --destination="${config_file}"
+
         [ "$server_proto" == tcp-client ] && server_proto=tcp
 
 
@@ -347,10 +333,10 @@ ynh_app_config_validate() {
 }
 
 #=================================================
-# OVERWRITING APPLY STEP 
+# OVERWRITING APPLY STEP
 #=================================================
 ynh_app_config_apply() {
-    
+
     # Stop vpn client
     ynh_print_info --message="Stopping vpnclient in order to edit files"
     touch /tmp/.ynh-vpnclient-stopped
@@ -358,15 +344,15 @@ ynh_app_config_apply() {
 
     chown $app:$app /etc/openvpn/keys
     chmod go=--- /etc/openvpn/keys
-    
+
     _ynh_app_config_apply
-    
+
     set_permissions /etc/openvpn/client.conf
     set_permissions /etc/openvpn/keys/ca-server.crt
     set_permissions /etc/openvpn/keys/user.crt
     set_permissions /etc/openvpn/keys/user.key
     set_permissions /etc/openvpn/keys/user_ta.key
-    
+
     # Start vpn client
     ynh_print_info --message="Starting vpnclient service if needed"
     /usr/local/bin/ynh-vpnclient start
