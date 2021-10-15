@@ -1,6 +1,6 @@
 # [WARN] Edit this raw configuration ONLY IF YOU KNOW 
 #        what you do!
-# [WARN] Continue to use the placeholders __FOO_BAR__ and
+# [WARN] Continue to use the placeholders and
 #        keep update their value on the web admin (they 
 #        are not only used for this file).
 
