@@ -446,7 +446,21 @@ case "${1}" in
       ynh-hotspot start
     fi
 
-    success "YunoHost VPN client started!"
+    ping -c1 -w5 debian.org >/dev/null
+
+    ipv4=$(ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
+    ipv6=$(ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
+
+    info "Validating that VPN is up and the server is connected to internet..."
+    if ip route get 1.2.3.4 | grep -q tun0; then
+        if ping -c1 -w5 debian.org >/dev/null; then
+            success "YunoHost VPN client started!"
+        else
+            critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
+        fi
+    else
+        critical "IPv4 routes are misconfigured !?"
+    fi
   ;;
 
   # ########## #

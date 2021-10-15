@@ -18,9 +18,10 @@ name = "Auto-configuration"
         help = "If disabled, the VPN service will not automatically be started at boot."
         
         [main.vpn.doc]
-        ask = "Only VPN with a dedicated public ip that accept inbound traffic are compatible. See the [compatible providers list](https://yunohost.org/providers/vpn)."
+        ask.en = "VPNclient only interfaces with *dedicated, public IP VPNs accepting inbound traffic*, preferably with an associated `.cube` (or `.ovpn/.conf`) configuration file. Checkout the [list of known compatible providers](https://yunohost.org/providers/vpn) for more info."
+        ask.fr = "VPNclient est prévu pour fonctionner avec des *VPN dédiés et à IP publique qui acceptent le traffic entrant*, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos."
         type = "alert"
-        style = "warning"
+        style = "info"
 
         [main.vpn.config_file]
         ask = "Configuration file"

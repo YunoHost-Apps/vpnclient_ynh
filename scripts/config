@@ -42,7 +42,7 @@ get__status() {
     ipv4=$(ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
     ipv6=$(ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
 
-    if ip route get 1.2.3.4 | grep -q tun0 && [[ -n "$ipv4" -o -n "$ipv6" ]]
+    if ip route get 1.2.3.4 | grep -q tun0 && [[ -n "$ipv4" ]]
     then
         if [ $service_enabled -eq 1 ]
         then
