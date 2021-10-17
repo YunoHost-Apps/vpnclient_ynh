@@ -34,11 +34,10 @@
             "type": "display_text",
             "style": "info",
             "ask": {
-                "en": "After installing the application, you can configure the application from YunoHost's webadmin in Applications > VPNclient > Configuration.",
-                "fr": "Après avoir installé l'application, vous pourrez la configurer depuis la webadmin de YunoHost dans Applications > VPNclient > Configuration."
+                "en": "After installation, you will be able to configure the application from YunoHost's webadmin in Applications > VPNclient > Configuration.",
+                "fr": "Après l'application, vous pourrez configurer l'application depuis la webadmin de YunoHost dans Applications > VPNclient > Configuration."
             }
         }
-
     ]
   }
 }
