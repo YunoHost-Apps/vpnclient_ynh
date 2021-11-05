@@ -23,46 +23,16 @@ ynh_print_info "Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-final_path=$(ynh_app_setting_get $app final_path)
-phpversion=$(ynh_app_setting_get $app phpversion)
-
-#=================================================
-# CHECK IF THE APP CAN BE RESTORED
-#=================================================
-ynh_print_info "Validating restoration parameters..."
-
-ynh_webpath_available $domain $path_url \
-	|| ynh_die "Path not available: ${domain}${path_url}"
-test ! -d $final_path \
-	|| ynh_die "There is already a directory: $final_path "
-
-#=================================================
-# STANDARD RESTORATION STEPS
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
-
-ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
-
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
-ynh_print_info "Restoring the app main directory..."
+ynh_print_info "Restoring the app files..."
 
-ynh_restore_file "$final_path"
-
-ynh_restore_file "/etc/sudoers.d/${app}_ynh"
-
-ynh_restore_file "/usr/local/bin/ipv6_expanded"
-ynh_restore_file "/usr/local/bin/ipv6_compressed"
 ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
 
 ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
 ynh_restore_file "/etc/openvpn/client.conf.tpl"
-ynh_restore_file "/etc/openvpn/client.conf.tpl.restore"
 ynh_restore_file "/etc/openvpn/keys/"
 
 ynh_restore_file "/usr/local/bin/$service_name"
@@ -75,19 +45,6 @@ ynh_print_info "Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create $app
-
-#=================================================
-# RESTORE USER RIGHTS
-#=================================================
-
-# Restore permissions on app files
-chown -R $app: $final_path
-
-#=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-
-ynh_restore_file "/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -122,12 +79,6 @@ yunohost service add $service_name --description "Tunnels the internet traffic t
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PHP-FPM
-#=================================================
-ynh_print_info "Reloading NGINX web server and PHP-FPM..."
-
-systemctl reload php$phpversion-fpm
-systemctl reload nginx
 
 #=================================================
 # END OF SCRIPT

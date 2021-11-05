@@ -9,6 +9,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 #=================================================
 # LOAD SETTINGS
 #=================================================
@@ -16,40 +18,61 @@ ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-is_public=$(ynh_app_setting_get $app is_public)
-final_path=$(ynh_app_setting_get $app final_path)
+dns_method=$(ynh_app_setting_get $app dns_method)
+nameservers=$(ynh_app_setting_get $app nameservers)
 
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
 #=================================================
 
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
-rm -f /etc/nginx/conf.d/${domain}.d/vpnadmin.conf 2>/dev/null 
-rm -f /etc/php/*/fpm/pool.d/vpnadmin.conf 2>/dev/null 
-
 if [ -d /var/www/vpnadmin ]; then
-  mv /var/www/vpnadmin /var/www/${app}
+  ynh_secure_remove /var/www/vpnadmin
 fi
 
-## Versions known to have a buggy backup script
-#buggy_versions="1.0.0 1.0.1 1.1.0"
-#curr_version=$(read_manifest version)
-#if echo $buggy_versions | grep -w $curr_version > /dev/null; then
-#  echo "Your current version of ${app} is very old: ${curr_version}. Please ignore the next warning." >&2
-#fi
-#
+#=================================================
+# SPECIAL UPGRADE FOR VERSIONS < 2.0
+#=================================================
+
+# Old stuff
+
+if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
+	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
+    ynh_systemd_action --service_name=nginx --action=reload
+fi
+if [ -f /etc/php/*/fpm/pool.d/$app.conf ]; then
+	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
+    ynh_systemd_action --service_name=php$YNH_DEFAULT_PHP_VERSION-fpm --action=reload
+fi
+
+if [ -d /var/www/$app ]; then
+	ynh_secure_remove /var/www/$app
+fi
+
+[ -z "$(ynh_app_setting_get $app domain)" ] || ynh_app_setting_delete $app domain
+[ -z "$(ynh_app_setting_get $app path)" ] || ynh_app_setting_delete $app path
+[ -z "$(ynh_app_setting_get $app is_public)" ] || ynh_app_setting_delete $app is_public
+[ -z "$(ynh_app_setting_get $app final_path)" ] || ynh_app_setting_delete $app final_path
+
+if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
+  ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
+fi
+
+# New stuff
+
+if [ -z "$dns_method" ]; then
+    ynh_app_setting_set --app=$app --key=dns_method --value=custom
+fi
+if [ -z "$nameservers" ]; then
+    nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
+    ynh_app_setting_set --app=$app --key=nameservers --value="$nameservers"
+fi
+
 ##=================================================
 ## BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 ##=================================================
-#
-#ynh_backup_before_upgrade
-#ynh_clean_setup () {
-#    ynh_restore_upgradebackup
-#}
-## Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+
+# Not done because vpnclient backup ain't so relevant I guess ?
 
 #=================================================
 # DO UPGRADE

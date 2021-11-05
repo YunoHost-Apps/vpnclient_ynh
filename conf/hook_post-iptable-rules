@@ -1,78 +1,93 @@
 #!/bin/bash
 
-host6=$(dig AAAA +short <TPL:SERVER_NAME> | grep -v '\.$')
-host4=$(dig A +short <TPL:SERVER_NAME> | grep -v '\.$')
+server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
+host6=$(dig AAAA +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
+host4=$(dig A +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
+
+# In case an ip has been provided in ovpn conf
+for i in ${server_names}; do
+  if [[ "${i}" =~ : ]]; then
+      host6+=" ${i}"
+  elif [[ "${i}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      host4+=" ${i}"
+  fi
+done
+
+interface=$(ip route | awk '/default via/ { print $NF; }')
+dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf)
 
 # IPv6
 
-sudo ip6tables -w -N vpnclient_in
-sudo ip6tables -w -N vpnclient_out
-sudo ip6tables -w -N vpnclient_fwd
+ip6tables -w -N vpnclient_in
+ip6tables -w -N vpnclient_out
+ip6tables -w -N vpnclient_fwd
 
-sudo ip6tables -w -A vpnclient_in -p icmpv6 -j ACCEPT
-sudo ip6tables -w -A vpnclient_in -s fd00::/8,fe80::/10 -j ACCEPT
-sudo ip6tables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
-sudo ip6tables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
-sudo ip6tables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-sudo ip6tables -w -A vpnclient_in -j DROP
+ip6tables -w -A vpnclient_in -p icmpv6 -j ACCEPT
+ip6tables -w -A vpnclient_in -s fd00::/8,fe80::/10 -j ACCEPT
+ip6tables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+ip6tables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
+ip6tables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+ip6tables -w -A vpnclient_in -j DROP
 
 if [ ! -z "${host6}" ]; then
   for i in ${host6}; do
-    sudo ip6tables -w -A vpnclient_out -d "${i}" -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+    ip6tables -w -A vpnclient_out -d "${i}" -j ACCEPT
   done
 fi
 
-for i in <TPL:DNS0> <TPL:DNS1>; do
+for i in ${dns};
+do
   if [[ "${i}" =~ : ]]; then
-    sudo ip6tables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+    ip6tables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
   fi
 done
 
-sudo ip6tables -w -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
-sudo ip6tables -w -A vpnclient_out -p udp --dport 5353 -d ff02::fb -j ACCEPT
-sudo ip6tables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-sudo ip6tables -w -A vpnclient_out -j DROP
+ip6tables -w -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
+ip6tables -w -A vpnclient_out -p udp --dport 5353 -d ff02::fb -j ACCEPT
+ip6tables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+ip6tables -w -A vpnclient_out -j DROP
 
-sudo ip6tables -w -A vpnclient_fwd -j DROP
+ip6tables -w -A vpnclient_fwd -j DROP
 
-sudo ip6tables -w -I INPUT 1 -i <TPL:WIRED_DEVICE> -j vpnclient_in
-sudo ip6tables -w -I OUTPUT 1 -o <TPL:WIRED_DEVICE> -j vpnclient_out
-sudo ip6tables -w -I FORWARD 1 -o <TPL:WIRED_DEVICE> -j vpnclient_fwd
+ip6tables -w -I INPUT 1 -i $interface -j vpnclient_in
+ip6tables -w -I OUTPUT 1 -o $interface -j vpnclient_out
+ip6tables -w -I FORWARD 1 -o $interface -j vpnclient_fwd
 
 # IPv4
 
-sudo iptables -w -N vpnclient_in
-sudo iptables -w -N vpnclient_out
-sudo iptables -w -N vpnclient_fwd
+iptables -w -N vpnclient_in
+iptables -w -N vpnclient_out
+iptables -w -N vpnclient_fwd
 
-sudo iptables -w -A vpnclient_in -p icmp -j ACCEPT
-sudo iptables -w -A vpnclient_in -s 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
-sudo iptables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
-sudo iptables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
-sudo iptables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-sudo iptables -w -A vpnclient_in -j DROP
+iptables -w -A vpnclient_in -p icmp -j ACCEPT
+iptables -w -A vpnclient_in -s 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
+iptables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
+iptables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
+iptables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -w -A vpnclient_in -j DROP
 
 if [ ! -z "${host4}" ]; then
   for i in ${host4}; do
-    sudo iptables -w -A vpnclient_out -d "${i}" -p <TPL:PROTO> --dport <TPL:SERVER_PORT> -j ACCEPT
+    iptables -w -A vpnclient_out -d "${i}" -j ACCEPT
   done
 fi
 
-for i in <TPL:DNS0> <TPL:DNS1>; do
+for i in ${dns};
+do
   if [[ "${i}" =~ \. ]]; then
-    sudo iptables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
+    iptables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
   fi
 done
 
-sudo iptables -w -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
-sudo iptables -w -A vpnclient_out -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
-sudo iptables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-sudo iptables -w -A vpnclient_out -j DROP
+iptables -w -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
+iptables -w -A vpnclient_out -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
+iptables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -w -A vpnclient_out -j DROP
 
-sudo iptables -w -A vpnclient_fwd -j DROP
+iptables -w -A vpnclient_fwd -j DROP
 
-sudo iptables -w -I INPUT 1 -i <TPL:WIRED_DEVICE> -j vpnclient_in
-sudo iptables -w -I OUTPUT 1 -o <TPL:WIRED_DEVICE> -j vpnclient_out
-sudo iptables -w -I FORWARD 1 -o  <TPL:WIRED_DEVICE> -j vpnclient_fwd
+iptables -w -I INPUT 1 -i $interface -j vpnclient_in
+iptables -w -I OUTPUT 1 -o $interface -j vpnclient_out
+iptables -w -I FORWARD 1 -o  $interface -j vpnclient_fwd
 
 exit 0

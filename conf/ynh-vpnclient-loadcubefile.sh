@@ -50,79 +50,10 @@ while getopts "u:p:c:h" opt; do
   esac
 done
 
-if [ -z "${ynh_user}" ]; then
-  echo "[ERR] Option -u is mandatory (-h for help)" >&2
-  exit 1
-fi
-
-if [ -z "${ynh_password}" ]; then
-  echo "[ERR] Option -p is mandatory (-h for help)" >&2
-  exit 1
-fi
-
 if [ -z "${cubefile_path}" ]; then
   echo "[ERR] Option -c is mandatory (-h for help)" >&2
   exit 1
 fi
 
 
-# Other variables
-
-ynh_setting() {
-  app=${1}
-  setting=${2}
-
-  sudo grep "^${setting}:" "/etc/yunohost/apps/${app}/settings.yml" | sed s/^[^:]\\+:\\s*[\"\']\\?// | sed s/\\s*[\"\']\$//
-}
-
-tmpdir=$(mktemp -dp /tmp/ vpnclient-loadcubefile-XXXXX)
-
-cubefile_ip6=$(sed -n '/ip6_net/ { s/.*"\([0-9a-zA-Z:]\+\)".*/\1/p }' "${cubefile_path}")
-
-ynh_domain=$(ynh_setting vpnclient domain)
-ynh_path=$(ynh_setting vpnclient path)
-ynh_service_enabled=$(ynh_setting vpnclient service_enabled)
-
-
-# SSO login
-
-curl -D - -skLe "https://${ynh_domain}/yunohost/sso/" --data-urlencode "user=${ynh_user}" --data-urlencode "password=${ynh_password}" "https://${ynh_domain}/yunohost/sso/" --resolve "${ynh_domain}:443:127.0.0.1" -o /dev/null -c "${tmpdir}/cookies" 2> /dev/null | grep -q "set-cookie: SSOwAuthUser=${ynh_user}"
-
-if [ $? -ne 0 ]; then
-  echo "[ERROR] SSO login failed" >&2
-  exit 1
-fi
-
-
-# Upload cube file
-
-output=$(curl -kL -H "X-Requested-With: yunohost-config" -F "service_enabled=${ynh_service_enabled}" -F _method=put -F "cubefile=@${cubefile_path}" "https://${ynh_domain}/${ynh_path}/?/settings" --resolve "${ynh_domain}:443:127.0.0.1" -b "${tmpdir}/cookies" 2> /dev/null | grep RETURN_MSG | sed 's/<!-- RETURN_MSG -->//' | sed 's/<\/?[^>]\+>//g' | sed 's/^ \+//g')
-
-
-# Configure IPv6 Delegated Prefix on Hotspot
-
-if [ ! -z "${cubefile_ip6}" ] && (sudo yunohost app info hotspot | grep -q Hotspot); then
-  ynh_multissid=$(ynh_setting hotspot multissid)
-
-  if [ "${ynh_multissid}" -eq 1 ]; then
-    ynh_ip6_net=$(ynh_setting vpnclient ip6_net)
-    ynh_ip6_addr=$(ynh_setting vpnclient ip6_addr)
-
-    sudo systemctl stop ynh-hotspot &> /dev/null
-    sudo yunohost app setting hotspot ip6_net -v "${ynh_ip6_net}"
-    sudo yunohost app setting hotspot ip6_addr -v "${ynh_ip6_addr}"
-    sudo systemctl start ynh-hotspot &> /dev/null
-
-    echo "[INFO] Wifi Hotspot found with only one SSID: IPv6 Delegated Prefix automatically configured" >&2
-  fi
-fi
-
-
-# Done!
-
-echo [VPN] $output
-(echo $output | grep -q Error) && exit 1
-
-rm -r "${tmpdir}/"
-
-exit 0
+sudo yunohost app config set vpnclient --args "config_file=${cubefile_path}"
