@@ -385,7 +385,7 @@ case "${1}" in
       exit 0
     fi
 
-    if [ ! -e /etc/openvpn/keys/user.crt ] && ! cat /etc/openvpn/keys/user.crt | openssl x509 -noout -checkend 0 >/dev/null
+    if [ -e /etc/openvpn/keys/user.crt ] && ! cat /etc/openvpn/keys/user.crt | openssl x509 -noout -checkend 0 >/dev/null
     then
         critical "Failed to start OpenVPN client : user certificate expired"
     fi
