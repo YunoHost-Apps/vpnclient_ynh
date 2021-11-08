@@ -180,7 +180,8 @@ validate__nameservers() {
 set__login_user() {
     if [ -n "${login_user}" ]
     then
-        echo "${login_user}\n${login_passphrase}" > /etc/openvpn/keys/credentials
+        echo "${login_user}" > /etc/openvpn/keys/credentials
+        echo "${login_passphrase}" >> /etc/openvpn/keys/credentials
         set_permissions /etc/openvpn/keys/credentials
     else
         echo "" > /etc/openvpn/keys/credentials
