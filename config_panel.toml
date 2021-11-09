@@ -29,6 +29,7 @@ name = "Auto-configuration"
         accept = ".cube, .ovpn, .conf"
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
+        redact = true
         
     [main.auth]
     name = "Authentication"
@@ -53,6 +54,7 @@ name = "Auto-configuration"
         help = "This file begins with -----BEGIN PRIVATE KEY-----"
         bind = "/etc/openvpn/keys/user.key"
         visible = 'config_file && match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")'
+        redact = true
         
         [main.auth.login_user]
         ask = "Username"
@@ -74,6 +76,7 @@ name = "Auto-configuration"
         help = "Some servers have an additional protection agains Deny of Service attack. If you have no tls-auth key in your ovpn, skip this question."
         bind = "/etc/openvpn/keys/user_ta.key"
         visible = 'config_file && match(config_file,"^\s*tls-auth\s") && ! match(config_file,"^\s*<tls-auth>")'
+        redact = true
         
 [advanced]
 name = "DNS & IPv6"

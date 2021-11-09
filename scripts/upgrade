@@ -40,10 +40,10 @@ if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
 	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
     ynh_systemd_action --service_name=nginx --action=reload
 fi
-if [ -f /etc/php/*/fpm/pool.d/$app.conf ]; then
-	ynh_secure_remove /etc/php/*/fpm/pool.d/$app.conf
-    ynh_systemd_action --service_name=php$YNH_DEFAULT_PHP_VERSION-fpm --action=reload
-fi
+
+for php_path in $(ls /etc/php/*/fpm/pool.d/$app.conf 2> /dev/null); do
+	ynh_secure_remove $php_path
+done
 
 if [ -d /var/www/$app ]; then
 	ynh_secure_remove /var/www/$app
