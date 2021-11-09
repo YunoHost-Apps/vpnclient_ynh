@@ -245,7 +245,7 @@ ynh_app_config_validate() {
         tmp_dir=$(dirname "${config_file}")
         cp -f /etc/openvpn/client.conf.tpl $tmp_dir/client.conf.tpl
         # Remove some lines
-        for rm_regex in "$(jq --raw-output '.openvpn_rm[]' "${config_file}")"
+        for rm_regex in $(jq --raw-output '.openvpn_rm[]' "${config_file}")
         do
             if [ ! -z "${rm_regex}" ] ; then
                 sed -i "/$rm_regex/d" $tmp_dir/client.conf.tpl
