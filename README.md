@@ -23,7 +23,6 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 * Combine with the [Hotspot app](https://github.com/YunoHost-Apps/hotspot_ynh) to broadcast VPN-protected WiFi to other laptops without any further technical configuration needed.
 
 
-
 **Shipped version:** 2.0.2~ynh2
 
 
