@@ -243,7 +243,7 @@ ynh_app_config_validate() {
 
         # Build specific OVPN template
         tmp_dir=$(dirname "${config_file}")
-        cp -f /etc/openvpn/client.conf.tpl $tmp_dir/client.conf.tpl
+        cp -f /etc/yunohost/apps/vpnclient/conf/openvpn_client.conf.tpl $tmp_dir/client.conf.tpl
         # Remove some lines
         jq --raw-output '.openvpn_rm[]' "${config_file}" | while read -r rm_regex
         do
