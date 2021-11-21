@@ -20,7 +20,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 
 
-**Version incluse :** 2.0.2~ynh2
+**Version incluse :** 2.0.2~ynh4
 
 
 
