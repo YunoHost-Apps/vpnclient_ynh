@@ -6,7 +6,7 @@
     "en": "Tunnel the internet traffic through a VPN",
     "fr": "Fait passer le trafic internet à travers un VPN"
   },
-  "version": "2.0.2~ynh4",
+  "version": "2.0.2~ynh5",
   "url": "https://labriqueinter.net",
   "license": "AGPL-3.0",
   "maintainer": {
