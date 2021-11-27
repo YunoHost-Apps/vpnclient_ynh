@@ -13,7 +13,7 @@ for i in ${server_names}; do
   fi
 done
 
-interface=$(ip route | awk '/default via/ { print $NF; }')
+interface=$(ip route | awk '/default via/ { print $5; }')
 dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf)
 
 # IPv6
