@@ -60,7 +60,7 @@ name = "Auto-configuration"
         ask = "Username"
         type = "string"
         example = "camille"
-        pattern.regexp = '^[a-zA-Z_\-\\\.@]+$'
+        pattern.regexp = '^[a-zA-Z0-9_\-\\\.@]+$'
         pattern.error = "OpenVPN accept only alphabetic chars and -_\\.@"
         visible = 'config_file && match(config_file,"^\s*auth-user-pass\s")'
         
