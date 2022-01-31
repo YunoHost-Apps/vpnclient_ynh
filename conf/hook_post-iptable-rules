@@ -43,7 +43,7 @@ do
 done
 
 ip6tables -w -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
-ip6tables -w -A vpnclient_out -s fe80::/10 -p icmpv6 --icmpv6-type neighbor-solicitation -j ACCEPT
+ip6tables -w -A vpnclient_out -p icmpv6 -j ACCEPT
 ip6tables -w -A vpnclient_out -p udp --dport 5353 -d ff02::fb -j ACCEPT
 ip6tables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 ip6tables -w -A vpnclient_out -j DROP
