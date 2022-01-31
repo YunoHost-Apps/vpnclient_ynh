@@ -248,7 +248,7 @@ ynh_app_config_validate() {
         jq --raw-output '.openvpn_rm[]' "${config_file}" | while read -r rm_regex
         do
             if [ ! -z "${rm_regex}" ] ; then
-                sed -i "/$rm_regex/d" $tmp_dir/client.conf.tpl
+		sed -i "/${rm_regex/\//\\\/}/d" $tmp_dir/client.conf.tpl
             fi
         done
 
