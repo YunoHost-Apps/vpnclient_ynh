@@ -320,7 +320,7 @@ ynh_app_config_validate() {
         sed -i 's@^\s*ca\s.*$@ca /etc/openvpn/keys/ca-server.crt@g' ${config_file}
         sed -i 's@^\s*cert\s.*$@cert /etc/openvpn/keys/user.crt@g' ${config_file}
         sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
-        sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user-ta.key@g' ${config_file}
+        sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user_ta.key 1@g' ${config_file}
     fi
 
     # Currently we need root priviledge to create tun0
