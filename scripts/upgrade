@@ -20,6 +20,9 @@ app=$YNH_APP_INSTANCE_NAME
 
 dns_method=$(ynh_app_setting_get $app dns_method)
 nameservers=$(ynh_app_setting_get $app nameservers)
+service_enabled=$(ynh_app_setting_get $app service_enabled)
+ip6_addr=$(ynh_app_setting_get $app ip6_addr)
+ip6_net=$(ynh_app_setting_get $app ip6_net)
 
 #=================================================
 # SPECIAL UPGRADE FOR VERSIONS < 1.2.0
@@ -66,6 +69,15 @@ fi
 if [ -z "$nameservers" ]; then
     nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
     ynh_app_setting_set --app=$app --key=nameservers --value="$nameservers"
+fi
+if [ -z "$service_enabled" ]; then
+    ynh_app_setting_set --app=$app --key=service_enabled --value=0
+fi
+if [ -z "$ip6_addr" ]; then
+    ynh_app_setting_set --app=$app --key=ip6_addr --value=""
+fi
+if [ -z "$ip6_net" ]; then
+    ynh_app_setting_set --app=$app --key=ip6_net --value=""
 fi
 
 ##=================================================
