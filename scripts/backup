@@ -50,7 +50,7 @@ ynh_print_info "Backing up systemd configuration..."
 ynh_backup "/etc/systemd/system/$service_name.service"
 ynh_backup "/etc/systemd/system/$service_checker_name.service"
 ynh_backup "/etc/systemd/system/$service_checker_name.timer"
-ynh_backup "/etc/systemd/system/openvpn@.service.d/ovveride.conf"
+ynh_backup "/etc/systemd/system/openvpn@.service.d/override.conf"
 
 #=================================================
 # END OF SCRIPT

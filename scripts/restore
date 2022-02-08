@@ -64,7 +64,7 @@ ynh_print_info "Restoring the systemd configuration..."
 ynh_restore_file "/etc/systemd/system/$service_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
 ynh_restore_file "/etc/systemd/system/$service_checker_name.timer"
-ynh_restore_file "/etc/systemd/system/openvpn@.service.d/ovveride.conf"
+ynh_restore_file "/etc/systemd/system/openvpn@.service.d/override.conf"
 systemctl daemon-reload
 systemctl enable "$service_name.service" --quiet
 systemctl enable "$service_checker_name.service" --quiet
