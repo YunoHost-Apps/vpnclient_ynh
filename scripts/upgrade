@@ -80,6 +80,14 @@ if [ -z "$ip6_net" ]; then
     ynh_app_setting_set --app=$app --key=ip6_net --value=""
 fi
 
+#=================================================
+# UPGRADE FROM BUSTER TO BULLSEYE
+#=================================================
+
+if [ -e "/etc/systemd/system/openvpn@.service" ]; then
+  ynh_secure_remove "/etc/systemd/system/openvpn@.service"
+fi
+
 ##=================================================
 ## BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 ##=================================================
