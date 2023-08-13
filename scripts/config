@@ -282,7 +282,7 @@ ynh_app_config_validate() {
             crt_server_ca=$tmp_dir/crt_server_ca
             sed -i '/^\s*<ca>/,/\s*<\/ca>/d' ${config_file}
             sed -i '/^\s*ca\s/d' ${config_file}
-            echo "ca /etc/openvpn/keys/ca-server.crt" >> ${config_file}
+            echo -e "\nca /etc/openvpn/keys/ca-server.crt" >> ${config_file}
         fi
         if grep -q '^\s*<cert>' ${config_file}
         then
@@ -290,7 +290,7 @@ ynh_app_config_validate() {
             crt_client=$tmp_dir/crt_client
             sed -i '/^\s*<cert>/,/\s*<\/cert>/d' ${config_file}
             sed -i '/^\s*cert\s/d' ${config_file}
-            echo "cert /etc/openvpn/keys/user.crt" >> ${config_file}
+            echo -e "\ncert /etc/openvpn/keys/user.crt" >> ${config_file}
         elif ! grep -q '^\s*cert\s' ${config_file}
         then
             crt_client=""
@@ -301,7 +301,7 @@ ynh_app_config_validate() {
             crt_client_key=$tmp_dir/crt_client_key
             sed -i '/^\s*<key>/,/\s*<\/key>/d' ${config_file}
             sed -i '/^\s*key\s/d' ${config_file}
-            echo "key /etc/openvpn/keys/user.key" >> ${config_file}
+            echo -e "\nkey /etc/openvpn/keys/user.key" >> ${config_file}
         elif ! grep -q '^\s*key\s' ${config_file}
         then
             crt_client_key=""
@@ -312,7 +312,7 @@ ynh_app_config_validate() {
             crt_client_ta=$tmp_dir/crt_client_ta
             sed -i '/^\s*<tls-auth>/,/\s*<\/tls-auth>/d' ${config_file}
             sed -i '/^\s*tls-auth\s/d' ${config_file}
-            echo "tls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
+            echo -e "\ntls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
         elif ! grep -q '^\s*tls-auth\s' ${config_file}
         then
             crt_client_ta=""
