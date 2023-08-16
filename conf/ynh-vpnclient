@@ -90,7 +90,7 @@ is_serverip6route_set() {
   fi
 
   for server_ip6 in ${server_ip6s}; do
-    if ! ip -6 route | grep -q "${server_ip6}"; then
+    if ! ip -6 route | grep -q "^${server_ip6}"; then
       return 1
     fi
   done
