@@ -85,14 +85,15 @@ unset_ip6addr() {
 is_serverip6route_set() {
   server_ip6s=${1}
 
-  if [ -z "${server_ip6}" ]; then
-    false
-  else
-    for server_ip6 in ${server_ip6s};
-    do
-        ip -6 route | grep -q "${server_ip6}/" || return 1
-    done
+  if [[ -z "${server_ip6s}" ]]; then
+    return 0
   fi
+
+  for server_ip6 in ${server_ip6s}; do
+    if ! ip -6 route | grep -q "^${server_ip6}"; then
+      return 1
+    fi
+  done
 }
 
 set_serverip6route() {
