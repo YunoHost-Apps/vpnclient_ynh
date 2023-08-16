@@ -316,10 +316,10 @@ check_config() {
     critical "The CA server expired on $ca_server_cert_expired_date"
   fi
 
-  if [[ ! -e /etc/openvpn/key/user.crt || ! -e /etc/openvpn/key/user.key ]]; then
-    if [[ -s /etc/openvpn/key/credentials ]]; then
-      login_user=$(sed -n 1p /etc/openvpn/key/credentials)
-      login_passphrase=$(sed -n 2p /etc/openvpn/key/credentials)
+  if [[ ! -e /etc/openvpn/keys/user.crt || ! -e /etc/openvpn/keys/user.key ]]; then
+    if [[ -s /etc/openvpn/keys/credentials ]]; then
+      login_user=$(sed -n 1p /etc/openvpn/keys/credentials)
+      login_passphrase=$(sed -n 2p /etc/openvpn/keys/credentials)
     else
       login_user=""
       login_passphrase=""
