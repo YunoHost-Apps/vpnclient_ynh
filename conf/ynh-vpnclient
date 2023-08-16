@@ -328,11 +328,9 @@ check_config() {
     if [[ $login_user == "" || $login_passphrase == "" ]]; then
       critical "You need either a client certificate, either a username, or both (you can add one through the web admin)"
     fi
-  elif [[ -e /etc/openvpn/keys/user.crt ]] && ! openssl x509 -in /etc/openvpn/keys/user.crt -noout -checkend 0 >/dev/null
-    then
-      user_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/user.crt -noout -enddate | cut -d '=' -f 2)
-      critical "The client certificate expired on $user_cert_expired_date"
-    fi
+  elif [[ -e /etc/openvpn/keys/user.crt ]] && ! openssl x509 -in /etc/openvpn/keys/user.crt -noout -checkend 0 >/dev/null; then
+    user_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/user.crt -noout -enddate | cut -d '=' -f 2)
+    critical "The client certificate expired on $user_cert_expired_date"
   fi
 }
 
