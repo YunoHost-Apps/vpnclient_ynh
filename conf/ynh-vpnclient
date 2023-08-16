@@ -121,21 +121,6 @@ unset_serverip6route() {
     done
 }
 
-
-###################################################################################
-# Hotspot app                                                                     #
-###################################################################################
-
-has_hotspot_app() {
-  [ -e /tmp/.ynh-hotspot-started ]
-}
-
-is_hotspot_knowme() {
-  hotspot_vpnclient=$(ynh_setting_get hotspot vpnclient)
-
-  [ "${hotspot_vpnclient}" == yes ]
-}
-
 ###################################################################################
 # DNS rules                                                                       #
 ###################################################################################
@@ -278,9 +263,8 @@ start_openvpn() {
 }
 
 stop_openvpn() {
-  # FIXME : isn't openvpn@client ? (idk)
   info "Stopping OpenVPN service"
-  systemctl stop openvpn.service
+  systemctl stop openvpn@client.service
 
   for attempt in $(seq 0 20)
   do
@@ -318,25 +302,41 @@ ynh_setting_set() {
 
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
-  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
+  && ((has_ip6delegatedprefix && is_ip6addr_set) || ! has_ip6delegatedprefix)\
   && is_dns_set && is_firewall_set && is_openvpn_running
 }
 
+check_config() {
+  if [[ ! -e /etc/openvpn/keys/ca-server.crt ]]; then
+    critical "You need a CA server (you can add it through the web admin)"
+  fi
 
-if [ "$1" != restart ]; then
+  if ! openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -checkend 0 >/dev/null; then
+    ca_server_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -enddate | cut -d '=' -f 2)
+    critical "The CA server expired on $ca_server_cert_expired_date"
+  fi
 
-  # Check configuration consistency
-
-  if [[ ! "${1}" =~ stop ]]; then
-    if [ ! -e /etc/openvpn/keys/ca-server.crt ]; then
-      critical "You need a CA server (you can add it through the web admin)"
+  if [[ ! -e /etc/openvpn/key/user.crt || ! -e /etc/openvpn/key/user.key ]]; then
+    if [[ -s /etc/openvpn/key/credentials ]]; then
+      login_user=$(sed -n 1p /etc/openvpn/key/credentials)
+      login_passphrase=$(sed -n 2p /etc/openvpn/key/credentials)
+    else
+      login_user=""
+      login_passphrase=""
     fi
 
-    empty=$(find /etc/openvpn/keys/ -empty -name credentials &> /dev/null | wc -l)
-    if [ "${empty}" -gt 0 -a ! -e /etc/openvpn/keys/user.key ]; then
+    if [[ $login_user == "" || $login_passphrase == "" ]]; then
       critical "You need either a client certificate, either a username, or both (you can add one through the web admin)"
     fi
+  elif [[ -e /etc/openvpn/keys/user.crt ]] && ! openssl x509 -in /etc/openvpn/keys/user.crt -noout -checkend 0 >/dev/null
+    then
+      user_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/user.crt -noout -enddate | cut -d '=' -f 2)
+      critical "The client certificate expired on $user_cert_expired_date"
+    fi
   fi
+}
+
+if [ "$1" != restart ]; then
 
   # Variables
 
@@ -386,17 +386,13 @@ case "${1}" in
       exit 0
     fi
 
-    if [ -e /etc/openvpn/keys/user.crt ] && ! cat /etc/openvpn/keys/user.crt | openssl x509 -noout -checkend 0 >/dev/null
-    then
-        critical "Failed to start OpenVPN client : user certificate expired"
-    fi
+    check_config
 
     info "[vpnclient] Starting..."
     touch /tmp/.ynh-vpnclient-started
 
     # Run openvpn
-    if is_openvpn_running;
-    then
+    if is_openvpn_running; then
       info "(openvpn is already running)"
     else
       start_openvpn
@@ -418,20 +414,18 @@ case "${1}" in
     fi
 
     # Set the ipv6 address
-    if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set
+    if has_ip6delegatedprefix && ! is_ip6addr_set
     then
       set_ip6addr
     fi
 
     # Set host DNS resolvers
-    if ! is_dns_set
-    then
+    if ! is_dns_set; then
        set_dns
     fi
 
     # Set ipv6/ipv4 firewall
-    if ! is_firewall_set
-    then
+    if ! is_firewall_set; then
       set_firewall
     fi
 
@@ -441,14 +435,6 @@ case "${1}" in
     ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
     ynh_setting_set vpnclient wired_device "${new_wired_device}"
 
-    # Fix configuration
-    if has_hotspot_app && ! is_hotspot_knowme; then
-      info "Now starting the hotspot"
-      ynh-hotspot start
-    fi
-
-    ping -c1 -w5 debian.org >/dev/null
-
     ipv4=$(ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
     ipv6=$(ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
 
@@ -456,6 +442,8 @@ case "${1}" in
     if ip route get 1.2.3.4 | grep -q tun0; then
         if ping -c1 -w5 debian.org >/dev/null; then
             success "YunoHost VPN client started!"
+            info "IPv4 address is $ipv4"
+            info "IPv6 address is $ipv6"
         else
             critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
         fi
@@ -472,7 +460,7 @@ case "${1}" in
     info "[vpnclient] Stopping..."
     rm -f /tmp/.ynh-vpnclient-started
 
-    if ! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set; then
+    if has_ip6delegatedprefix && is_ip6addr_set; then
       unset_ip6addr
     fi
 
@@ -485,12 +473,6 @@ case "${1}" in
     is_dns_set && unset_dns
 
     is_openvpn_running && stop_openvpn
-
-    # Fix configuration
-    if has_hotspot_app && is_hotspot_knowme; then
-      info "Now starting the hotspot"
-      ynh-hotspot start
-    fi
   ;;
 
   # ########## #
@@ -521,18 +503,11 @@ case "${1}" in
       info "IPv6 delegated prefix found"
       info "IPv6 address computed from the delegated prefix: ${ynh_ip6_addr}"
 
-      if ! has_hotspot_app; then
-        info "No Hotspot app detected"
-
-        if is_ip6addr_set; then
-          success "IPv6 address correctly set"
-        else
-          error "No IPv6 address set"
-          exitcode=1
-        fi
+      if is_ip6addr_set; then
+        success "IPv6 address correctly set"
       else
-        info "Hotspot app detected"
-        info "No IPv6 address to set"
+        error "No IPv6 address set"
+        exitcode=1
       fi
     else
       info "No IPv6 delegated prefix found"
