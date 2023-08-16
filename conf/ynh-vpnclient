@@ -120,21 +120,6 @@ unset_serverip6route() {
     done
 }
 
-
-###################################################################################
-# Hotspot app                                                                     #
-###################################################################################
-
-has_hotspot_app() {
-  [ -e /tmp/.ynh-hotspot-started ]
-}
-
-is_hotspot_knowme() {
-  hotspot_vpnclient=$(ynh_setting_get hotspot vpnclient)
-
-  [ "${hotspot_vpnclient}" == yes ]
-}
-
 ###################################################################################
 # DNS rules                                                                       #
 ###################################################################################
@@ -317,7 +302,7 @@ ynh_setting_set() {
 
 is_running() {
   ((has_nativeip6 && is_serverip6route_set "${new_server_ip6}") || ! has_nativeip6)\
-  && ((! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set) || has_hotspot_app || ! has_ip6delegatedprefix)\
+  && ((has_ip6delegatedprefix && is_ip6addr_set) || ! has_ip6delegatedprefix)\
   && is_dns_set && is_firewall_set && is_openvpn_running
 }
 
@@ -417,7 +402,7 @@ case "${1}" in
     fi
 
     # Set the ipv6 address
-    if ! has_hotspot_app && has_ip6delegatedprefix && ! is_ip6addr_set
+    if has_ip6delegatedprefix && ! is_ip6addr_set
     then
       set_ip6addr
     fi
@@ -439,12 +424,6 @@ case "${1}" in
     ynh_setting_set vpnclient server_ip6 "${new_server_ip6}"
     ynh_setting_set vpnclient ip6_gw "${new_ip6_gw}"
     ynh_setting_set vpnclient wired_device "${new_wired_device}"
-
-    # Fix configuration
-    if has_hotspot_app && ! is_hotspot_knowme; then
-      info "Now starting the hotspot"
-      ynh-hotspot start
-    fi
 
     ping -c1 -w5 debian.org >/dev/null
 
@@ -471,7 +450,7 @@ case "${1}" in
     info "[vpnclient] Stopping..."
     rm -f /tmp/.ynh-vpnclient-started
 
-    if ! has_hotspot_app && has_ip6delegatedprefix && is_ip6addr_set; then
+    if has_ip6delegatedprefix && is_ip6addr_set; then
       unset_ip6addr
     fi
 
@@ -484,12 +463,6 @@ case "${1}" in
     is_dns_set && unset_dns
 
     is_openvpn_running && stop_openvpn
-
-    # Fix configuration
-    if has_hotspot_app && is_hotspot_knowme; then
-      info "Now starting the hotspot"
-      ynh-hotspot start
-    fi
   ;;
 
   # ########## #
@@ -520,18 +493,11 @@ case "${1}" in
       info "IPv6 delegated prefix found"
       info "IPv6 address computed from the delegated prefix: ${ynh_ip6_addr}"
 
-      if ! has_hotspot_app; then
-        info "No Hotspot app detected"
-
-        if is_ip6addr_set; then
-          success "IPv6 address correctly set"
-        else
-          error "No IPv6 address set"
-          exitcode=1
-        fi
+      if is_ip6addr_set; then
+        success "IPv6 address correctly set"
       else
-        info "Hotspot app detected"
-        info "No IPv6 address to set"
+        error "No IPv6 address set"
+        exitcode=1
       fi
     else
       info "No IPv6 delegated prefix found"
