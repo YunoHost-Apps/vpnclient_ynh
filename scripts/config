@@ -239,7 +239,7 @@ ynh_app_config_validate() {
         crt_client_key="$(read_cube $config_file crt_client_key)"
         crt_client_ta="$(read_cube $config_file crt_client_ta)"
 
-        if [[ -z $dns0 && -z $dns1 ]]; then
+        if [[ -z "$dns0" && -z "$dns1" ]]; then
           dns_method="yunohost"
         else
           dns_method="custom"
