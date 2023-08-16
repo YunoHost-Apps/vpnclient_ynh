@@ -25,7 +25,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 
 
-**Shipped version:** 2.0.2~ynh9
+**Shipped version:** 2.1~ynh1
 
 ## Screenshots
 
