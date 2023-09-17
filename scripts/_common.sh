@@ -35,6 +35,11 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0770 /etc/openvpn/keys/
   chown root:${app} /etc/openvpn/keys/
 
+  # Create scripts directory
+  mkdir -pm 0775 /etc/openvpn/scripts
+  mkdir -pm 0775 /etc/openvpn/scripts/route-up.d
+  mkdir -pm 0775 /etc/openvpn/scripts/route-down.d
+
   #=================================================
 
   # Copy init script

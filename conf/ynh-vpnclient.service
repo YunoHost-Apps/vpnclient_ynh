@@ -2,8 +2,6 @@
 Description=YunoHost VPN Client.
 Requires=network.target
 After=network.target
-Wants=ynh-hotspot.service
-Before=ynh-hotspot.service
 
 [Service]
 Type=oneshot

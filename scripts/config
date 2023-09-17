@@ -238,9 +238,14 @@ ynh_app_config_validate() {
         crt_client="$(read_cube $config_file crt_client)"
         crt_client_key="$(read_cube $config_file crt_client_key)"
         crt_client_ta="$(read_cube $config_file crt_client_ta)"
-        dns_method="custom"
-        nameservers="$dns0,$dns1"
 
+        if [[ -z "$dns0" && -z "$dns1" ]]; then
+          dns_method="yunohost"
+        else
+          dns_method="custom"
+          nameservers="$dns0,$dns1"
+        fi
+        
         # Build specific OVPN template
         tmp_dir=$(dirname "${config_file}")
         cp -f /etc/yunohost/apps/vpnclient/conf/openvpn_client.conf.tpl $tmp_dir/client.conf.tpl
