@@ -249,8 +249,8 @@ ynh_app_config_apply() {
     set_permissions /etc/openvpn/keys/user_ta.key
 
     # Cleanup previously uploaded config file
-    [[ -f $cube_file ]] || rm -f /etc/openvpn/client.cube
-    [[ -f $ovpn_file ]] || rm -f /etc/openvpn/client.ovpn
+    [[ "$cube_file" == "/etc/openvpn/client.cube" ]] && rm -f "$cube_file"
+    [[ "$ovpn_file" == "/etc/openvpn/client.ovpn" ]] && rm -f "$ovpn_file"
 
     # Start vpn client
     ynh_print_info --message="Starting vpnclient service if needed"
