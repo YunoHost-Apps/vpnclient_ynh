@@ -64,6 +64,9 @@ ynh_print_info "Removing openvpn configuration"
 ynh_secure_remove /etc/openvpn/client.conf
 ynh_secure_remove /etc/openvpn/client.conf.tpl
 
+# Remove openvpn script
+ynh_secure_remove /etc/openvpn/scripts/run-parts.sh
+
 # Remove YunoHost hook
 ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
 
