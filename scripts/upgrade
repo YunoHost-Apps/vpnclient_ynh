@@ -119,15 +119,14 @@ if [[ -f "$tmp_dir/client.cube" ]]
 then
     cp -f "$tmp_dir/client.cube" "$tmp_dir/client.conf"
     convert_cube_file "$tmp_dir/client.conf"
-else
-    if [[ -f "$tmp_dir/client.ovpn" ]]
-    then
-        cp -f "$tmp_dir/client.ovpn" "$tmp_dir/client.conf"
-    else
-        # In case we didn't keep the uploaded .ovpn file, we create one from the current config...
-        cp -f "$tmp_dir/client.conf" "$tmp_dir/client.ovpn"
-    fi
-
+elif [[ -f "$tmp_dir/client.ovpn" ]]
+then
+    cp -f "$tmp_dir/client.ovpn" "$tmp_dir/client.conf"
+    convert_ovpn_file "$tmp_dir/client.conf"
+# In case we didn't keep the uploaded .ovpn file, we create one from the current config...
+elif [[ -f "$tmp_dir/client.conf" ]]
+then
+    cp -f "$tmp_dir/client.conf" "$tmp_dir/client.ovpn"
     convert_ovpn_file "$tmp_dir/client.conf"
 fi
 
