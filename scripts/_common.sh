@@ -126,7 +126,9 @@ function convert_cube_file()
   jq --raw-output ".openvpn_add[]" "${config_file}" >> "$config_template"
 
   # Temporarily tweak sever_proto for template hydratation
-  [ "$server_proto" == tcp ] && server_proto=tcp-client
+  if [ "$server_proto" == tcp ]; then
+    server_proto=tcp-client
+  fi
 
   # Define other needed vars for template hydratation
   [ -e "$crt_client_key" ] && cert_comment="" || cert_comment="#"
@@ -137,7 +139,9 @@ function convert_cube_file()
   # Actually generate/hydrate the final configuration
   ynh_add_config --template="$config_template" --destination="$config_file"
 
-  [ "$server_proto" == tcp-client ] && server_proto=tcp
+  if [ "$server_proto" == tcp-client ]; then
+    server_proto=tcp
+  fi
 }
 
 function convert_ovpn_file()
