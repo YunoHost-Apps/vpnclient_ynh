@@ -152,52 +152,59 @@ function convert_ovpn_file()
   ynh_print_info --message="Extracting TLS keys from .ovpn file"
   if grep -q '^\s*<ca>' ${config_file}
   then
-      grep -Poz '(?<=<ca>)(.*\n)*.*(?=</ca>)' ${config_file} | sed '/^$/d'  > $tmp_dir/crt_server_ca
-      crt_server_ca=$tmp_dir/crt_server_ca
-      sed -i '/^\s*<ca>/,/\s*<\/ca>/d' ${config_file}
-      sed -i '/^\s*ca\s/d' ${config_file}
-      echo -e "\nca /etc/openvpn/keys/ca-server.crt" >> $config_file
+    grep -Poz '(?<=<ca>)(.*\n)*.*(?=</ca>)' ${config_file} | sed '/^$/d'  > $tmp_dir/crt_server_ca
+    crt_server_ca=$tmp_dir/crt_server_ca
+    sed -i '/^\s*<ca>/,/\s*<\/ca>/d' ${config_file}
+    sed -i '/^\s*ca\s/d' ${config_file}
+    echo -e "\nca /etc/openvpn/keys/ca-server.crt" >> $config_file
   fi
   if grep -q '^\s*<cert>' ${config_file}
   then
-      grep -Poz '(?<=<cert>)(.*\n)*.*(?=</cert>)' ${config_file} | sed '/^$/d'  > $tmp_dir/crt_client
-      crt_client=$tmp_dir/crt_client
-      sed -i '/^\s*<cert>/,/\s*<\/cert>/d' ${config_file}
-      sed -i '/^\s*cert\s/d' ${config_file}
-      echo -e "\ncert /etc/openvpn/keys/user.crt" >> ${config_file}
+    grep -Poz '(?<=<cert>)(.*\n)*.*(?=</cert>)' ${config_file} | sed '/^$/d'  > $tmp_dir/crt_client
+    crt_client=$tmp_dir/crt_client
+    sed -i '/^\s*<cert>/,/\s*<\/cert>/d' ${config_file}
+    sed -i '/^\s*cert\s/d' ${config_file}
+    echo -e "\ncert /etc/openvpn/keys/user.crt" >> ${config_file}
   elif ! grep -q '^\s*cert\s' ${config_file}
   then
-      crt_client=""
+    crt_client=""
   fi
   if grep -q '^\s*<key>' ${config_file}
   then
-      grep -Poz '(?<=<key>)(.*\n)*.*(?=</key>)' ${config_file} | sed '/^$/d' > $tmp_dir/crt_client_key
-      crt_client_key=$tmp_dir/crt_client_key
-      sed -i '/^\s*<key>/,/\s*<\/key>/d' ${config_file}
-      sed -i '/^\s*key\s/d' ${config_file}
-      echo -e "\nkey /etc/openvpn/keys/user.key" >> ${config_file}
+    grep -Poz '(?<=<key>)(.*\n)*.*(?=</key>)' ${config_file} | sed '/^$/d' > $tmp_dir/crt_client_key
+    crt_client_key=$tmp_dir/crt_client_key
+    sed -i '/^\s*<key>/,/\s*<\/key>/d' ${config_file}
+    sed -i '/^\s*key\s/d' ${config_file}
+    echo -e "\nkey /etc/openvpn/keys/user.key" >> ${config_file}
   elif ! grep -q '^\s*key\s' ${config_file}
   then
-      crt_client_key=""
+    crt_client_key=""
   fi
   if grep -q '^\s*<tls-auth>' ${config_file}
   then
-      grep -Poz '(?<=<tls-auth>)(.*\n)*.*(?=</tls-auth>)' ${config_file} | sed '/^$/d' > $tmp_dir/crt_client_ta
-      crt_client_ta=$tmp_dir/crt_client_ta
-      sed -i '/^\s*<tls-auth>/,/\s*<\/tls-auth>/d' ${config_file}
-      sed -i '/^\s*tls-auth\s/d' ${config_file}
-      echo -e "\ntls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
+    grep -Poz '(?<=<tls-auth>)(.*\n)*.*(?=</tls-auth>)' ${config_file} | sed '/^$/d' > $tmp_dir/crt_client_ta
+    crt_client_ta=$tmp_dir/crt_client_ta
+    sed -i '/^\s*<tls-auth>/,/\s*<\/tls-auth>/d' ${config_file}
+    sed -i '/^\s*tls-auth\s/d' ${config_file}
+    echo -e "\ntls-auth /etc/openvpn/keys/user_ta.key 1" >> ${config_file}
   elif ! grep -q '^\s*tls-auth\s' ${config_file}
   then
-      crt_client_ta=""
+    crt_client_ta=""
   fi
   sed -i 's@^\s*ca\s.*$@ca /etc/openvpn/keys/ca-server.crt@g' ${config_file}
   sed -i 's@^\s*cert\s.*$@cert /etc/openvpn/keys/user.crt@g' ${config_file}
   sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
   sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user_ta.key 1@g' ${config_file}
 
-  echo -e '\nroute-up "/etc/openvpn/scripts/run-parts.sh route-up"' >> ${config_file}
-  echo -e '\ndown "/etc/openvpn/scripts/run-parts.sh route-down"' >> ${config_file}
+  if ! grep -q '^\s*route-up "/etc/openvpn/scripts/run-parts.sh route-up"' ${config_file}
+  then
+    echo -e 'route-up "/etc/openvpn/scripts/run-parts.sh route-up"' >> ${config_file}
+  fi
+  
+  if ! grep -q '^\s*down "/etc/openvpn/scripts/run-parts.sh route-down"' ${config_file}
+  then
+    echo -e 'down "/etc/openvpn/scripts/run-parts.sh route-down"' >> ${config_file}
+  fi
 
   # Currently we need root priviledge to create tun0
   sed -i '/^\s*user\s/d' ${config_file}
