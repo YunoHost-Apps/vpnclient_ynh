@@ -108,15 +108,24 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 
 # Keep a copy of existing config files before overwriting them
-tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
-cp -r /etc/openvpn/client* ${tmpdir}
+tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
+cp -r /etc/openvpn/client* ${tmp_dir}
 
 # Deploy files from package
 vpnclient_deploy_files_and_services
 
+# Generate config file from .cube or .ovpn file, if available
+if [[ -f "$tmp_dir/client.cube"]]
+then
+    convert_cube_file "$tmp_dir/client.cube"
+elif [[ -f "$tmp_dir/client.ovpn" ]]
+then
+    convert_ovpn_file "$tmp_dir/client.ovpn"
+fi
+
 # Restore previously existing config files
-cp -r ${tmpdir}/client* /etc/openvpn/
-ynh_secure_remove ${tmpdir}
+cp -r ${tmp_dir}/client* /etc/openvpn/
+ynh_secure_remove ${tmp_dir}
 
 #=================================================
 # SERVICE INTEGRATION IN YUNOHOST
