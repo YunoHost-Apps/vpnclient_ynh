@@ -114,14 +114,20 @@ cp -r /etc/openvpn/client* ${tmp_dir}
 # Deploy files from package
 vpnclient_deploy_files_and_services
 
-# Generate config file from .cube or .ovpn file, if available
+# Generate config file from the uploaded .cube or .ovpn file, if available
 if [[ -f "$tmp_dir/client.cube" ]]
 then
     cp -f "$tmp_dir/client.cube" "$tmp_dir/client.conf"
     convert_cube_file "$tmp_dir/client.conf"
-elif [[ -f "$tmp_dir/client.ovpn" ]]
-then
-    cp -f "$tmp_dir/client.ovpn" "$tmp_dir/client.conf"
+else
+    if [[ -f "$tmp_dir/client.ovpn" ]]
+    then
+        cp -f "$tmp_dir/client.ovpn" "$tmp_dir/client.conf"
+    else
+        # In case we didn't keep the uploaded .ovpn file, we create one from the current config...
+        cp -f "$tmp_dir/client.conf" "$tmp_dir/client.ovpn"
+    fi
+
     convert_ovpn_file "$tmp_dir/client.conf"
 fi
 
