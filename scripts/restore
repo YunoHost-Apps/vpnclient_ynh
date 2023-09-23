@@ -28,20 +28,20 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_print_info "Restoring the app files..."
 
-ynh_restore_file "/usr/local/bin/$service_name-loadcubefile.sh"
+ynh_restore_file --origin_path="/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_restore_file "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+ynh_restore_file --origin_path="/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
-ynh_restore_file "/etc/openvpn/client.conf.tpl"
-ynh_restore_file "/etc/openvpn/client.conf" --not_mandatory
-ynh_restore_file "/etc/openvpn/client.cube" --not_mandatory
-ynh_restore_file "/etc/openvpn/client.ovpn" --not_mandatory
+ynh_restore_file --origin_path="/etc/openvpn/client.conf.tpl"
+ynh_restore_file --origin_path="/etc/openvpn/client.conf" --not_mandatory
+ynh_restore_file --origin_path="/etc/openvpn/client.cube" --not_mandatory
+ynh_restore_file --origin_path="/etc/openvpn/client.ovpn" --not_mandatory
 
-ynh_restore_file "/etc/openvpn/keys/"
-ynh_restore_file "/etc/openvpn/scripts/run-parts.sh"
+ynh_restore_file --origin_path="/etc/openvpn/keys/"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/run-parts.sh"
 
-ynh_restore_file "/usr/local/bin/$service_name"
-ynh_restore_file "/usr/local/bin/$service_checker_name.sh"
+ynh_restore_file --origin_path="/usr/local/bin/$service_name"
+ynh_restore_file --origin_path="/usr/local/bin/$service_checker_name.sh"
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -66,10 +66,10 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Restoring the systemd configuration..."
 
-ynh_restore_file "/etc/systemd/system/$service_name.service"
-ynh_restore_file "/etc/systemd/system/$service_checker_name.service"
-ynh_restore_file "/etc/systemd/system/$service_checker_name.timer"
-ynh_restore_file "/etc/systemd/system/openvpn@.service.d/override.conf"
+ynh_restore_file --origin_path="/etc/systemd/system/$service_name.service"
+ynh_restore_file --origin_path="/etc/systemd/system/$service_checker_name.service"
+ynh_restore_file --origin_path="/etc/systemd/system/$service_checker_name.timer"
+ynh_restore_file --origin_path="/etc/systemd/system/openvpn@.service.d/override.conf"
 systemctl daemon-reload
 systemctl enable "$service_name.service" --quiet
 systemctl enable "$service_checker_name.service" --quiet
