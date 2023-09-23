@@ -213,7 +213,6 @@ ynh_app_config_validate() {
         cp -f "$config_file" "$cube_file"
 
         convert_cube_file "$config_file"
-
     # Othewise, assume that it's a .ovpn / .conf
     elif [ -f "${config_file}" ]
     then
@@ -248,6 +247,10 @@ ynh_app_config_apply() {
     set_permissions /etc/openvpn/keys/user.crt
     set_permissions /etc/openvpn/keys/user.key
     set_permissions /etc/openvpn/keys/user_ta.key
+
+    # Cleanup previously uploaded config file
+    [[ -f $cube_file ]] || rm -f /etc/openvpn/client.cube
+    [[ -f $ovpn_file ]] || rm -f /etc/openvpn/client.ovpn
 
     # Start vpn client
     ynh_print_info --message="Starting vpnclient service if needed"
