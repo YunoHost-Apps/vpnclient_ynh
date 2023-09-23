@@ -35,6 +35,10 @@ ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
 ynh_backup "/etc/openvpn/client.conf.tpl"
+ynh_backup "/etc/openvpn/client.conf" --not_mandatory
+ynh_backup "/etc/openvpn/client.cube" --not_mandatory
+ynh_backup "/etc/openvpn/client.ovpn" --not_mandatory
+
 ynh_backup "/etc/openvpn/keys/"
 ynh_backup "/etc/openvpn/scripts/run-parts.sh"
 
