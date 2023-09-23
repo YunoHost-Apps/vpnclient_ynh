@@ -212,17 +212,17 @@ ynh_app_config_validate() {
         cube_file="$tmp_dir/client.cube"
         cp -f "$config_file" "$cube_file"
 
-        convert_cube_file
+        convert_cube_file "$config_file"
 
     # Othewise, assume that it's a .ovpn / .conf
     elif [ -f "${config_file}" ]
     then
         local tmp_dir=$(dirname "$config_file")
-        
+
         ovpn_file="$tmp_dir/client.ovpn"
         cp -f "$config_file" "$ovpn_file"
 
-        convert_ovpn_file
+        convert_ovpn_file "$config_file"
     fi
 
     _ynh_app_config_validate
