@@ -37,7 +37,7 @@ Notez que cette application est prévue pour fonctionner avec des **VPN dédiés
 
 ## Documentations et ressources
 
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_vpnclient>
+* YunoHost Store: <https://apps.yunohost.org/app/vpnclient>
 * Signaler un bug : <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
 
 ## Informations pour les développeurs
