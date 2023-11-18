@@ -37,6 +37,8 @@ ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 ynh_backup "/etc/openvpn/client.conf.tpl"
 ynh_backup "/etc/openvpn/keys/"
 ynh_backup "/etc/openvpn/scripts/run-parts.sh"
+ynh_backup "/etc/openvpn/scripts/route-up.d/20-set-ipv6"
+ynh_backup "/etc/openvpn/scripts/route-down.d/20-unset-ipv6"
 
 ynh_backup "/usr/local/bin/$service_name"
 ynh_backup "/usr/local/bin/$service_checker_name.sh"

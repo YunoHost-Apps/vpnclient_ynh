@@ -61,21 +61,11 @@ has_nativeip6() {
 }
 
 has_ip6delegatedprefix() {
-  [ "${ynh_ip6_addr}" != none ] && [ "${ynh_ip6_addr}" != "" ]
+  [[ -n "${ynh_ip6_addr}" ]] && [[ "${ynh_ip6_addr}" != none ]]
 }
 
 is_ip6addr_set() {
   ip address show dev tun0 2> /dev/null | grep -q "${ynh_ip6_addr}/"
-}
-
-set_ip6addr() {
-  info "Adding IPv6 from VPN configuration"
-  ip address add "${ynh_ip6_addr}/128" dev tun0
-}
-
-unset_ip6addr() {
-  info "Removing IPv6 from VPN configuration"
-  ip address delete "${ynh_ip6_addr}/128" dev tun0
 }
 
 #
@@ -411,12 +401,6 @@ case "${1}" in
       set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
     fi
 
-    # Set the ipv6 address
-    if has_ip6delegatedprefix && ! is_ip6addr_set
-    then
-      set_ip6addr
-    fi
-
     # Set host DNS resolvers
     if ! is_dns_set; then
        set_dns
@@ -457,10 +441,6 @@ case "${1}" in
   stop)
     info "[vpnclient] Stopping..."
     rm -f /tmp/.ynh-vpnclient-started
-
-    if has_ip6delegatedprefix && is_ip6addr_set; then
-      unset_ip6addr
-    fi
 
     if is_serverip6route_set "${old_server_ip6}"; then
       unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
