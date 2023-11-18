@@ -37,7 +37,7 @@ Please note that this application is designed to interface with **dedicated, pub
 
 ## Documentation and resources
 
-* YunoHost documentation for this app: <https://yunohost.org/app_vpnclient>
+* YunoHost Store: <https://apps.yunohost.org/app/vpnclient>
 * Report a bug: <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
 
 ## Developer info
