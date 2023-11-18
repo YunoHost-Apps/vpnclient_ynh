@@ -42,5 +42,5 @@ route-ipv6 2000::/3
 redirect-gateway def1 bypass-dhcp
 
 script-security 2
-route-up "/usr/bin/run-parts /etc/openvpn/scripts/route-up.d"
-down "/usr/bin/run-parts /etc/openvpn/scripts/route-down.d"
+route-up "/etc/openvpn/scripts/run-parts.sh route-up"
+down "/etc/openvpn/scripts/run-parts.sh route-down"
