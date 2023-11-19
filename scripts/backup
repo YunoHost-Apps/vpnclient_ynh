@@ -30,16 +30,20 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_print_info "Backing up the main app directory..."
 
-ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
+ynh_backup --src_path="/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+ynh_backup --src_path="/etc/yunohost/hooks.d/90-vpnclient.tpl"
 
-ynh_backup "/etc/openvpn/client.conf.tpl"
-ynh_backup "/etc/openvpn/keys/"
-ynh_backup "/etc/openvpn/scripts/run-parts.sh"
+ynh_backup --src_path="/etc/openvpn/client.conf.tpl"
+ynh_backup --src_path="/etc/openvpn/client.conf" --not_mandatory
+ynh_backup --src_path="/etc/openvpn/client.cube" --not_mandatory
+ynh_backup --src_path="/etc/openvpn/client.ovpn" --not_mandatory
 
-ynh_backup "/usr/local/bin/$service_name"
-ynh_backup "/usr/local/bin/$service_checker_name.sh"
+ynh_backup --src_path="/etc/openvpn/keys/"
+ynh_backup --src_path="/etc/openvpn/scripts/run-parts.sh"
+
+ynh_backup --src_path="/usr/local/bin/$service_name"
+ynh_backup --src_path="/usr/local/bin/$service_checker_name.sh"
 
 #=================================================
 # SPECIFIC BACKUP
@@ -48,10 +52,10 @@ ynh_backup "/usr/local/bin/$service_checker_name.sh"
 #=================================================
 ynh_print_info "Backing up systemd configuration..."
 
-ynh_backup "/etc/systemd/system/$service_name.service"
-ynh_backup "/etc/systemd/system/$service_checker_name.service"
-ynh_backup "/etc/systemd/system/$service_checker_name.timer"
-ynh_backup "/etc/systemd/system/openvpn@.service.d/override.conf"
+ynh_backup --src_path="/etc/systemd/system/$service_name.service"
+ynh_backup --src_path="/etc/systemd/system/$service_checker_name.service"
+ynh_backup --src_path="/etc/systemd/system/$service_checker_name.timer"
+ynh_backup --src_path="/etc/systemd/system/openvpn@.service.d/override.conf"
 
 #=================================================
 # END OF SCRIPT

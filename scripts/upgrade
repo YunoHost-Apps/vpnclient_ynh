@@ -108,21 +108,38 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 
 # Keep a copy of existing config files before overwriting them
-tmpdir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
-cp -r /etc/openvpn/client* ${tmpdir}
+tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
+cp -r /etc/openvpn/client* ${tmp_dir}
 
 # Deploy files from package
 vpnclient_deploy_files_and_services
 
+# Generate config file from the uploaded .cube or .ovpn file, if available
+if [[ -f "$tmp_dir/client.cube" ]]
+then
+    cp -f "$tmp_dir/client.cube" "$tmp_dir/client.conf"
+    convert_cube_file "$tmp_dir/client.conf"
+elif [[ -f "$tmp_dir/client.ovpn" ]]
+then
+    cp -f "$tmp_dir/client.ovpn" "$tmp_dir/client.conf"
+    convert_ovpn_file "$tmp_dir/client.conf"
+# In case we didn't keep the uploaded .ovpn file, we create one from the current config...
+elif [[ -f "$tmp_dir/client.conf" ]]
+then
+    cp -f "$tmp_dir/client.conf" "$tmp_dir/client.ovpn"
+    convert_ovpn_file "$tmp_dir/client.conf"
+fi
+
 # Restore previously existing config files
-cp -r ${tmpdir}/client* /etc/openvpn/
-ynh_secure_remove ${tmpdir}
+cp -r ${tmp_dir}/client* /etc/openvpn/
+ynh_secure_remove ${tmp_dir}
 
 #=================================================
 # SERVICE INTEGRATION IN YUNOHOST
 #=================================================
 
 ### Make sure that the yunohost services have a description and need-lock enabled
+ynh_print_info "Configuring VPN client services..."
 
 # main service
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
