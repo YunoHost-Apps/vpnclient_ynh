@@ -25,7 +25,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 
 
-**Version incluse :** 2.1.2~ynh1
+**Version incluse :** 2.2~ynh1
 
 ## Captures d’écran
 
