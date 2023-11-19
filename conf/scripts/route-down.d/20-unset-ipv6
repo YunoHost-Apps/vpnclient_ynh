@@ -7,7 +7,7 @@ is_ip6addr_set() {
   ip address show dev tun0 2> /dev/null | grep -q "${ip6_addr}/"
 }
 
-ip6_addr=$(ynh_app_setting_get vpnclient ip6_addr)
+ip6_addr=$(ynh_app_setting_get --app="vpnclient" --key="ip6_addr")
 if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]] && is_ip6addr_set "${ip6_addr}"; then
   ip address delete "${ip6_addr}/64" dev tun0
 fi
