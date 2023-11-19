@@ -198,14 +198,18 @@ function convert_ovpn_file()
   sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
   sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user_ta.key 1@g' ${config_file}
 
-  if ! grep -q '^\s*route-up "/etc/openvpn/scripts/run-parts.sh route-up"' ${config_file}
-  then
-    echo -e 'route-up "/etc/openvpn/scripts/run-parts.sh route-up"' >> ${config_file}
+  route_up='route-up "/etc/openvpn/scripts/run-parts.sh route-up"'
+  if grep -q '^\s*route-up\s.*$' ${config_file}; then
+    sed -i "s@^\s*route-up\s.*\$@$route_up@g" ${config_file}
+  else
+    echo "$route_up" >> ${config_file}
   fi
-  
-  if ! grep -q '^\s*down "/etc/openvpn/scripts/run-parts.sh route-down"' ${config_file}
-  then
-    echo -e 'down "/etc/openvpn/scripts/run-parts.sh route-down"' >> ${config_file}
+
+  route_down='down "/etc/openvpn/scripts/run-parts.sh route-down"'
+  if grep -q '^\s*down\s.*$' ${config_file}; then
+    sed -i "s@^\s*down\s.*\$@$route_down@g" ${config_file}
+  else
+    echo "$route_down" >> ${config_file}
   fi
 
   # Currently we need root priviledge to create tun0
