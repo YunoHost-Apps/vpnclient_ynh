@@ -68,6 +68,8 @@ ynh_secure_remove /etc/openvpn/client.ovpn
 
 # Remove openvpn script
 ynh_secure_remove /etc/openvpn/scripts/run-parts.sh
+ynh_secure_remove "/etc/openvpn/scripts/route-up.d/20-set-ipv6"
+ynh_secure_remove "/etc/openvpn/scripts/route-down.d/20-unset-ipv6"
 
 # Remove YunoHost hook
 ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
