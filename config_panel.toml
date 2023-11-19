@@ -30,7 +30,28 @@ name = "Auto-configuration"
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
         redact = true
-        
+
+        [main.vpn.config_template]
+        type = "file"
+        bind = "/etc/openvpn/client.conf.tpl"
+        redact = true
+        optional = true
+        visible = false
+
+        [main.vpn.cube_file]
+        type = "file"
+        bind = "/etc/openvpn/client.cube"
+        redact = true
+        optional = true
+        visible = false
+
+        [main.vpn.ovpn_file]
+        type = "file"
+        bind = "/etc/openvpn/client.ovpn"
+        redact = true
+        optional = true
+        visible = false
+
     [main.auth]
     name = "Authentication"
     optional = true
