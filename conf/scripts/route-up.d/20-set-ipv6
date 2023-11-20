@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
 is_ip6addr_set() {
   local ip6_addr=${1}
   ip address show dev tun0 2> /dev/null | grep -q "${ip6_addr}/"
