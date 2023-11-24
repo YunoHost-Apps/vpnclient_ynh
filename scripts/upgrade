@@ -156,7 +156,7 @@ fi
 ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
-ynh_systemd_action --action=restart --service=$service_name
+ynh_systemd_action --action=restart --service_name=$service_name
 
 #=================================================
 # END OF SCRIPT
