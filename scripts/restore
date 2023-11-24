@@ -37,8 +37,8 @@ ynh_restore_file --origin_path="/etc/openvpn/client.conf" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.cube" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.ovpn" --not_mandatory
 
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/20-set-ipv6"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/20-unset-ipv6"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/40-set-ipv6"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/40-unset-ipv6"
 
 ynh_restore_file --origin_path="/etc/openvpn/keys/"
 ynh_restore_file --origin_path="/etc/openvpn/scripts/run-parts.sh"
