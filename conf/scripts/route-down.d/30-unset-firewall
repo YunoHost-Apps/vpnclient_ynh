@@ -1,0 +1,13 @@
+#!/bin/bash
+
+is_firewall_set() {
+  local wired_device=$(ip route | awk '/default via/ { print $5; }')
+
+  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
+  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+}
+
+if is_firewall_set; then
+  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  yunohost firewall reload >/dev/null
+fi

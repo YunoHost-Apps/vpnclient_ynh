@@ -1,0 +1,28 @@
+#!/bin/bash
+
+is_dns_set() {
+  if [[ "$ynh_dns_method" != "custom" ]]; then
+    return 0
+  fi
+
+  current_dns=$(grep -o -P '^\s*nameserver\s+\K[abcdefABCDEF\d.:]+$' /etc/resolv.dnsmasq.conf | sort | uniq)
+  wanted_dns=$(echo "${ynh_dns}" | sed 's/,/\n/g'  | sort | uniq)
+  [[ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]] \
+  && [[ "$current_dns" == "$wanted_dns" ]]
+}
+
+if is_dns_set; then
+  resolvconf=/etc/resolv.dnsmasq.conf
+  
+  rm -f /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  if [[ -e "${resolvconf}.ynh" ]]; then
+    mv "${resolvconf}.ynh" "${resolvconf}"
+  fi
+
+  # FIXME : this situation happened to a user ...
+  # We could try to force regen the dns conf 
+  # (though for now it's tightly coupled to dnsmasq)
+  if ! grep -q "^nameserver\s" "${resolvconf}"; then
+    echo "${resolvconf} does not have any nameserver line !?" >&2
+  fi
+fi

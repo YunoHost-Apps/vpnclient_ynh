@@ -1,0 +1,35 @@
+#!/bin/bash
+
+is_dns_set() {
+  if [[ "$ynh_dns_method" != "custom" ]]; then
+    return 0
+  fi
+
+  current_dns=$(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.conf | sort | uniq)
+  wanted_dns=$(echo "${ynh_dns}" | sed 's/,/\n/g'  | sort | uniq)
+  [[ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]] \
+  && [[ "$current_dns" == "$wanted_dns" ]]
+}
+
+ynh_dns_method=$(yunohost app setting vpnclient dns_method)
+ynh_dns=$(yunohost app setting vpnclient nameservers)
+
+# Set host DNS resolvers
+if ! is_dns_set; then
+  resolvconf=/etc/resolv.dnsmasq.conf
+
+  cp -fa "${resolvconf}" "${resolvconf}.ynh"
+  if [[ "$ynh_dns_method" == "custom" ]]; then
+    cat << EOF > /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+echo "${ynh_dns}" | sed 's/,/\n/g' | sort | uniq | sed 's/^/nameserver /g' > ${resolvconf}
+EOF
+    bash /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient
+  fi
+fi
+
+if is_dns_set; then
+  echo "[ OK ] Host DNS correctly set"
+else
+  echo "[ERROR] No host DNS set" >&2
+  exit 1
+fi

@@ -40,7 +40,14 @@ ynh_backup --src_path="/etc/openvpn/client.cube" --not_mandatory
 ynh_backup --src_path="/etc/openvpn/client.ovpn" --not_mandatory
 
 ynh_backup --src_path="/etc/openvpn/scripts/route-up.d/20-set-ipv6"
+ynh_backup --src_path="/etc/openvpn/scripts/route-up.d/20-set-server-ipv6-route"
+ynh_backup --src_path="/etc/openvpn/scripts/route-up.d/30-set-dns"
+ynh_backup --src_path="/etc/openvpn/scripts/route-up.d/30-set-firewall"
+ynh_backup --src_path="/etc/openvpn/scripts/route-up.d/99-validate"
 ynh_backup --src_path="/etc/openvpn/scripts/route-down.d/20-unset-ipv6"
+ynh_backup --src_path="/etc/openvpn/scripts/route-down.d/20-unset-server-ipv6-route"
+ynh_backup --src_path="/etc/openvpn/scripts/route-down.d/30-unset-dns"
+ynh_backup --src_path="/etc/openvpn/scripts/route-down.d/30-unset-firewall"
 
 ynh_backup --src_path="/etc/openvpn/keys/"
 ynh_backup --src_path="/etc/openvpn/scripts/run-parts.sh"

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+is_firewall_set() {
+  local wired_device=$(ip route | awk '/default via/ { print $5; }')
+
+  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
+  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+}
+
+if ! is_firewall_set; then
+  bash /etc/yunohost/apps/vpnclient/conf/hook_post-iptables-rules
+  cp /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+fi
+
+if is_firewall_set; then
+  echo "[ OK ] IPv6/IPv4 firewall set"
+else
+  echo "[ERROR] No IPv6/IPv4 firewall set" >&2
+  exit 1
+fi

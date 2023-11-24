@@ -1,0 +1,90 @@
+#!/bin/bash
+
+has_nativeip6() {
+  ip -6 route | grep -q "default via"
+}
+
+is_serverip6route_set() {
+  local server_ip6s=${1}
+
+  if [[ -z "${server_ip6s}" ]]; then
+    return 0
+  fi
+
+  for server_ip6 in ${server_ip6s}; do
+    if ! ip -6 route | grep -q "^${server_ip6}"; then
+      return 1
+    fi
+  done
+}
+
+set_serverip6route() {
+  local server_ip6s=${1}
+  local ip6_gw=${2}
+  local wired_device=${3}
+
+  for server_ip6 in ${server_ip6s}; do
+    ip route add "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+  done
+}
+
+unset_serverip6route() {
+  local server_ip6s=${1}
+  local ip6_gw=${2}
+  local wired_device=${3}
+
+  for server_ip6 in ${server_ip6s}; do
+    ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
+  done
+}
+
+old_ip6_gw=$(yunohost app setting vpnclient ip6_gw)
+old_wired_device=$(yunohost app setting vpnclient wired_device)
+old_server_ip6=$(yunohost app setting vpnclient server_ip6)
+
+new_ip6_gw=$(ip -6 route | awk '/default via/ { print $3 }')
+new_wired_device=$(ip route | awk '/default via/ { print $5; }')
+ynh_server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
+new_server_ip6=$(dig AAAA +short $ynh_server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | sort | uniq)
+
+for i in $ynh_server_names; do
+  if [[ "${i}" =~ : ]] && [[ ! "$new_server_ip6" == *"${i}"* ]] ; then
+    new_server_ip6+=" ${i}"
+  fi
+done
+
+echo "[INFO] Autodetected internet interface: ${new_wired_device} (last start: ${old_wired_device})"
+echo "[INFO] Autodetected IPv6 address for the VPN server: ${new_server_ip6} (last start: ${old_server_ip6})"
+
+# Check old state of the server ipv6 route
+if [[ -n "${old_server_ip6}" && -n "${old_ip6_gw}" && -n "${old_wired_device}" ]]; then
+  if [[ "${new_server_ip6}" != "${old_server_ip6}" || "${new_ip6_gw}" != "${old_ip6_gw}" || "${new_wired_device}" != "${old_wired_device}" ]]; then
+    if is_serverip6route_set "${old_server_ip6}"; then
+      unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
+    fi
+  fi
+fi
+
+# Set the new server ipv6 route
+if has_nativeip6; then
+  if ! is_serverip6route_set "${new_server_ip6}"; then
+    set_serverip6route "${new_server_ip6}" "${new_ip6_gw}" "${new_wired_device}"
+  fi
+
+  echo "[INFO] Native IPv6 detected"
+  echo "[INFO] Autodetected native IPv6 gateway: ${new_ip6_gw} (last start: ${old_ip6_gw})"
+
+  if is_serverip6route_set "${new_server_ip6}"; then
+    echo "[ OK ] IPv6 server route correctly set"
+  else
+    echo "[ERROR] No IPv6 server route set" >&2
+    exit 1
+  fi
+else
+  echo "[INFO] No native IPv6 detected"
+  echo "[INFO] No IPv6 server route to set"
+fi
+
+yunohost setting app vpnclient server_ip6 --value "${new_server_ip6}"
+yunohost setting app vpnclient ip6_gw --value "${new_ip6_gw}"
+yunohost setting app vpnclient wired_device --value "${new_wired_device}"
