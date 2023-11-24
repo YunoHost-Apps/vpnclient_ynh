@@ -107,6 +107,11 @@ ynh_install_app_dependencies "$pkg_dependencies"
 # DEPLOY FILES FROM PACKAGE
 #=================================================
 
+ynh_print_info --message="Stopping VPN client to apply config changes..."
+
+ynh_systemd_action --action="stop" --service_name="$service_checker_name.timer"
+yunohost service stop $service_name
+
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 cp -r /etc/openvpn/client* ${tmp_dir}
@@ -156,12 +161,8 @@ fi
 ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
-
-systemctl -q is-active $service_name               && yunohost service restart $service_name
-
-# Not sure if these are really necessary ...
-systemctl -q is-active $service_checker_name       && systemctl restart $service_checker_name
-systemctl -q is-active $service_checker_name.timer && systemctl restart $service_checker_name.timer
+yunohost service start $service_name
+ynh_systemd_action --action="start" --service_name="$service_checker_name.timer"
 
 #=================================================
 # END OF SCRIPT
