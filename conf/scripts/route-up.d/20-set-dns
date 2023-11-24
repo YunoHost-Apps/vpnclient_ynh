@@ -30,6 +30,6 @@ fi
 if is_dns_set; then
   echo "[ OK ] Host DNS correctly set"
 else
-  echo "[ERROR] No host DNS set" >&2
+  echo "[FAIL] No host DNS set" >&2
   exit 1
 fi

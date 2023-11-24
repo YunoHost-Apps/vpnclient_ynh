@@ -15,6 +15,6 @@ fi
 if is_firewall_set; then
   echo "[ OK ] IPv6/IPv4 firewall set"
 else
-  echo "[ERROR] No IPv6/IPv4 firewall set" >&2
+  echo "[FAIL] No IPv6/IPv4 firewall set" >&2
   exit 1
 fi

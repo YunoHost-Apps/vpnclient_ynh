@@ -77,7 +77,7 @@ if has_nativeip6; then
   if is_serverip6route_set "${new_server_ip6}"; then
     echo "[ OK ] IPv6 server route correctly set"
   else
-    echo "[ERROR] No IPv6 server route set" >&2
+    echo "[FAIL] No IPv6 server route set" >&2
     exit 1
   fi
 else

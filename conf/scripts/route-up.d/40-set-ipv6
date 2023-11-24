@@ -17,7 +17,7 @@ if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]]; then
   if is_ip6addr_set "${ip6_addr}"; then
     echo "[ OK ] IPv6 address correctly set"
   else
-    echo "[ERROR] No IPv6 address set" >&2
+    echo "[FAIL] No IPv6 address set" >&2
     exit 1
   fi
 else
