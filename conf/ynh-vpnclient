@@ -184,6 +184,14 @@ case "$action" in
       critical "Failed to start OpenVPN client : tun0 interface did not show up"
     fi
 
+    info "Waiting for VPN client to be ready..."
+    if ! timeout 60 tail -n 0 -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
+      error "The VPN client didn't complete initiliasation"
+      tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
+      systemctl stop openvpn@client.service
+      critical "Failed to start OpenVPN client"
+    fi
+
     info "Validating that VPN is up and the server is connected to internet..."
 
     ipv4=$(timeout 5 ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
