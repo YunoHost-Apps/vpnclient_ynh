@@ -148,6 +148,8 @@ case "$action" in
   # ########## #
 
   start)
+    info "[vpnclient] Starting..."
+    
     if [[ -e /tmp/.ynh-vpnclient.started ]] || systemctl -q is-active openvpn@client.service; then
       info "Service is already running"
       exit 0
