@@ -107,6 +107,11 @@ ynh_install_app_dependencies "$pkg_dependencies"
 # DEPLOY FILES FROM PACKAGE
 #=================================================
 
+ynh_print_info --message="Stopping VPN client to apply config changes..."
+
+ynh_systemd_action --action="stop" --service_name="$service_name-checker.timer"
+ynh_systemd_action --action="stop" --service_name="$service_name"
+
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 cp -r /etc/openvpn/client* ${tmp_dir}
@@ -156,7 +161,8 @@ fi
 ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
-ynh_systemd_action --action=restart --service_name=$service_name
+ynh_systemd_action --action="start" --service_name="$service_name"
+ynh_systemd_action --action="start" --service_name="$service_name-checker.timer"
 
 #=================================================
 # END OF SCRIPT
