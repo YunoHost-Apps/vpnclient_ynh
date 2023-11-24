@@ -156,11 +156,7 @@ fi
 ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
-yunohost service restart $service_name
-
-# Not sure if these are really necessary ...
-systemctl -q is-active $service_checker_name       && systemctl restart $service_checker_name
-systemctl -q is-active $service_checker_name.timer && systemctl restart $service_checker_name.timer
+ynh_systemd_action --action=restart --service=$service_name
 
 #=================================================
 # END OF SCRIPT
