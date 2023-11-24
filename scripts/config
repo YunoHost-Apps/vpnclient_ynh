@@ -234,8 +234,8 @@ ynh_app_config_apply() {
 
     # Stop vpn client
     ynh_print_info --message="Stopping vpnclient in order to edit files"
-    touch /tmp/.ynh-vpnclient-stopped
-    /usr/local/bin/ynh-vpnclient stop
+    ynh_systemd_action --service_name="ynh-vpnclient-checker" --action="disable"
+    ynh_systemd_action --service_name="ynh-vpnclient" --action="stop"
 
     chown $app:$app /etc/openvpn/keys
     chmod go=--- /etc/openvpn/keys
@@ -254,9 +254,8 @@ ynh_app_config_apply() {
 
     # Start vpn client
     ynh_print_info --message="Starting vpnclient service if needed"
-    /usr/local/bin/ynh-vpnclient start
-    rm -f /tmp/.ynh-vpnclient-stopped
-
+    ynh_systemd_action --service_name="ynh-vpnclient" --action="start"
+    ynh_systemd_action --service_name="ynh-vpnclient-checker" --action="enable"
 }
 
 ynh_app_config_run $1
