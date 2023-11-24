@@ -58,7 +58,7 @@ function critical()
 
 cleanup() {
   local last_exit_code="$?"
-  if [[ $last_exit_code -ne 0 ]]; then
+  if [[ "${action}" != "stop" && "${last_exit_code}" -ne 0 ]]; then
     rm -f /tmp/.ynh-vpnclient.started
   fi
 }
@@ -123,7 +123,8 @@ check_config() {
   fi
 }
 
-if [[ "$1" != restart ]]; then
+action=${1}
+if [[ "$action" != restart ]]; then
   # Variables
 
   info "Retrieving Yunohost settings... "
@@ -137,7 +138,7 @@ fi
 # Start / stop / restart / status handling                                        #
 ###################################################################################
 
-case "${1}" in
+case "$action" in
 
   # ########## #
   #  Starting  #
@@ -181,6 +182,23 @@ case "${1}" in
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
       critical "Failed to start OpenVPN client : tun0 interface did not show up"
+    fi
+
+    info "Validating that VPN is up and the server is connected to internet..."
+
+    ipv4=$(timeout 5 ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
+    ipv6=$(timeout 5 ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
+
+    if ip route get 1.2.3.4 | grep -q tun0; then
+      if timeout 5 ping -c1 -w3 debian.org >/dev/null; then
+        success "YunoHost VPN client started!"
+        info "IPv4 address is $ipv4"
+        info "IPv6 address is $ipv6"
+      else
+        critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
+      fi
+    else
+      critical "[CRIT] IPv4 routes are misconfigured !?"
     fi
   ;;
 

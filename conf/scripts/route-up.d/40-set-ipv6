@@ -6,7 +6,7 @@ is_ip6addr_set() {
 }
 
 ip6_addr=$(yunohost app setting "vpnclient" "ip6_addr")
-if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]];
+if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]]; then
   if ! is_ip6addr_set "${ip6_addr}"; then
     ip address add "${ip6_addr}/64" dev tun0
   fi

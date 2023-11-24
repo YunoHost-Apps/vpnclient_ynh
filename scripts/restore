@@ -37,15 +37,14 @@ ynh_restore_file --origin_path="/etc/openvpn/client.conf" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.cube" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.ovpn" --not_mandatory
 
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/20-set-ipv6"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/20-set-server-ipv6-route"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/30-set-dns"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/30-set-firewall"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/99-validate"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/20-unset-ipv6"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/20-unset-server-ipv6-route"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/30-unset-dns"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/30-unset-firewall"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/10-set-firewall"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/20-set-dns"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/30-set-server-ipv6-route"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/40-set-ipv6"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/10-unset-firewall"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/20-unset-dns"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/30-unset-server-ipv6-route"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/40-unset-ipv6"
 
 ynh_restore_file --origin_path="/etc/openvpn/keys/"
 ynh_restore_file --origin_path="/etc/openvpn/scripts/run-parts.sh"

@@ -8,7 +8,7 @@ is_firewall_set() {
 }
 
 if ! is_firewall_set; then
-  bash /etc/yunohost/apps/vpnclient/conf/hook_post-iptables-rules
+  bash /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules
   cp /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 fi
 

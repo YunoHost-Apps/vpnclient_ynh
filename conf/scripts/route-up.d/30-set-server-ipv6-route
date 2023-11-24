@@ -85,6 +85,6 @@ else
   echo "[INFO] No IPv6 server route to set"
 fi
 
-yunohost setting app vpnclient server_ip6 --value "${new_server_ip6}"
-yunohost setting app vpnclient ip6_gw --value "${new_ip6_gw}"
-yunohost setting app vpnclient wired_device --value "${new_wired_device}"
+yunohost app setting vpnclient server_ip6 --value "${new_server_ip6}"
+yunohost app setting vpnclient ip6_gw --value "${new_ip6_gw}"
+yunohost app setting vpnclient wired_device --value "${new_wired_device}"
