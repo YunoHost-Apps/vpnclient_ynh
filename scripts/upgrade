@@ -109,7 +109,7 @@ ynh_install_app_dependencies "$pkg_dependencies"
 
 ynh_print_info --message="Stopping VPN client to apply config changes..."
 
-ynh_systemd_action --action="stop" --service_name="$service_name-checker.timer"
+ynh_systemd_action --action="stop" --service_name="$service_checker_name.timer"
 ynh_systemd_action --action="stop" --service_name="$service_name"
 
 # Keep a copy of existing config files before overwriting them
@@ -162,7 +162,7 @@ ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
 ynh_systemd_action --action="start" --service_name="$service_name"
-ynh_systemd_action --action="start" --service_name="$service_name-checker.timer"
+ynh_systemd_action --action="start" --service_name="$service_checker_name.timer"
 
 #=================================================
 # END OF SCRIPT
