@@ -7,7 +7,6 @@ After=network.target
 Type=oneshot
 ExecStart=/usr/local/bin/ynh-vpnclient start
 ExecStop=/usr/local/bin/ynh-vpnclient stop
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
