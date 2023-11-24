@@ -59,7 +59,7 @@ function critical()
 cleanup() {
   local last_exit_code="$?"
   if [[ "${action}" != "stop" && "${last_exit_code}" -ne 0 ]]; then
-    rm -f /tmp/.ynh-vpnclient.started
+    rm -f /tmp/.ynh-vpnclient-started
   fi
 }
 
@@ -188,7 +188,7 @@ case "$action" in
     fi
 
     info "Waiting for VPN client to be ready..."
-    if ! timeout 60 tail -n 0 -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
+    if ! timeout 180 tail -n 0 -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
       error "The VPN client didn't complete initiliasation"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
