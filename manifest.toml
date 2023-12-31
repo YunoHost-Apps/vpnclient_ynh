@@ -1,0 +1,37 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/master/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "vpnclient"
+name = "VPN Client"
+description.en = "Tunnel the internet traffic through a VPN"
+description.fr = "Fait passer le trafic internet à travers un VPN"
+
+version = "2.2~ynh1"
+
+maintainers = []
+
+[upstream]
+license = "AGPL-3.0"
+website = "https://labriqueinter.net"
+
+[integration]
+yunohost = ">= 4.3.2"
+architectures = "all"
+multi_instance = false
+ldap = "not_relevant"
+sso = "not_relevant"
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
+
+[install]
+
+
+[resources]
+    [resources.system_user]
+
+    [resources.permissions]
+
+    [resources.apt]
+    packages = "sipcalc, dnsutils, openvpn, curl, fake-hwclock"

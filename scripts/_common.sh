@@ -1,9 +1,4 @@
 #!/bin/bash
-#
-# Common variables and helpers
-#
-
-pkg_dependencies="sipcalc dnsutils openvpn curl fake-hwclock"
 
 service_name="ynh-vpnclient"
 service_checker_name=$service_name"-checker"
@@ -12,11 +7,6 @@ service_checker_name=$service_name"-checker"
 # Operations needed by both 'install' and 'upgrade' scripts
 function vpnclient_deploy_files_and_services()
 {
-  # Ensure vpnclient_ynh has its own system user
-  if ! ynh_system_user_exists ${app}
-  then
-    ynh_system_user_create ${app}
-  fi
 
   # Install command-line cube file loader
   install -o root -g root -m 0755 ../conf/$service_name-loadcubefile.sh /usr/local/bin/

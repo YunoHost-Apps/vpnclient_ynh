@@ -1,41 +1,16 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
-ynh_abort_if_errors
-
 #=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_print_info "Loading installation settings..."
-
-app=$YNH_APP_INSTANCE_NAME
-
-dns_method=$(ynh_app_setting_get $app dns_method)
-nameservers=$(ynh_app_setting_get $app nameservers)
-service_enabled=$(ynh_app_setting_get $app service_enabled)
-ip6_addr=$(ynh_app_setting_get $app ip6_addr)
-ip6_net=$(ynh_app_setting_get $app ip6_net)
-
-#=================================================
-# SPECIAL UPGRADE FOR VERSIONS < 1.2.0
+# SPECIAL UPGRADE FOR VERSIONS < 2.0
 #=================================================
 
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
 if [ -d /var/www/vpnadmin ]; then
   ynh_secure_remove /var/www/vpnadmin
 fi
-
-#=================================================
-# SPECIAL UPGRADE FOR VERSIONS < 2.0
-#=================================================
 
 # Old stuff
 
@@ -52,10 +27,10 @@ if [ -d /var/www/$app ]; then
 	ynh_secure_remove /var/www/$app
 fi
 
-[ -z "$(ynh_app_setting_get $app domain)" ] || ynh_app_setting_delete $app domain
-[ -z "$(ynh_app_setting_get $app path)" ] || ynh_app_setting_delete $app path
-[ -z "$(ynh_app_setting_get $app is_public)" ] || ynh_app_setting_delete $app is_public
-[ -z "$(ynh_app_setting_get $app final_path)" ] || ynh_app_setting_delete $app final_path
+[ -z "${domain:-}" ] || ynh_app_setting_delete $app domain
+[ -z "${path:-}" ] || ynh_app_setting_delete $app path
+[ -z "${is_public:-}" ] || ynh_app_setting_delete $app is_public
+[ -z "${install_dir:-}" ] || ynh_app_setting_delete $app install_dir
 
 if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
   ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
@@ -63,20 +38,20 @@ fi
 
 # New stuff
 
-if [ -z "$dns_method" ]; then
+if [ -z "${dns_method:-}" ]; then
     ynh_app_setting_set --app=$app --key=dns_method --value=custom
 fi
-if [ -z "$nameservers" ]; then
+if [ -z "${nameservers:-}" ]; then
     nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
     ynh_app_setting_set --app=$app --key=nameservers --value="$nameservers"
 fi
-if [ -z "$service_enabled" ]; then
+if [ -z "${service_enabled:-}" ]; then
     ynh_app_setting_set --app=$app --key=service_enabled --value=0
 fi
-if [ -z "$ip6_addr" ]; then
+if [ -z "${ip6_addr:-}" ]; then
     ynh_app_setting_set --app=$app --key=ip6_addr --value=""
 fi
-if [ -z "$ip6_net" ]; then
+if [ -z "${ip6_net:-}" ]; then
     ynh_app_setting_set --app=$app --key=ip6_net --value=""
 fi
 
@@ -87,21 +62,6 @@ fi
 if [ -e "/etc/systemd/system/openvpn@.service" ]; then
   ynh_secure_remove "/etc/systemd/system/openvpn@.service"
 fi
-
-##=================================================
-## BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-##=================================================
-
-# Not done because vpnclient backup ain't so relevant I guess ?
-
-#=================================================
-# DO UPGRADE
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_print_info "Installing dependencies..."
-
-ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
