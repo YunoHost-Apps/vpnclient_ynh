@@ -37,9 +37,8 @@ ynh_restore_file --origin_path="/etc/openvpn/client.conf" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.cube" --not_mandatory
 ynh_restore_file --origin_path="/etc/openvpn/client.ovpn" --not_mandatory
 
-for FILE in $(ls /etc/openvpn/scripts/route-up.d/*-vpnclient-* /etc/openvpn/scripts/route-down.d/*-vpnclient-*); do
-    ynh_restore_file --origin_path="$FILE"
-done
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/"
+ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/"
 
 ynh_restore_file --origin_path="/etc/openvpn/keys/"
 ynh_restore_file --origin_path="/etc/openvpn/scripts/run-parts.sh"
