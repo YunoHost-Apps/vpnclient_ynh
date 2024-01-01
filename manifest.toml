@@ -16,7 +16,7 @@ license = "AGPL-3.0"
 website = "https://labriqueinter.net"
 
 [integration]
-yunohost = ">= 4.3.2"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = false
 ldap = "not_relevant"
