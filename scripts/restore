@@ -55,7 +55,12 @@ ynh_print_info "Restoring the systemd configuration..."
 
 systemctl daemon-reload
 systemctl enable "$service_name.service" --quiet
+
+systemctl start "$service_checker_name.service"
 systemctl enable "$service_checker_name.service" --quiet
+systemctl start "$service_checker_name.timer"
+systemctl enable "$service_checker_name.timer" --quiet
+
 systemctl enable "openvpn@.service" --quiet
 
 #=================================================
