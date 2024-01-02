@@ -28,23 +28,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_print_info "Restoring the app files..."
 
-ynh_restore_file --origin_path="/usr/local/bin/$service_name-loadcubefile.sh"
-
-ynh_restore_file --origin_path="/etc/yunohost/hooks.d/90-vpnclient.tpl"
-
-ynh_restore_file --origin_path="/etc/openvpn/client.conf.tpl"
-ynh_restore_file --origin_path="/etc/openvpn/client.conf" --not_mandatory
-ynh_restore_file --origin_path="/etc/openvpn/client.cube" --not_mandatory
-ynh_restore_file --origin_path="/etc/openvpn/client.ovpn" --not_mandatory
-
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-up.d/40-set-ipv6"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/route-down.d/40-unset-ipv6"
-
-ynh_restore_file --origin_path="/etc/openvpn/keys/"
-ynh_restore_file --origin_path="/etc/openvpn/scripts/run-parts.sh"
-
-ynh_restore_file --origin_path="/usr/local/bin/$service_name"
-ynh_restore_file --origin_path="/usr/local/bin/$service_checker_name.sh"
+ynh_restore
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -69,20 +53,31 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 ynh_print_info "Restoring the systemd configuration..."
 
-ynh_restore_file --origin_path="/etc/systemd/system/$service_name.service"
-ynh_restore_file --origin_path="/etc/systemd/system/$service_checker_name.service"
-ynh_restore_file --origin_path="/etc/systemd/system/$service_checker_name.timer"
-ynh_restore_file --origin_path="/etc/systemd/system/openvpn@.service.d/override.conf"
 systemctl daemon-reload
-systemctl enable "$service_name.service" --quiet
-systemctl enable "$service_checker_name.service" --quiet
-systemctl enable "openvpn@.service" --quiet
+
+# Set default inits
+# The boot order of these services are important, so they are disabled by default
+# and the vpnclient service handles them.
+systemctl disable openvpn --quiet
+systemctl stop openvpn
+
+# main service
+
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
+yunohost service enable "$service_name"
+
+# checker service
+
+systemctl start "$service_checker_name"
+systemctl enable "$service_checker_name" --quiet
+systemctl start "$service_checker_name.timer"
+systemctl enable "$service_checker_name.timer" --quiet
+
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
 
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
 #=================================================
 # GENERIC FINALIZATION

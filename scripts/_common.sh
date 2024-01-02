@@ -40,8 +40,8 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0775 /etc/openvpn/scripts/route-up.d
   mkdir -pm 0775 /etc/openvpn/scripts/route-down.d
   install -b -o root -g root -m 0755 ../conf/scripts/run-parts.sh /etc/openvpn/scripts/run-parts.sh
-  install -b -o root -g root -m 0755 ../conf/scripts/route-up.d/40-set-ipv6 /etc/openvpn/scripts/route-up.d/40-set-ipv6
-  install -b -o root -g root -m 0755 ../conf/scripts/route-down.d/40-unset-ipv6 /etc/openvpn/scripts/route-down.d/40-unset-ipv6
+  install -b -o root -g root -m 0755 ../conf/scripts/route-up.d/* /etc/openvpn/scripts/route-up.d/
+  install -b -o root -g root -m 0755 ../conf/scripts/route-down.d/* /etc/openvpn/scripts/route-down.d/
 
   #=================================================
 
