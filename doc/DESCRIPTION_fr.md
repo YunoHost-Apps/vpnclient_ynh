@@ -1,4 +1,4 @@
-* Installez une connexion VPN sur votre serveur auto-hébergé
+Installez une connexion VPN sur votre serveur auto-hébergé
 * Utile pour héberger votre serveur derrière un accès internet filtré (et/ou non-neutre)
 * Utile pour obtenir une IP statique (v4 et v6)
 * Utile pour pouvoir facilement déplacer votre serveur

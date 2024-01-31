@@ -16,7 +16,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 ## Vue d’ensemble
 
-* Installez une connexion VPN sur votre serveur auto-hébergé
+Installez une connexion VPN sur votre serveur auto-hébergé
 * Utile pour héberger votre serveur derrière un accès internet filtré (et/ou non-neutre)
 * Utile pour obtenir une IP statique (v4 et v6)
 * Utile pour pouvoir facilement déplacer votre serveur
@@ -31,12 +31,9 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 ![Capture d’écran de VPN Client](./doc/screenshots/vpnclient.png)
 
-## Avertissements / informations importantes
-
-Notez que cette application est prévue pour fonctionner avec des **VPN dédiés et à IP publique qui acceptent le traffic entrant**, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Un VPN acheté au hasard sur Internet ne fonctionnera sans doute pas ! Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos.
-
 ## Documentations et ressources
 
+* Site officiel de l’app : <https://labriqueinter.net>
 * YunoHost Store: <https://apps.yunohost.org/app/vpnclient>
 * Signaler un bug : <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
 

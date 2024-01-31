@@ -1,4 +1,4 @@
-* Install a VPN connection on your self-hosted server.
+Install a VPN connection on your self-hosted server.
 * Useful for hosting your server behind a filtered (and/or non-neutral) internet access.
 * Useful to have static IP addresses (IPv6 and IPv4).
 * Useful to easily move your server anywhere.
