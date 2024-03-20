@@ -26,7 +26,7 @@ name = "Auto-configuration"
         [main.vpn.config_file]
         ask = "Configuration file"
         type = "file"
-        accept = ".cube, .ovpn, .conf"
+        accept = [".cube", ".ovpn", ".conf", "application/json", "text/plain"]
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
         redact = true
