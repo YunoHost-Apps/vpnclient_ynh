@@ -6,17 +6,17 @@ name = "Auto-configuration"
     [main.vpn]
     name = ""
     optional = false
-        
+
         [main.vpn.status]
         ask = "The status of your VPN is unknown."
         type = "alert"
         style = "info"
-        
+
         [main.vpn.service_enabled]
         ask = "Enable VPN"
         type = "boolean"
         help = "If disabled, the VPN service will not automatically be started at boot."
-        
+
         [main.vpn.doc]
         ask.en = "VPNclient only interfaces with *dedicated, public IP VPNs accepting inbound traffic*, preferably with an associated `.cube` (or `.ovpn/.conf`) configuration file. Checkout the [list of known compatible providers](https://yunohost.org/providers/vpn) for more info."
         ask.fr = "VPNclient est prévu pour fonctionner avec des *VPN dédiés et à IP publique qui acceptent le traffic entrant*, et de préférence avec un fichier de configuration `.cube` (ou `.ovpn/.conf`) associé. Consultez [la liste des fournisseurs connus et compatibles](https://yunohost.org/providers/vpn) pour plus d'infos."
@@ -26,7 +26,7 @@ name = "Auto-configuration"
         [main.vpn.config_file]
         ask = "Configuration file"
         type = "file"
-        accept = ".cube, .ovpn, .conf"
+        accept = [ ".cube", ".ovpn", ".conf" ]
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
         redact = true
@@ -62,13 +62,13 @@ name = "Auto-configuration"
         type = "file"
         bind = "/etc/openvpn/keys/ca-server.crt"
         visible = 'config_file && match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")'
-        
+
         [main.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
         bind = "/etc/openvpn/keys/user.crt"
         visible = 'config_file && match(config_file,"^\s*cert\s") && ! match(config_file,"^\s*<cert>")'
-        
+
         [main.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
@@ -76,7 +76,7 @@ name = "Auto-configuration"
         bind = "/etc/openvpn/keys/user.key"
         visible = 'config_file && match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")'
         redact = true
-        
+
         [main.auth.login_user]
         ask = "Username"
         type = "string"
@@ -84,12 +84,12 @@ name = "Auto-configuration"
         pattern.regexp = '^[a-zA-Z0-9_\-\\\.@]+$'
         pattern.error = "OpenVPN accept only alphabetic chars and -_\\.@"
         visible = 'config_file && match(config_file,"^\s*auth-user-pass\s")'
-        
+
         [main.auth.login_passphrase]
         ask = "Password"
         type = "password"
         visible = 'config_file && match(config_file,"^\s*auth-user-pass(\s.*)?$")'
-        
+
         [main.auth.crt_client_ta]
         ask = "TLS Auth shared secret"
         type = "file"
@@ -98,7 +98,7 @@ name = "Auto-configuration"
         bind = "/etc/openvpn/keys/user_ta.key"
         visible = 'config_file && match(config_file,"^\s*tls-auth\s") && ! match(config_file,"^\s*<tls-auth>")'
         redact = true
-        
+
 [advanced]
 name = "DNS & IPv6"
     [advanced.dns]
@@ -117,7 +117,7 @@ name = "DNS & IPv6"
         visible = "dns_method == 'custom'"
         pattern.regexp = "^([0-9.]{7,15}|[0-9a-fA-F:]+)$"
         pattern.error = "Not an ip"
-        
+
     [advanced.ipv6]
     name = "IPv6"
 
@@ -128,7 +128,7 @@ name = "DNS & IPv6"
         example = "2001:db8:42::"
         pattern.regexp = "^[0-9a-fA-F:]+$"
         pattern.error = "Please provide a valid IPv6 Prefix"
-        
+
         [advanced.ipv6.ip6_addr]
         ask = "IPv6"
         type = "string"
