@@ -1,37 +1,7 @@
 #!/bin/bash
 
-# VPN Client app for YunoHost
-# Copyright (C) 2015 Julien Vaubourg <julien@vaubourg.com>
-# Contribute at https://github.com/labriqueinternet/vpnclient_ynh
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
-
-#=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_print_info "Loading installation settings..."
-
-app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # STOP AND REMOVE SERVICES
@@ -43,15 +13,13 @@ systemctl disable $service_checker_name.timer --quiet
 systemctl stop $service_checker_name
 systemctl disable $service_checker_name --quiet
 
-if ynh_exec_warn_less yunohost service status $service_name >/dev/null
-then
+if ynh_exec_warn_less yunohost service status $service_name >/dev/null; then
     yunohost service stop $service_name
     yunohost service disable $service_name --quiet
     yunohost service remove $service_name
 fi
 
-for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*)
-do
+for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*); do
     ynh_secure_remove "$FILE"
 done
 
@@ -63,9 +31,15 @@ ynh_print_info "Removing openvpn configuration"
 # Remove openvpn configurations
 ynh_secure_remove /etc/openvpn/client.conf
 ynh_secure_remove /etc/openvpn/client.conf.tpl
+ynh_secure_remove /etc/openvpn/client.cube
+ynh_secure_remove /etc/openvpn/client.ovpn
 
 # Remove openvpn script
 ynh_secure_remove /etc/openvpn/scripts/run-parts.sh
+
+for FILE in $(ls /etc/openvpn/scripts/route-up.d/*-vpnclient-* /etc/openvpn/scripts/route-down.d/*-vpnclient-*); do
+    ynh_secure_remove "$FILE"
+done
 
 # Remove YunoHost hook
 ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
@@ -82,21 +56,6 @@ systemctl daemon-reload
 # Make sure to reload the firewall now that the post_iptables_rules ain't there anymore
 ynh_print_info "Reloading firewall"
 yunohost firewall reload
-
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_print_info "Removing dependencies"
-ynh_remove_app_dependencies
-
-#=================================================
-# REMOVE DEDICATED USER
-#=================================================
-
-ynh_print_info "Removing the dedicated system user"
-
-# Delete a system user
-ynh_system_user_delete ${app}
 
 #=================================================
 # END OF SCRIPT

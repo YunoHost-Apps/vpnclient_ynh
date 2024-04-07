@@ -1,0 +1,25 @@
+#!/bin/bash
+
+is_ip6addr_set() {
+  local ip6_addr=${1}
+  ip address show dev tun0 2> /dev/null | grep -q "${ip6_addr}/"
+}
+
+ip6_addr=$(yunohost app setting "vpnclient" "ip6_addr")
+if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]]; then
+  if ! is_ip6addr_set "${ip6_addr}"; then
+    ip address add "${ip6_addr}/64" dev tun0
+  fi
+
+  echo "[INFO] IPv6 delegated prefix found"
+  echo "[INFO] IPv6 address computed from the delegated prefix: ${ip6_addr}"
+
+  if is_ip6addr_set "${ip6_addr}"; then
+    echo "[ OK ] IPv6 address correctly set"
+  else
+    echo "[FAIL] No IPv6 address set" >&2
+    exit 1
+  fi
+else
+  echo "[INFO] No IPv6 delegated prefix found"
+fi

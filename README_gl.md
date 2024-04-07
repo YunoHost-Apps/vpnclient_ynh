@@ -16,7 +16,7 @@ NON debe editarse manualmente.
 
 ## Vista xeral
 
-* Install a VPN connection on your self-hosted server.
+Install a VPN connection on your self-hosted server.
 * Useful for hosting your server behind a filtered (and/or non-neutral) internet access.
 * Useful to have static IP addresses (IPv6 and IPv4).
 * Useful to easily move your server anywhere.
@@ -25,18 +25,15 @@ NON debe editarse manualmente.
 
 
 
-**Versión proporcionada:** 2.1.2~ynh1
+**Versión proporcionada:** 2.2~ynh1
 
 ## Capturas de pantalla
 
 ![Captura de pantalla de VPN Client](./doc/screenshots/vpnclient.png)
 
-## Avisos / información importante
-
-Please note that this application is designed to interface with **dedicated, public IP VPNs accepting inbound traffic**, preferably with an associated `.cube` (or `.ovpn/.conf`) configuration file. **Do not** expect that any VPN you randomly bought on the Internet can be used! Checkout the [list of known compatible providers](https://yunohost.org/providers/vpn) for more info.
-
 ## Documentación e recursos
 
+- Web oficial da app: <https://labriqueinter.net>
 - Tenda YunoHost: <https://apps.yunohost.org/app/vpnclient>
 - Informar dun problema: <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
 
