@@ -25,7 +25,7 @@ Installez une connexion VPN sur votre serveur auto-hébergé
 
 
 
-**Version incluse :** 2.2~ynh1
+**Version incluse :** 2.2~ynh1
 
 ## Captures d’écran
 
@@ -33,9 +33,9 @@ Installez une connexion VPN sur votre serveur auto-hébergé
 
 ## Documentations et ressources
 
-* Site officiel de l’app : <https://labriqueinter.net>
-* YunoHost Store: <https://apps.yunohost.org/app/vpnclient>
-* Signaler un bug : <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
+- Site officiel de l’app : <https://labriqueinter.net>
+- YunoHost Store : <https://apps.yunohost.org/app/vpnclient>
+- Signaler un bug : <https://github.com/YunoHost-Apps/vpnclient_ynh/issues>
 
 ## Informations pour les développeurs
 
