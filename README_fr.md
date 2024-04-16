@@ -25,7 +25,7 @@ Installez une connexion VPN sur votre serveur auto-hébergé
 
 
 
-**Version incluse :** 2.2~ynh1
+**Version incluse :** 2.2~ynh2
 
 ## Captures d’écran
 

@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Versión proporcionada:** 2.2~ynh1
+**Versión proporcionada:** 2.2~ynh2
 
 ## Capturas de pantalla
 
