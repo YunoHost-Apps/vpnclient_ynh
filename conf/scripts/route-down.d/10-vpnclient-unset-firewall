@@ -7,9 +7,8 @@ is_firewall_set() {
 
 wired_device=$(ip route | awk '/default via/ { print $5; }')
 
-if is_firewall_set; then
-  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-  
+rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+if is_firewall_set; then  
   # IPv4
 
   iptables -w -D INPUT -i "${wired_device}" -j vpnclient_in

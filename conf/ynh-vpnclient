@@ -211,7 +211,7 @@ case "$action" in
         critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
       fi
     else
-      critical "[CRIT] IPv4 routes are misconfigured !?"
+      critical "IPv4 routes are misconfigured !?"
     fi
   ;;
 
