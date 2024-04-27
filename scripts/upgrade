@@ -36,9 +36,9 @@ if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
   ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
 fi
 
-for script_path in $(ls /etc/openvpn/scripts/route-*.d/10-vpnclient-{set-firewall,unset-firewall} 2> /dev/null); then
+for script_path in $(ls /etc/openvpn/scripts/route-*.d/10-vpnclient-{set-firewall,unset-firewall} 2> /dev/null); do
   ynh_secure_remove "$script_path"
-fi
+done
 
 if [ -e "/etc/yunohost/hooks.d/90-vpnclient.tpl" ]; then
   ynh_secure_remove "/etc/yunohost/hooks.d/90-vpnclient.tpl"
