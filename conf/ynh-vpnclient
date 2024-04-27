@@ -220,6 +220,9 @@ case "$action" in
 
     touch /tmp/.ynh-vpnclient-started
 
+    # We need to remove firewall rules in order to sync time
+    unset_firewall
+
     sync_time
     check_config
 
