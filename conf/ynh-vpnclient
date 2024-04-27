@@ -126,6 +126,62 @@ check_config() {
   fi
 }
 
+is_firewall_set() {
+  local wired_device="$1"
+  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
+  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+}
+
+set_firewall() {
+  local wired_device=$(ip route | awk '/default via/ { print $5; }')
+
+  if ! is_firewall_set "${wired_device}"; then
+    bash /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules
+  fi
+  cp /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+
+  if is_firewall_set "${wired_device}"; then
+    success "IPv6/IPv4 firewall set"
+  else
+    error "[FAIL] No IPv6/IPv4 firewall set" >&2
+  fi
+}
+
+unset_firewall() {
+  local wired_device=$(ip route | awk '/default via/ { print $5; }')
+
+  rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+  if is_firewall_set "${wired_device}"; then  
+    # IPv4
+
+    iptables -w -D INPUT -i "${wired_device}" -j vpnclient_in
+    iptables -w -D OUTPUT -o "${wired_device}" -j vpnclient_out
+    iptables -w -D FORWARD -o "${wired_device}" -j vpnclient_fwd
+
+    iptables -w -F vpnclient_in
+    iptables -w -F vpnclient_out
+    iptables -w -F vpnclient_fwd
+
+    iptables -w -X vpnclient_in
+    iptables -w -X vpnclient_out
+    iptables -w -X vpnclient_fwd
+
+    # IPv6
+    
+    ip6tables -w -D INPUT -i "${wired_device}" -j vpnclient_in
+    ip6tables -w -D OUTPUT -o "${wired_device}" -j vpnclient_out
+    ip6tables -w -D FORWARD -o "${wired_device}" -j vpnclient_fwd
+
+    ip6tables -w -F vpnclient_in
+    ip6tables -w -F vpnclient_out
+    ip6tables -w -F vpnclient_fwd
+
+    ip6tables -w -X vpnclient_in
+    ip6tables -w -X vpnclient_out
+    ip6tables -w -X vpnclient_fwd
+  fi
+}
+
 action=${1}
 if [[ "$action" != restart ]]; then
   # Variables
@@ -162,6 +218,8 @@ case "$action" in
 
     sync_time
     check_config
+
+    set_firewall
 
     info "Now actually starting OpenVPN client..."
 
@@ -234,6 +292,8 @@ case "$action" in
         fi
       done
     fi
+
+    unset_firewall
   ;;
 
   # ########## #
