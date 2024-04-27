@@ -133,6 +133,8 @@ is_firewall_set() {
 }
 
 set_firewall() {
+  info "Applying firewall rules..."
+
   local wired_device=$(ip route | awk '/default via/ { print $5; }')
 
   if ! is_firewall_set "${wired_device}"; then
@@ -143,11 +145,13 @@ set_firewall() {
   if is_firewall_set "${wired_device}"; then
     success "IPv6/IPv4 firewall set"
   else
-    error "[FAIL] No IPv6/IPv4 firewall set" >&2
+    error "No IPv6/IPv4 firewall set" >&2
   fi
 }
 
 unset_firewall() {
+  info "Removing firewall rules..."
+
   local wired_device=$(ip route | awk '/default via/ { print $5; }')
 
   rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
