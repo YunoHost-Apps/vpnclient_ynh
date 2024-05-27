@@ -103,9 +103,20 @@ check_config() {
     critical "You need a CA server (you can add it through the web admin)"
   fi
 
-  if ! openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -checkend 0 >/dev/null; then
-    ca_server_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -enddate | cut -d '=' -f 2)
-    critical "The CA server expired on $ca_server_cert_expired_date"
+  latest_ca_server_cert_expiry_timestamp=0
+  while ca_server_cert_expiry_date=$(openssl x509 -noout -enddate 2>/dev/null); do
+    ca_server_cert_expiry_date=$(cut -f 2 -d '=' <<< "$ca_server_cert_expiry_date")
+    ca_server_cert_expiry_timestamp=$(date +'%s' -d "$ca_server_cert_expiry_date")
+
+    if [[ "$ca_server_cert_expiry_timestamp" -ge "$latest_ca_server_cert_expiry_timestamp" ]]; then
+      latest_ca_server_cert_expiry_timestamp="$ca_server_cert_expiry_timestamp"
+      latest_ca_server_cert_expiry_date="$ca_server_cert_expiry_date"
+    fi
+  done < /etc/openvpn/keys/ca-server.crt
+
+  today_timestamp=$(date +'%s')
+  if [[ "$latest_ca_server_cert_expiry_timestamp" -ge "$today_timestamp" ]]; then
+    critical "The CA server expired on $latest_ca_server_cert_expiry_date"
   fi
 
   if [[ ! -e /etc/openvpn/keys/user.crt || ! -e /etc/openvpn/keys/user.key ]]; then
