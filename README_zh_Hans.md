@@ -3,7 +3,7 @@
 请勿手动编辑。
 -->
 
-# YunoHost 的 VPN Client
+# YunoHost 上的 VPN Client
 
 [![集成程度](https://dash.yunohost.org/integration/vpnclient.svg)](https://dash.yunohost.org/appci/app/vpnclient) ![工作状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
