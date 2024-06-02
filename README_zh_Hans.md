@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**分发版本：** 2.2~ynh3
+**分发版本：** 2.2~ynh4
 
 ## 截图
 
