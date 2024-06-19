@@ -20,9 +20,9 @@ if is_dns_set; then
   fi
 
   # FIXME : this situation happened to a user ...
-  # We could try to force regen the dns conf 
-  # (though for now it's tightly coupled to dnsmasq)
   if ! grep -q "^nameserver\s" "${resolvconf}"; then
-    echo "${resolvconf} does not have any nameserver line !?" >&2
+    echo "${resolvconf} does not have any nameserver line !? Regenerating ..." >&2
+    # This is the main line from yunohost's dnsmasq hook generating the resolv.dnsmasq.conf
+    cat /usr/share/yunohost/conf/dnsmasq/plain/resolv.dnsmasq.conf | grep "^nameserver" | shuf >${resolvconf}
   fi
 fi
