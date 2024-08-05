@@ -5,7 +5,7 @@
 
 # YunoHost 上的 VPN Client
 
-[![集成程度](https://dash.yunohost.org/integration/vpnclient.svg)](https://dash.yunohost.org/appci/app/vpnclient) ![工作状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
+[![集成程度](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
 [![使用 YunoHost 安装 VPN Client](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 
