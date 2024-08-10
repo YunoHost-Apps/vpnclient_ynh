@@ -6,6 +6,7 @@ is_ip6addr_set() {
 }
 
 ip6_addr=$(yunohost app setting "vpnclient" "ip6_addr")
+# cf https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/#environmental-variables for where 'dev' comes from
 gateway_interface=${dev}
 
 if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]] && is_ip6addr_set "${ip6_addr}"; then
