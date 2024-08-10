@@ -2,13 +2,16 @@
 
 is_ip6addr_set() {
   local ip6_addr=${1}
-  ip address show dev tun0 2> /dev/null | grep -q "${ip6_addr}/"
+  ip address show dev "${gateway_interface}" 2> /dev/null | grep -q "${ip6_addr}/"
 }
 
 ip6_addr=$(yunohost app setting "vpnclient" "ip6_addr")
+# cf https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/#environmental-variables for where 'dev' comes from
+gateway_interface=${dev}
+
 if [[ -n "${ip6_addr}" ]] && [[ "${ip6_addr}" != none ]]; then
   if ! is_ip6addr_set "${ip6_addr}"; then
-    ip address add "${ip6_addr}/64" dev tun0
+    ip address add "${ip6_addr}/64" dev "${gateway_interface}"
   fi
 
   echo "[INFO] IPv6 delegated prefix found"
