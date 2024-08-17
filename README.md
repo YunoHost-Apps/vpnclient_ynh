@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # VPN Client for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/vpnclient.svg)](https://dash.yunohost.org/appci/app/vpnclient) ![Working status](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
+[![Integration level](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Working status](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
 [![Install VPN Client with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 
@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Shipped version:** 2.2~ynh4
+**Shipped version:** 2.2~ynh5
 
 ## Screenshots
 
