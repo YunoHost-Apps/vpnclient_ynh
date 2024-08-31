@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -14,7 +8,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # RETRIEVE ARGUMENTS
@@ -102,7 +96,6 @@ get__login_passphrase() {
         echo ""
     fi
 }
-
 
 #=================================================
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
@@ -233,9 +226,9 @@ ynh_app_config_validate() {
 ynh_app_config_apply() {
 
     # Stop vpn client
-    ynh_print_info --message="Stopping vpnclient in order to edit files"
-    ynh_systemd_action --service_name="ynh-vpnclient-checker.timer" --action="stop"
-    ynh_systemd_action --service_name="ynh-vpnclient" --action="stop"
+    ynh_print_info "Stopping vpnclient in order to edit files"
+    ynh_systemctl --service="ynh-vpnclient-checker.timer" --action="stop"
+    ynh_systemctl --service="ynh-vpnclient" --action="stop"
 
     chown $app:$app /etc/openvpn/keys
     chmod go=--- /etc/openvpn/keys
@@ -253,9 +246,9 @@ ynh_app_config_apply() {
     [[ "$ovpn_file" == "/etc/openvpn/client.ovpn" ]] && rm -f "$ovpn_file"
 
     # Start vpn client
-    ynh_print_info --message="Starting vpnclient service if needed"
-    ynh_systemd_action --service_name="ynh-vpnclient" --action="start"
-    ynh_systemd_action --service_name="ynh-vpnclient-checker.timer" --action="start"
+    ynh_print_info "Starting vpnclient service if needed"
+    ynh_systemctl --service="ynh-vpnclient" --action="start"
+    ynh_systemctl --service="ynh-vpnclient-checker.timer" --action="start"
 }
 
 ynh_app_config_run $1

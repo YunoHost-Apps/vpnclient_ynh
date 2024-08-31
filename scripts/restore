@@ -8,12 +8,11 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_print_info "Restoring the app files..."
 
-ynh_restore
-
+ynh_restore_everything
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
-ynh_print_info "Restoring the systemd configuration..."
+ynh_print_info "Restoring $app's systemd service..."
 
 systemctl daemon-reload
 
@@ -35,11 +34,9 @@ systemctl enable "$service_checker_name" --quiet
 systemctl start "$service_checker_name.timer"
 systemctl enable "$service_checker_name.timer" --quiet
 
-
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
-
 
 #=================================================
 # END OF SCRIPT
