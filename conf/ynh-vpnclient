@@ -103,11 +103,6 @@ check_config() {
     critical "You need a CA server (you can add it through the web admin)"
   fi
 
-  if ! openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -checkend 0 >/dev/null; then
-    ca_server_cert_expired_date=$(openssl x509 -in /etc/openvpn/keys/ca-server.crt -noout -enddate | cut -d '=' -f 2)
-    critical "The CA server expired on $ca_server_cert_expired_date"
-  fi
-
   if [[ ! -e /etc/openvpn/keys/user.crt || ! -e /etc/openvpn/keys/user.key ]]; then
     if [[ -s /etc/openvpn/keys/credentials ]]; then
       login_user=$(sed -n 1p /etc/openvpn/keys/credentials)
@@ -211,7 +206,7 @@ case "$action" in
         critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
       fi
     else
-      critical "[CRIT] IPv4 routes are misconfigured !?"
+      critical "IPv4 routes are misconfigured !?"
     fi
   ;;
 

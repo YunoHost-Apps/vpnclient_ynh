@@ -1,10 +1,10 @@
 #!/bin/bash
 
 server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
-host6=$(dig AAAA +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
-host4=$(dig A +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
 
 # In case an ip has been provided in ovpn conf
+host4=""
+host6=""
 for i in ${server_names}; do
   if [[ "${i}" =~ : ]]; then
       host6+=" ${i}"
@@ -13,8 +13,16 @@ for i in ${server_names}; do
   fi
 done
 
+if [[ -z "${host6}" ]]; then
+  host6=$(dig AAAA +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
+fi
+
+if [[ -z "${host4}" ]]; then
+  host4=$(dig A +short $server_names @127.0.0.1 | grep -v '\.$' | grep -v "timed out")
+fi
+
 interface=$(ip route | awk '/default via/ { print $5; }')
-dns=$(grep -o -P '\s*nameserver\s+\K[ABCDEFabcdef\d.:]+' /etc/resolv.dnsmasq.conf)
+dns=$(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.conf | sort | uniq)
 
 # IPv6
 
