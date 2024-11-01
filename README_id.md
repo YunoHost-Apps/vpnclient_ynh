@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Versi terkirim:** 2.2~ynh5
+**Versi terkirim:** 2.2~ynh6
 
 ## Tangkapan Layar
 
