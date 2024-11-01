@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Geleverde versie:** 2.2~ynh5
+**Geleverde versie:** 2.2~ynh6
 
 ## Schermafdrukken
 
