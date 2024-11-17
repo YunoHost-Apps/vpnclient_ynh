@@ -78,7 +78,11 @@ yunohost service stop $service_name
 
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
-cp /etc/openvpn/client.* "${tmp_dir}"
+for config_file in /etc/openvpn/client.{conf,cube,ovpn}; do
+  if [[ -f "${config_file}" ]]; then
+    cp "${config_file}" "${tmp_dir}/"
+  fi
+done
 
 # Deploy files from package
 vpnclient_deploy_files_and_services
@@ -100,7 +104,11 @@ then
 fi
 
 # Restore previously existing config files
-cp ${tmp_dir}/client.* /etc/openvpn/
+for config_file in ${tmp_dir}/client.{conf,cube,ovpn}; do
+  if [[ -f "${config_file}" ]]; then
+    cp "${config_file}" /etc/openvpn/
+  fi
+done
 ynh_secure_remove ${tmp_dir}
 
 #=================================================
