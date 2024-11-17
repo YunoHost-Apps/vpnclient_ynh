@@ -30,7 +30,6 @@ ynh_print_info "Removing openvpn configuration"
 
 # Remove openvpn configurations
 ynh_secure_remove /etc/openvpn/client.conf
-ynh_secure_remove /etc/openvpn/client.conf.tpl
 ynh_secure_remove /etc/openvpn/client.cube
 ynh_secure_remove /etc/openvpn/client.ovpn
 

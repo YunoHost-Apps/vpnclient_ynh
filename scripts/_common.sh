@@ -17,7 +17,6 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
   mkdir -pm 0755 /etc/systemd/system/openvpn@.service.d/
 
-  install -b -o root -g ${app} -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
   install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/openvpn@.service.d/override.conf
 
