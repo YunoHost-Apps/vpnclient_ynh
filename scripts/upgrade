@@ -36,6 +36,10 @@ if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
   ynh_safe_rm "/etc/sudoers.d/${app}_ynh"
 fi
 
+if [ -e "/etc/openvpn/client.conf.tpl" ]; then
+  ynh_secure_remove "/etc/openvpn/client.conf.tpl"
+fi
+
 # New stuff
 
 if [ -z "${dns_method:-}" ]; then
@@ -75,7 +79,11 @@ yunohost service stop $service_name
 
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
-cp -r /etc/openvpn/client* ${tmp_dir}
+for config_file in /etc/openvpn/client.{conf,cube,ovpn}; do
+  if [[ -f "${config_file}" ]]; then
+    cp "${config_file}" "${tmp_dir}/"
+  fi
+done
 
 # Deploy files from package
 vpnclient_deploy_files_and_services
@@ -97,8 +105,12 @@ then
 fi
 
 # Restore previously existing config files
-cp -r ${tmp_dir}/client* /etc/openvpn/
-ynh_safe_rm ${tmp_dir}
+for config_file in ${tmp_dir}/client.{conf,cube,ovpn}; do
+  if [[ -f "${config_file}" ]]; then
+    cp "${config_file}" /etc/openvpn/
+  fi
+done
+ynh_safe_remove ${tmp_dir}
 
 #=================================================
 # SERVICE INTEGRATION IN YUNOHOST

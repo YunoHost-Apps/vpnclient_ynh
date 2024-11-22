@@ -25,7 +25,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Paketatutako bertsioa:** 2.2~ynh5
+**Paketatutako bertsioa:** 2.2~ynh6
 
 ## Pantaila-argazkiak
 
