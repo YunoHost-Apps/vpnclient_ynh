@@ -103,7 +103,6 @@ get__login_passphrase() {
     fi
 }
 
-
 #=================================================
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
 #=================================================
@@ -190,6 +189,16 @@ set__login_user() {
 
 set__login_passphrase() {
     :
+}
+
+set__ip6_send_over_tun() {
+  if [[ ${ip6_send_over_tun_enabled} -eq 1 ]]; then
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun /etc/openvpn/scripts/route-up.d/
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
+  else
+    ynh_secure_remove /etc/openvpn/scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun
+    ynh_secure_remove /etc/openvpn/scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun
+  fi
 }
 
 #=================================================

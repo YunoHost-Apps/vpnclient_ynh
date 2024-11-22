@@ -9,6 +9,7 @@ ynh_app_setting_set "$app" dns_method "yunohost"
 ynh_app_setting_set "$app" nameservers ""
 ynh_app_setting_set "$app" ip6_addr ""
 ynh_app_setting_set "$app" ip6_net ""
+ynh_app_setting_set "$app" ip6_send_over_tun_enabled 0
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
