@@ -31,13 +31,6 @@ name = "Auto-configuration"
         bind = "/etc/openvpn/client.conf"
         redact = true
 
-        [main.vpn.config_template]
-        type = "file"
-        bind = "/etc/openvpn/client.conf.tpl"
-        redact = true
-        optional = true
-        visible = false
-
         [main.vpn.cube_file]
         type = "file"
         bind = "/etc/openvpn/client.cube"
