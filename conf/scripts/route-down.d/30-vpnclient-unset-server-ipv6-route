@@ -1,36 +1,35 @@
 #!/bin/bash
 
 is_serverip6route_set() {
-  local server_ip6s=${1}
+  local server_ip6=${1}
 
-  if [[ -z "${server_ip6s}" ]]; then
+  if [[ -z "${server_ip6}" ]]; then
     return 0
   fi
 
-  for server_ip6 in ${server_ip6s}; do
-    if ! ip -6 route | grep -q "^${server_ip6}"; then
-      return 1
-    fi
-  done
+  if ! ip -6 route | grep -q "^${server_ip6}"; then
+    return 1
+  fi
 }
 
 unset_serverip6route() {
-  local server_ip6s=${1}
+  local server_ip6=${1}
   local ip6_gw=${2}
   local wired_device=${3}
 
-  for server_ip6 in ${server_ip6s}; do
-    ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
-  done
+  ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
 }
 
-old_ip6_gw=$(yunohost app setting vpnclient ip6_gw)
-old_wired_device=$(yunohost app setting vpnclient wired_device)
-old_server_ip6=$(yunohost app setting vpnclient server_ip6)
+wired_device=$(ip route | awk '/default via/ { print $5; }')
+
+# See https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/#environmental-variables
+# to have a list of variables provided by OpenVPN, i.e:
+# - ifconfig_ipv6_remote
+# - net_gateway_ipv6
 
 # Check old state of the server ipv6 route
-if [[ -n "${old_server_ip6}" && -n "${old_ip6_gw}" && -n "${old_wired_device}" ]]; then
-  if is_serverip6route_set "${old_server_ip6}"; then
-    unset_serverip6route "${old_server_ip6}" "${old_ip6_gw}" "${old_wired_device}"
+if [[ -n "${ifconfig_ipv6_remote}" && -n "${net_gateway_ipv6}" && -n "${wired_device}" ]]; then
+  if is_serverip6route_set "${ifconfig_ipv6_remote}"; then
+    unset_serverip6route "${ifconfig_ipv6_remote}" "${net_gateway_ipv6}" "${wired_device}"
   fi
 fi

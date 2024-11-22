@@ -40,9 +40,6 @@ for FILE in $(ls /etc/openvpn/scripts/route-up.d/*-vpnclient-* /etc/openvpn/scri
     ynh_secure_remove "$FILE"
 done
 
-# Remove YunoHost hook
-ynh_secure_remove /etc/yunohost/hooks.d/90-vpnclient.tpl
-
 # Remove openvpn service
 ynh_secure_remove /etc/systemd/system/openvpn@.service.d/override.conf
 

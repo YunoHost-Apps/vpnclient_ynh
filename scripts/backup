@@ -10,8 +10,6 @@ ynh_print_info "Backing up the main app directory..."
 
 ynh_backup --src_path="/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_backup --src_path="/etc/yunohost/hooks.d/90-vpnclient.tpl"
-
 ynh_backup --src_path="/etc/openvpn/client.conf" --not_mandatory
 ynh_backup --src_path="/etc/openvpn/client.cube" --not_mandatory
 ynh_backup --src_path="/etc/openvpn/client.ovpn" --not_mandatory

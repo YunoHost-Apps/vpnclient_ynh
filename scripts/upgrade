@@ -36,6 +36,10 @@ if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
   ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
 fi
 
+if [ -e "/etc/yunohost/hooks.d/90-vpnclient.tpl" ]; then
+  ynh_secure_remove "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+fi
+
 if [ -e "/etc/openvpn/client.conf.tpl" ]; then
   ynh_secure_remove "/etc/openvpn/client.conf.tpl"
 fi
