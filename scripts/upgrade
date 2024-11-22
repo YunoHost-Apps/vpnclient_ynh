@@ -37,7 +37,7 @@ if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
 fi
 
 if [ -e "/etc/openvpn/client.conf.tpl" ]; then
-  ynh_secure_remove "/etc/openvpn/client.conf.tpl"
+  ynh_safe_rm "/etc/openvpn/client.conf.tpl"
 fi
 
 # New stuff
