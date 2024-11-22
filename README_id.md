@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # VPN Client untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
+![Status kerja](https://apps.yunohost.org/badge/state/vpnclient)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/vpnclient)
 
 [![Pasang VPN Client dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 
@@ -25,7 +27,7 @@ Install a VPN connection on your self-hosted server.
 
 
 
-**Versi terkirim:** 2.2~ynh4
+**Versi terkirim:** 2.2~ynh6
 
 ## Tangkapan Layar
 
