@@ -104,7 +104,11 @@ then
 fi
 
 # Restore previously existing config files
-cp -r "${tmp_dir}/" -T /etc/openvpn/
+for config_file in ${tmp_dir}/client.{conf,cube,ovpn}; do
+  if [[ -f "${config_file}" ]]; then
+    cp "${config_file}" /etc/openvpn/
+  fi
+done
 ynh_secure_remove ${tmp_dir}
 
 #=================================================
