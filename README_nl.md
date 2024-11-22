@@ -5,9 +5,7 @@ Hij mag NIET handmatig aangepast worden.
 
 # VPN Client voor Yunohost
 
-[![Integratieniveau](https://apps.yunohost.org/badge/integration/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
-![Mate van functioneren](https://apps.yunohost.org/badge/state/vpnclient)
-![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/vpnclient)
+[![Integratieniveau](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
 [![VPN Client met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 

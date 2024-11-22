@@ -5,9 +5,7 @@ EZ editatu eskuz.
 
 # VPN Client YunoHost-erako
 
-[![Integrazio maila](https://apps.yunohost.org/badge/integration/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
-![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/vpnclient)
-![Mantentze egoera](https://apps.yunohost.org/badge/maintained/vpnclient)
+[![Integrazio maila](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
 [![Instalatu VPN Client YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 

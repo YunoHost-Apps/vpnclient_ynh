@@ -5,9 +5,7 @@ NON debe editarse manualmente.
 
 # VPN Client para YunoHost
 
-[![Nivel de integración](https://apps.yunohost.org/badge/integration/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
-![Estado de funcionamento](https://apps.yunohost.org/badge/state/vpnclient)
-![Estado de mantemento](https://apps.yunohost.org/badge/maintained/vpnclient)
+[![Nivel de integración](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
 
 [![Instalar VPN Client con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 
