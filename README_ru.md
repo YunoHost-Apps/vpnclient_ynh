@@ -5,7 +5,9 @@
 
 # VPN Client для YunoHost
 
-[![Уровень интеграции](https://dash.yunohost.org/integration/vpnclient.svg)](https://ci-apps.yunohost.org/ci/apps/vpnclient/) ![Состояние работы](https://ci-apps.yunohost.org/ci/badges/vpnclient.status.svg) ![Состояние сопровождения](https://ci-apps.yunohost.org/ci/badges/vpnclient.maintain.svg)
+[![Уровень интеграции](https://apps.yunohost.org/badge/integration/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
+![Состояние работы](https://apps.yunohost.org/badge/state/vpnclient)
+![Состояние сопровождения](https://apps.yunohost.org/badge/maintained/vpnclient)
 
 [![Установите VPN Client с YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=vpnclient)
 
