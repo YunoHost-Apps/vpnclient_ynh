@@ -14,8 +14,6 @@ systemctl stop $service_checker_name
 systemctl disable $service_checker_name --quiet
 
 if ynh_exec_warn_less yunohost service status $service_name >/dev/null; then
-    yunohost service stop $service_name
-    yunohost service disable $service_name --quiet
     yunohost service remove $service_name
 fi
 
