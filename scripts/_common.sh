@@ -56,7 +56,7 @@ function read_cube() {
   local config_file="$1"
   local key="$2"
   local tmp_dir=$(dirname "$config_file")
-  local default_value="$3"
+  local default_value="${3:-}"
 
   setting_value="$(jq --raw-output ".$key" "$config_file")"
   if [[ "$setting_value" == "null" ]]; then
