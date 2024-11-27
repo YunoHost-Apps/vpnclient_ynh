@@ -29,6 +29,7 @@ yunohost service add $service_name --description "Tunnels the internet traffic t
 yunohost service enable "$service_name"
 
 ynh_use_logrotate --logfile="/var/log/ynh-vpnclient.log"
+ynh_use_logrotate --logfile="/var/log/openvpn-client.log"
 
 # checker service
 
