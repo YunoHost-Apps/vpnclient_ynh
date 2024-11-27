@@ -16,6 +16,7 @@ systemctl disable $service_checker_name --quiet
 if ynh_exec_warn_less yunohost service status $service_name >/dev/null; then
     yunohost service remove $service_name
 fi
+ynh_remove_logrotate
 
 for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*); do
     ynh_secure_remove "$FILE"
