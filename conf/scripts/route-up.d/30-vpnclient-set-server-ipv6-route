@@ -26,10 +26,12 @@ wired_device=$(ip route | awk '/default via/ { print $5; }')
 # to have a list of variables provided by OpenVPN, i.e:
 # - ifconfig_ipv6_remote
 # - net_gateway_ipv6
+server_ip6=${ifconfig_ipv6_remote}
+ip6_gw=${net_gateway_ipv6}
 
 echo "[INFO] Autodetected internet interface: ${wired_device}"
-if [[ -n "${ifconfig_ipv6_remote}" ]]; then
-  echo "[INFO] Autodetected IPv6 address for the VPN server: ${ifconfig_ipv6_remote}"
+if [[ -n "${server_ip6}" ]]; then
+  echo "[INFO] Autodetected IPv6 address for the VPN server: ${server_ip6}"
 else
   echo "[INFO] No IPv6 address for the VPN server detected"
   echo "[INFO] No IPv6 route set"
@@ -37,15 +39,15 @@ else
 fi
 
 # Set the new server ipv6 route
-if [[ -n "${net_gateway_ipv6}" ]]; then
-  if ! is_serverip6route_set "${ifconfig_ipv6_remote}"; then
-    set_serverip6route "${ifconfig_ipv6_remote}" "${net_gateway_ipv6}" "${wired_device}"
+if [[ -n "${ip6_gw}" ]]; then
+  if ! is_serverip6route_set "${server_ip6}"; then
+    set_serverip6route "${server_ip6}" "${ip6_gw}" "${wired_device}"
   fi
 
   echo "[INFO] Native IPv6 detected"
-  echo "[INFO] Autodetected native IPv6 gateway: ${net_gateway_ipv6}"
+  echo "[INFO] Autodetected native IPv6 gateway: ${ip6_gw}"
 
-  if is_serverip6route_set "${ifconfig_ipv6_remote}"; then
+  if is_serverip6route_set "${server_ip6}"; then
     echo "[ OK ] IPv6 server route correctly set"
   else
     echo "[FAIL] No IPv6 server route set" >&2

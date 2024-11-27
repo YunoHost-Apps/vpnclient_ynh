@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ip -6 route flush table send_over_tun
+rm -f /etc/iproute2/rt_tables.d/vpnclient_ynh.conf
