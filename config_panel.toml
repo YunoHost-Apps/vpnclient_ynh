@@ -1,7 +1,7 @@
 version = "1.0"
 
 [main]
-name = "Auto-configuration"
+name = "Configuration"
 
     [main.vpn]
     name = ""
@@ -28,19 +28,19 @@ name = "Auto-configuration"
         type = "file"
         accept = [".cube", ".ovpn", ".conf", "application/json", "text/plain"]
         help = ".cube file recommended, .ovpn file accepted"
-        bind = "/etc/openvpn/client.conf"
+        bind = ":/etc/openvpn/client.conf"
         redact = true
 
         [main.vpn.cube_file]
         type = "file"
-        bind = "/etc/openvpn/client.cube"
+        bind = ":/etc/openvpn/client.cube"
         redact = true
         optional = true
         visible = false
 
         [main.vpn.ovpn_file]
         type = "file"
-        bind = "/etc/openvpn/client.ovpn"
+        bind = ":/etc/openvpn/client.ovpn"
         redact = true
         optional = true
         visible = false
@@ -53,20 +53,20 @@ name = "Auto-configuration"
         [main.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
-        bind = "/etc/openvpn/keys/ca-server.crt"
+        bind = ":/etc/openvpn/keys/ca-server.crt"
         visible = 'config_file && match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")'
 
         [main.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
-        bind = "/etc/openvpn/keys/user.crt"
+        bind = ":/etc/openvpn/keys/user.crt"
         visible = 'config_file && match(config_file,"^\s*cert\s") && ! match(config_file,"^\s*<cert>")'
 
         [main.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
         help = "This file begins with -----BEGIN PRIVATE KEY-----"
-        bind = "/etc/openvpn/keys/user.key"
+        bind = ":/etc/openvpn/keys/user.key"
         visible = 'config_file && match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")'
         redact = true
 
@@ -88,22 +88,21 @@ name = "Auto-configuration"
         type = "file"
         example = "ta.key"
         help = "Some servers have an additional protection agains Deny of Service attack. If you have no tls-auth key in your ovpn, skip this question."
-        bind = "/etc/openvpn/keys/user_ta.key"
+        bind = ":/etc/openvpn/keys/user_ta.key"
         visible = 'config_file && match(config_file,"^\s*tls-auth\s") && ! match(config_file,"^\s*<tls-auth>")'
         redact = true
 
-[advanced]
-name = "DNS & IPv6"
-    [advanced.dns]
+
+    [main.dns]
     name = "DNS"
 
-        [advanced.dns.dns_method]
+        [main.dns.dns_method]
         ask = "DNS resolvers"
         type = "select"
         choices.yunohost = "Default DNS resolvers from YunoHost"
         choices.custom = "Use custom DNS resolvers"
 
-        [advanced.dns.nameservers]
+        [main.dns.nameservers]
         ask = "Custom DNS resolvers"
         type = "tags"
         optional = true
@@ -111,10 +110,10 @@ name = "DNS & IPv6"
         pattern.regexp = "^([0-9.]{7,15}|[0-9a-fA-F:]+)$"
         pattern.error = "Not an ip"
 
-    [advanced.ipv6]
+    [main.ipv6]
     name = "IPv6"
 
-        [advanced.ipv6.ip6_net]
+        [main.ipv6.ip6_net]
         ask = "IPv6 prefix"
         type = "string"
         optional = true
@@ -122,7 +121,7 @@ name = "DNS & IPv6"
         pattern.regexp = "^[0-9a-fA-F:]+$"
         pattern.error = "Please provide a valid IPv6 Prefix"
 
-        [advanced.ipv6.ip6_addr]
+        [main.ipv6.ip6_addr]
         ask = "IPv6"
         type = "string"
         optional = true
@@ -131,7 +130,7 @@ name = "DNS & IPv6"
         pattern.regexp = "^[0-9a-fA-F:]+$"
         pattern.error = "Please provide a valid IPv6"
 
-        [advanced.ipv6.ip6_send_over_tun_enabled]
+        [main.ipv6.ip6_send_over_tun_enabled]
         ask = "IPv6 local routing over tun"
         type = "boolean"
         help = "If enabled, local IPv6 traffic will be routed through internet. You should enable this if you can't reach your server in IPv6 from your local network."
