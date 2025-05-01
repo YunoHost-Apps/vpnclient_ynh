@@ -31,13 +31,6 @@ name = "Auto-configuration"
         bind = "/etc/openvpn/client.conf"
         redact = true
 
-        [main.vpn.config_template]
-        type = "file"
-        bind = "/etc/openvpn/client.conf.tpl"
-        redact = true
-        optional = true
-        visible = false
-
         [main.vpn.cube_file]
         type = "file"
         bind = "/etc/openvpn/client.cube"
@@ -137,3 +130,9 @@ name = "DNS & IPv6"
         help = "If no IPv6 address is pushed directly by your VPN provider, you can indicate a specific IP to use here."
         pattern.regexp = "^[0-9a-fA-F:]+$"
         pattern.error = "Please provide a valid IPv6"
+
+        [advanced.ipv6.ip6_send_over_tun_enabled]
+        ask = "IPv6 local routing over tun"
+        type = "boolean"
+        help = "If enabled, local IPv6 traffic will be routed through internet. You should enable this if you can't reach your server in IPv6 from your local network."
+

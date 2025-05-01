@@ -17,8 +17,6 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
   mkdir -pm 0755 /etc/systemd/system/openvpn@.service.d/
 
-  install -b -o root -g ${app} -m 0644 ../conf/openvpn_client.conf.tpl /etc/openvpn/client.conf.tpl
-  install -b -o root -g root -m 0755 ../conf/hook_post-iptable-rules /etc/yunohost/hooks.d/90-vpnclient.tpl
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/openvpn@.service.d/override.conf
 
   # Create certificates directory
@@ -58,16 +56,18 @@ function read_cube() {
   local config_file="$1"
   local key="$2"
   local tmp_dir=$(dirname "$config_file")
+  local default_value="${3:-}"
 
   setting_value="$(jq --raw-output ".$key" "$config_file")"
-  if [[ "$setting_value" == "null" ]]
-  then
-    setting_value=''
+  if [[ "$setting_value" == "null" ]]; then
+    setting_value="$default_value"
+  elif [[ "$setting_value" == "true" ]]; then
+    setting_value=1
+  elif [[ "$setting_value" == "false" ]]; then
+    setting_value=0
   # Save file in tmp dir
-  elif [[ "$key" == "crt_"* ]]
-  then
-    if [ -n "${setting_value}" ]
-    then
+  elif [[ "$key" == "crt_"* ]]; then
+    if [ -n "${setting_value}" ]; then
       echo "${setting_value}" | sed 's/|/\n/g' > "$tmp_dir/$key"
       setting_value="$tmp_dir/$key"
     fi
@@ -86,6 +86,7 @@ function convert_cube_file()
   server_proto="$(read_cube $config_file server_proto)"
   ip6_net="$(read_cube $config_file ip6_net)"
   ip6_addr="$(read_cube $config_file ip6_addr)"
+  ip6_send_over_tun_enabled="$(read_cube $config_file ip6_send_over_tun 0)"
   login_user="$(read_cube $config_file login_user)"
   login_passphrase="$(read_cube $config_file login_passphrase)"
   dns0="$(read_cube $config_file dns0)"
