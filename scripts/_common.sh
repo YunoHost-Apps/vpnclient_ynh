@@ -1,7 +1,7 @@
 #!/bin/bash
 
 service_name="ynh-vpnclient"
-service_checker_name=$service_name"-checker"
+service_checker_name="$service_name-checker"
 
 # Operations needed by both 'install' and 'upgrade' scripts
 function vpnclient_deploy_files_and_services()
@@ -46,9 +46,9 @@ function vpnclient_deploy_files_and_services()
   #=================================================
   ynh_print_info "Configuring $app's systemd service..."
 
-  ynh_config_add_systemd $service_name "$service_name.service"
+  ynh_config_add_systemd --service="$service_name" --template="$service_name.service"
 
-  ynh_config_add_systemd $service_checker_name "$service_checker_name.service"
+  ynh_config_add_systemd --service="$service_checker_name" --template="$service_checker_name.service"
 }
 
 function read_cube() {

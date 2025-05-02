@@ -4,12 +4,12 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 # Default values for config panel
-ynh_app_setting_set "$app" service_enabled 0
-ynh_app_setting_set "$app" dns_method "yunohost"
-ynh_app_setting_set "$app" nameservers ""
-ynh_app_setting_set "$app" ip6_addr ""
-ynh_app_setting_set "$app" ip6_net ""
-ynh_app_setting_set "$app" ip6_send_over_tun_enabled 0
+ynh_app_setting_set --key="service_enabled" --value="0"
+ynh_app_setting_set --key="dns_method" --value="yunohost"
+ynh_app_setting_set --key="nameservers" --value=""
+ynh_app_setting_set --key="ip6_addr" --value=""
+ynh_app_setting_set --key="ip6_net" --value=""
+ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value="0"
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE

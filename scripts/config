@@ -31,7 +31,7 @@ BACKTICK='`'
 TRIPLEBACKTICKS='```'
 
 get__status() {
-    local service_enabled=$(ynh_app_setting_get $app service_enabled)
+    local service_enabled=$(ynh_app_setting_get --key="service_enabled")
 
     ipv4=$(ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
     ipv6=$(ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
@@ -243,9 +243,9 @@ ynh_app_config_apply() {
 
     # or takes the value of the previous upload, that is, the target path for the cube file.
     if [[ -n "${cube_file:-}" && "$cube_file" != "/etc/openvpn/client.cube" ]]; then
-      ynh_app_setting_set $app ip6_addr "$ip6_addr"
-      ynh_app_setting_set $app ip6_net "$ip6_net"
-      ynh_app_setting_set $app ip6_send_over_tun_enabled "$ip6_send_over_tun_enabled"
+      ynh_app_setting_set --key="ip6_addr" --value="$ip6_addr"
+      ynh_app_setting_set --key="ip6_net" --value="$ip6_net"
+      ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value"$ip6_send_over_tun_enabled"
     fi
 
     if [[ ${ip6_send_over_tun_enabled} -eq 1 ]]; then
