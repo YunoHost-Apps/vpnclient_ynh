@@ -100,6 +100,7 @@ get__login_passphrase() {
 #=================================================
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
 #=================================================
+
 validate__login_user() {
 
     if grep -q '^\s*auth-user-pass' ${config_file}
@@ -167,9 +168,11 @@ validate__nameservers() {
         echo "You need to choose DNS resolvers or select an other method to provide DNS resolvers"
     fi
 }
+
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
+
 set__login_user() {
     if [ -n "${login_user}" ]
     then
@@ -188,33 +191,32 @@ set__login_passphrase() {
 #=================================================
 # OVERWRITING VALIDATE STEP
 #=================================================
+
 ynh_app_config_validate() {
     # At this moment this var is not already set with the old value
-    if [ -z ${config_file+x} ]
-    then
-        config_file="${old[config_file]}"
+    if [[ -n "${config_file:-}" ]]; then
+        # Overwrite form response with cube files data before validation process
 
-    # Overwrite form response with cube files data before validation process
+        # We don't have the extension, so we use this ugly hack to check that this is a json-like
+        # (i.e. it starts with { ..)
+        if [[ -f "${config_file}" ]]; then
+            if [[ "$(cat ${config_file} | tr -d ' ' | grep -v "^$" | head -c1)" == "{" ]]; then
+                local tmp_dir=$(dirname "$config_file")
 
-    # We don't have the extension, so we use this ugly hack to check that this is a json-like
-    # (i.e. it starts with { ..)
-    elif [ -f "${config_file}" ] && [[ "$(cat ${config_file} | tr -d ' ' | grep -v "^$" | head -c1)" == "{" ]]
-    then
-        local tmp_dir=$(dirname "$config_file")
+                cube_file="$tmp_dir/client.cube"
+                cp -f "$config_file" "$cube_file"
 
-        cube_file="$tmp_dir/client.cube"
-        cp -f "$config_file" "$cube_file"
+                convert_cube_file "$config_file"
+            # Othewise, assume that it's a .ovpn / .conf
+            else
+                local tmp_dir=$(dirname "$config_file")
 
-        convert_cube_file "$config_file"
-    # Othewise, assume that it's a .ovpn / .conf
-    elif [ -f "${config_file}" ]
-    then
-        local tmp_dir=$(dirname "$config_file")
+                ovpn_file="$tmp_dir/client.ovpn"
+                cp -f "$config_file" "$ovpn_file"
 
-        ovpn_file="$tmp_dir/client.ovpn"
-        cp -f "$config_file" "$ovpn_file"
-
-        convert_ovpn_file "$config_file"
+                convert_ovpn_file "$config_file"
+            fi
+        fi
     fi
 
     _ynh_app_config_validate
@@ -223,6 +225,7 @@ ynh_app_config_validate() {
 #=================================================
 # OVERWRITING APPLY STEP
 #=================================================
+
 ynh_app_config_apply() {
 
     # Stop vpn client
@@ -235,6 +238,23 @@ ynh_app_config_apply() {
 
     _ynh_app_config_apply
 
+    # If we are uploading a cube file, then the file would be in a temporary folder
+    # Otherwise, we aren't uploading a cube file, then the path is either empty 
+    # or takes the value of the previous upload, that is, the target path for the cube file.
+    if [[ -n "${cube_file:-}" && "$cube_file" != "/etc/openvpn/client.cube" ]]; then
+      ynh_app_setting_set $app ip6_addr "$ip6_addr"
+      ynh_app_setting_set $app ip6_net "$ip6_net"
+      ynh_app_setting_set $app ip6_send_over_tun_enabled "$ip6_send_over_tun_enabled"
+    fi
+
+    if [[ ${ip6_send_over_tun_enabled} -eq 1 ]]; then
+        install -b -o root -g root -m 0755 ../conf/optional-scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun /etc/openvpn/scripts/route-up.d/
+        install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
+    else
+        ynh_secure_remove /etc/openvpn/scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun
+        ynh_secure_remove /etc/openvpn/scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun
+    fi
+
     set_permissions /etc/openvpn/client.conf
     set_permissions /etc/openvpn/keys/ca-server.crt
     set_permissions /etc/openvpn/keys/user.crt
@@ -242,8 +262,8 @@ ynh_app_config_apply() {
     set_permissions /etc/openvpn/keys/user_ta.key
 
     # Cleanup previously uploaded config file
-    [[ "$cube_file" == "/etc/openvpn/client.cube" ]] && rm -f "$cube_file"
-    [[ "$ovpn_file" == "/etc/openvpn/client.ovpn" ]] && rm -f "$ovpn_file"
+    [[ -n "${cube_file:-}" && "$cube_file" == "/etc/openvpn/client.cube" ]] && rm -f "$cube_file"
+    [[ -n "${ovpn_file:-}" && "$ovpn_file" == "/etc/openvpn/client.ovpn" ]] && rm -f "$ovpn_file"
 
     # Start vpn client
     ynh_print_info "Starting vpnclient service if needed"

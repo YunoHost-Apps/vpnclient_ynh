@@ -14,10 +14,9 @@ systemctl stop $service_checker_name
 systemctl disable $service_checker_name --quiet
 
 if ynh_hide_warnings yunohost service status $service_name >/dev/null; then
-    yunohost service stop $service_name
-    yunohost service disable $service_name --quiet
     yunohost service remove $service_name
 fi
+ynh_remove_logrotate
 
 for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*); do
     ynh_safe_rm "$FILE"
@@ -39,9 +38,6 @@ ynh_safe_rm /etc/openvpn/scripts/run-parts.sh
 for FILE in $(ls /etc/openvpn/scripts/route-up.d/*-vpnclient-* /etc/openvpn/scripts/route-down.d/*-vpnclient-*); do
     ynh_safe_rm "$FILE"
 done
-
-# Remove YunoHost hook
-ynh_safe_rm /etc/yunohost/hooks.d/90-vpnclient.tpl
 
 # Remove openvpn service
 ynh_safe_rm /etc/systemd/system/openvpn@.service.d/override.conf

@@ -10,8 +10,6 @@ ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "/usr/local/bin/$service_name-loadcubefile.sh"
 
-ynh_backup "/etc/yunohost/hooks.d/90-vpnclient.tpl"
-
 ynh_backup "/etc/openvpn/client.conf" || true
 ynh_backup "/etc/openvpn/client.cube" || true
 ynh_backup "/etc/openvpn/client.ovpn" || true
