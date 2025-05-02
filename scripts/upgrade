@@ -37,7 +37,7 @@ if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
 fi
 
 if [ -e "/etc/yunohost/hooks.d/90-vpnclient.tpl" ]; then
-  ynh_secure_remove "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+  ynh_safe_rm "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 fi
 
 if [ -e "/etc/openvpn/client.conf.tpl" ]; then
@@ -64,7 +64,7 @@ if [ -z "${ip6_net:-}" ]; then
     ynh_app_setting_set --key=ip6_net --value=""
 fi
 if [ -z "${ip6_send_over_tun_enabled:-}" ]; then
-    ynh_app_setting_set --app=$app --key=ip6_send_over_tun_enabled --value=0
+    ynh_app_setting_set --key=ip6_send_over_tun_enabled --value=0
 fi
 
 #=================================================
@@ -117,7 +117,7 @@ for config_file in ${tmp_dir}/client.{conf,cube,ovpn}; do
     cp "${config_file}" /etc/openvpn/
   fi
 done
-ynh_safe_remove ${tmp_dir}
+ynh_safe_rm ${tmp_dir}
 
 #=================================================
 # SERVICE INTEGRATION IN YUNOHOST
@@ -129,8 +129,8 @@ ynh_print_info "Configuring VPN client services..."
 # main service
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
-ynh_use_logrotate --logfile="/var/log/ynh-vpnclient.log"
-ynh_use_logrotate --logfile="/var/log/openvpn-client.log"
+ynh_config_add_logrotate "/var/log/ynh-vpnclient.log"
+ynh_config_add_logrotate "/var/log/openvpn-client.log"
 
 # checker service (this service was previously integrated in yunohost but we do not do this anymore)
 if ynh_hide_warnings yunohost service status $service_checker_name >/dev/null

@@ -239,7 +239,8 @@ ynh_app_config_apply() {
     _ynh_app_config_apply
 
     # If we are uploading a cube file, then the file would be in a temporary folder
-    # Otherwise, we aren't uploading a cube file, then the path is either empty 
+    # Otherwise, we aren't uploading a cube file, then the path is either empty
+
     # or takes the value of the previous upload, that is, the target path for the cube file.
     if [[ -n "${cube_file:-}" && "$cube_file" != "/etc/openvpn/client.cube" ]]; then
       ynh_app_setting_set $app ip6_addr "$ip6_addr"
@@ -251,8 +252,8 @@ ynh_app_config_apply() {
         install -b -o root -g root -m 0755 ../conf/optional-scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun /etc/openvpn/scripts/route-up.d/
         install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
     else
-        ynh_secure_remove /etc/openvpn/scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun
-        ynh_secure_remove /etc/openvpn/scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun
+        ynh_safe_rm /etc/openvpn/scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun
+        ynh_safe_rm /etc/openvpn/scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun
     fi
 
     set_permissions /etc/openvpn/client.conf
