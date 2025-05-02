@@ -4,6 +4,6 @@ test_format = 1.0
 
 [default]
 
-    [default.test_upgrade_from.0d2a6b1d]
-    name = "v1 era"
+    [default.test_upgrade_from.179f9fa]
+    name = "v2.2"
     args.domain = "domain.tld"
