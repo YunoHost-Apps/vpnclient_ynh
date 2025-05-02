@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# cf https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/#environmental-variables
+# to have a list of variables provided by OpenVPN, i.e:
+# - dev
+# - net_gateway_ipv6
+# - ifconfig_ipv6_local
+gateway_interface=${dev}
+ip6_gw=${net_gateway_ipv6}
+
+if [[ -n "${net_gateway_ipv6}" ]]; then
+  echo "[INFO] Native IPv6 detected"
+  echo "[INFO] Autodetected native IPv6 gateway: ${ip6_gw}"
+
+  ip6_addr=$(yunohost app setting "vpnclient" "ip6_addr")
+  if [[ -z "${ip6_addr}" ]] || [[ "${ip6_addr}" == none ]]; then
+    if [[ -z ${ifconfig_ipv6_local} ]]; then
+      echo "[FAIL] Cannot find IPv6 address"
+      exit 1
+    fi
+    ip6_addr="${ifconfig_ipv6_local}"
+  fi
+
+  echo "[INFO] Found IPv6 address: ${ip6_addr}"
+
+  echo "1 send_over_tun" > /etc/iproute2/rt_tables.d/vpnclient_ynh.conf
+  ip -6 route flush table send_over_tun || true
+  ip -6 route add default via "${ip6_gw}" dev "${gateway_interface}" table send_over_tun proto static
+  ip -6 rule flush lookup send_over_tun
+  ip -6 rule add from "${ip6_addr}/64" pref 1 table send_over_tun
+fi
