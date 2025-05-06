@@ -26,7 +26,6 @@ name = "Configuration"
         [main.vpn.config_file]
         ask = "Configuration file"
         type = "file"
-        mode = "python"
         accept = [".cube", ".ovpn", ".conf", "application/json", "text/plain"]
         help = ".cube file recommended, .ovpn file accepted"
         bind = "/etc/openvpn/client.conf"
@@ -34,7 +33,6 @@ name = "Configuration"
 
         [main.vpn.cube_file]
         type = "file"
-        mode = "python"
         bind = "/etc/openvpn/client.cube"
         redact = true
         optional = true
@@ -42,7 +40,6 @@ name = "Configuration"
 
         [main.vpn.ovpn_file]
         type = "file"
-        mode = "python"
         bind = "/etc/openvpn/client.ovpn"
         redact = true
         optional = true
@@ -56,21 +53,18 @@ name = "Configuration"
         [main.auth.crt_server_ca]
         ask = "Update Server CA"
         type = "file"
-        mode = "python"
         bind = "/etc/openvpn/keys/ca-server.crt"
         visible = 'config_file && match(config_file,"^\s*ca\s") && ! match(config_file,"^\s*<ca>")'
 
         [main.auth.crt_client]
         ask = "Update Client Certificate"
         type = "file"
-        mode = "python"
         bind = "/etc/openvpn/keys/user.crt"
         visible = 'config_file && match(config_file,"^\s*cert\s") && ! match(config_file,"^\s*<cert>")'
 
         [main.auth.crt_client_key]
         ask = "Update Client Key"
         type = "file"
-        mode = "python"
         help = "This file begins with -----BEGIN PRIVATE KEY-----"
         bind = "/etc/openvpn/keys/user.key"
         visible = 'config_file && match(config_file,"^\s*key\s") && ! match(config_file,"^\s*<key>")'
@@ -92,7 +86,6 @@ name = "Configuration"
         [main.auth.crt_client_ta]
         ask = "TLS Auth shared secret"
         type = "file"
-        mode = "python"
         example = "ta.key"
         help = "Some servers have an additional protection agains Deny of Service attack. If you have no tls-auth key in your ovpn, skip this question."
         bind = "/etc/openvpn/keys/user_ta.key"
