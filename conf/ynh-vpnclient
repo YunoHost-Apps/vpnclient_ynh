@@ -226,7 +226,6 @@ case "$action" in
 
   stop)
     info "[vpnclient] Stopping..."
-    rm -f /tmp/.ynh-vpnclient-started
 
     if systemctl is-active -q openvpn@client.service; then
       info "Stopping OpenVPN service"
@@ -239,6 +238,8 @@ case "$action" in
         fi
       done
     fi
+    
+    rm -f /tmp/.ynh-vpnclient-started
   ;;
 
   # ########## #
