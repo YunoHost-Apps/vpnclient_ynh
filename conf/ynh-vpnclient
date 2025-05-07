@@ -187,7 +187,7 @@ case "$action" in
     fi
 
     openvpn_log_start=$(find_last_line_number "process exiting" /var/log/openvpn-client.log)
-    if ! timeout 180 tail -${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "TUN/TAP device tun0 opened"; then
+    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "TUN/TAP device tun0 opened"; then
       error "Tun0 interface did not show up ... most likely an issue happening in OpenVPN client ... below is an extract of the log that might be relevant to pinpoint the issue"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
@@ -195,7 +195,7 @@ case "$action" in
     fi
 
     info "Waiting for VPN client to be ready..."
-    if ! timeout 180 tail -${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
+    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
       error "The VPN client didn't complete initiliasation"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
