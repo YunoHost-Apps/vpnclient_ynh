@@ -169,7 +169,7 @@ case "$action" in
       exit 0
     fi
     
-    if lockfile -r 0 /tmp/.ynh-vpnclient-started &>/dev/null; then
+    if ! lockfile -r 0 /tmp/.ynh-vpnclient-started &>/dev/null; then
       info "Service is already running"
       exit 0
     fi
