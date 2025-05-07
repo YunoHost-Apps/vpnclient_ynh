@@ -58,9 +58,15 @@ function critical()
 
 cleanup() {
   local last_exit_code="$?"
-  if [[ "${action}" != "stop" && "${last_exit_code}" -ne 0 ]]; then
-    rm -f /tmp/.ynh-vpnclient-started
+  if [[ "${action}" == "stop" || "${last_exit_code}" -eq 0 ]]; then
+    return
   fi
+
+  if systemctl is-active -q openvpn@client.service; then
+    return
+  fi
+
+  rm -f /tmp/.ynh-vpnclient-started
 }
 
 # Cleanup before exit
@@ -121,6 +127,19 @@ check_config() {
   fi
 }
 
+find_last_line_number() {
+  local pattern=$1
+  local path=$2
+
+  local match
+  # Search in the file from the end until the pattern matches
+  if match=$(tac "${path}" | grep -n "${pattern}" -m 1); then
+    sed 's/:.*//' <<< $match
+  else
+    echo 0
+  fi
+}
+
 action=${1}
 if [[ "$action" != restart ]]; then
   # Variables
@@ -144,16 +163,16 @@ case "$action" in
 
   start)
     info "[vpnclient] Starting..."
-    
-    if [[ -e /tmp/.ynh-vpnclient.started ]] || systemctl -q is-active openvpn@client.service; then
-      info "Service is already running"
-      exit 0
-    elif [[ "${ynh_service_enabled}" -eq 0 ]]; then
+
+    if [[ "${ynh_service_enabled}" -eq 0 ]]; then
       warn "Service is disabled, not starting it"
       exit 0
     fi
-
-    touch /tmp/.ynh-vpnclient-started
+    
+    if lockfile -r 0 /tmp/.ynh-vpnclient-started &>/dev/null; then
+      info "Service is already running"
+      exit 0
+    fi
 
     sync_time
     check_config
@@ -167,17 +186,8 @@ case "$action" in
 	    critical "Failed to start OpenVPN :/"
     fi
 
-    has_errors=true
-    for attempt in $(seq 0 20); do
-      sleep 1
-      if ip link show dev tun0 &> /dev/null; then
-        success "tun0 interface is up!"
-        has_errors=false
-        break
-      fi
-    done
-  
-    if $has_errors; then
+    openvpn_log_start=$(find_last_line_number "process exiting" /var/log/openvpn-client.log)
+    if ! timeout 180 tail -${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "TUN/TAP device tun0 opened"; then
       error "Tun0 interface did not show up ... most likely an issue happening in OpenVPN client ... below is an extract of the log that might be relevant to pinpoint the issue"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
@@ -185,7 +195,7 @@ case "$action" in
     fi
 
     info "Waiting for VPN client to be ready..."
-    if ! timeout 180 tail -n 0 -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
+    if ! timeout 180 tail -${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "Initialization Sequence Completed"; then
       error "The VPN client didn't complete initiliasation"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
@@ -197,17 +207,17 @@ case "$action" in
     ipv4=$(timeout 5 ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
     ipv6=$(timeout 5 ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
 
-    if ip route get 1.2.3.4 | grep -q tun0; then
-      if timeout 5 ping -c1 -w3 debian.org >/dev/null; then
-        success "YunoHost VPN client started!"
-        info "IPv4 address is $ipv4"
-        info "IPv6 address is $ipv6"
-      else
-        critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
-      fi
-    else
+    if ! ip route get 1.2.3.4 | grep -q tun0; then
       critical "IPv4 routes are misconfigured !?"
     fi
+
+    if ! timeout 5 ping -c1 -w3 debian.org >/dev/null; then
+      critical "The VPN is up but debian.org cannot be reached, indicating that something is probably misconfigured/blocked."
+    fi
+    
+    success "YunoHost VPN client started!"
+    info "IPv4 address is $ipv4"
+    info "IPv6 address is $ipv6"
   ;;
 
   # ########## #
