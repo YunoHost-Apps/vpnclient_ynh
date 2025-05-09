@@ -174,24 +174,38 @@ case "$action" in
       exit 0
     fi
 
+    if systemctl is-active -q openvpn@client.service; then
+      info "OpenVPN client is already running"
+      exit 0
+    fi
+
     sync_time
     check_config
 
     info "Now actually starting OpenVPN client..."
-
     if systemctl start openvpn@client.service; then
-      info "OpenVPN client started ... waiting for tun0 interface to show up"
+      success "OpenVPN client started!"
     else
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
-	    critical "Failed to start OpenVPN :/"
+	    critical "Failed to start OpenVPN client"
     fi
 
+    info "Waiting for tun0 interface to show up"
     openvpn_log_start=$(find_last_line_number "process exiting" /var/log/openvpn-client.log)
     if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log | grep -q "TUN/TAP device tun0 opened"; then
-      error "Tun0 interface did not show up ... most likely an issue happening in OpenVPN client ... below is an extract of the log that might be relevant to pinpoint the issue"
+      error "The VPN client didn't open tun0 interface"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       systemctl stop openvpn@client.service
-      critical "Failed to start OpenVPN client : tun0 interface did not show up"
+      critical "Failed to start OpenVPN client"
+    fi
+
+    if ip link show tun0 up &>/dev/null; then
+      success "tun0 interface is up!"
+    else
+      error "tun0 interface did not show up, most likely an issue happening in OpenVPN client"
+      tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
+      systemctl stop openvpn@client.service
+      critical "Failed to start OpenVPN client"
     fi
 
     info "Waiting for VPN client to be ready..."
