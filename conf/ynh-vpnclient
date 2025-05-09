@@ -134,7 +134,7 @@ find_last_line_number() {
 
   local match
   # Search in the file from the end until the pattern matches
-  if match=$(tac "${path}" | grep -n "${pattern}" -m 1 --line-buffered); then
+  if match=$(tac "${path}" 2>/dev/null | grep -n "${pattern}" -m 1 --line-buffered); then
     sed 's/:.*//' <<< $match
   else
     echo 0
@@ -193,7 +193,7 @@ case "$action" in
 
     info "Waiting for tun0 interface to show up"
     openvpn_log_start=$(find_last_line_number "process exiting" /var/log/openvpn-client.log)
-    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log | grep --line-buffered -q "TUN/TAP device tun0 opened"; then
+    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log 2>/dev/null | grep -q "TUN/TAP device tun0 opened"; then
       error "The VPN client didn't open tun0 interface"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       critical "Failed to start OpenVPN client"
@@ -208,7 +208,7 @@ case "$action" in
     fi
 
     info "Waiting for VPN client to be ready..."
-    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log | grep --line-buffered -q "Initialization Sequence Completed"; then
+    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/openvpn-client.log 2>/dev/null | grep -q "Initialization Sequence Completed"; then
       error "The VPN client didn't complete initiliasation"
       tail -n 20 /var/log/openvpn-client.log | tee -a $LOGFILE
       critical "Failed to start OpenVPN client"
@@ -220,8 +220,8 @@ case "$action" in
       critical "IPv4 routes are misconfigured !?"
     fi
 
-    ipv4=$(timeout 5 ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
-    ipv6=$(timeout 5 ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
+    ipv4=$(timeout 10 ping -w3 -c1 ip.yunohost.org  >/dev/null 2>&1 && curl --max-time 5 https://ip.yunohost.org --silent)
+    ipv6=$(timeout 10 ping -w3 -c1 ip6.yunohost.org >/dev/null 2>&1 && curl --max-time 5 https://ip6.yunohost.org --silent)
     if [[ -z "${ipv4}" && -z "${ipv6}" ]]; then
       critical "The VPN is up but yunohost.org cannot be reached, indicating that something is probably misconfigured/blocked."
     fi
