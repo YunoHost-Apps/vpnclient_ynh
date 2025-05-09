@@ -197,8 +197,8 @@ function convert_ovpn_file()
   fi
 
   log_append="log-append /var/log/openvpn-client.log"
-  if grep -q '^\s*log-append\s.*$' ${config_file}; then
-    sed -i "s@^\s*log-append\s.*\$@$log_append@g" ${config_file}
+  if grep -E -q '^\s*log(-append)?\s.*$' ${config_file}; then
+    sed -E -i "s@^\s*log(-append)?\s.*\$@$log_append@g" ${config_file}
   else
     echo "$log_append" >> ${config_file}
   fi
