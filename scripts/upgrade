@@ -9,61 +9,62 @@ source /usr/share/yunohost/helpers
 
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
 if [ -d /var/www/vpnadmin ]; then
-  ynh_secure_remove /var/www/vpnadmin
+  ynh_safe_rm /var/www/vpnadmin
 fi
 
 # Old stuff
 
 if [ -f /etc/nginx/conf.d/*.d/$app.conf ]; then
-	ynh_secure_remove /etc/nginx/conf.d/*.d/$app.conf
-    ynh_systemd_action --service_name=nginx --action=reload
+	ynh_safe_rm /etc/nginx/conf.d/*.d/$app.conf
+  ynh_systemctl --service="nginx" --action="reload"
 fi
 
 for php_path in $(ls /etc/php/*/fpm/pool.d/$app.conf 2> /dev/null); do
-	ynh_secure_remove $php_path
+	ynh_safe_rm "$php_path"
 done
 
 if [ -d /var/www/$app ]; then
-	ynh_secure_remove /var/www/$app
+	ynh_safe_rm "/var/www/$app"
 fi
 
-[ -z "${domain:-}" ] || ynh_app_setting_delete $app domain
-[ -z "${path:-}" ] || ynh_app_setting_delete $app path
-[ -z "${is_public:-}" ] || ynh_app_setting_delete $app is_public
-[ -z "${install_dir:-}" ] || ynh_app_setting_delete $app install_dir
+[ -z "${domain:-}" ] || ynh_app_setting_delete domain
+[ -z "${path:-}" ] || ynh_app_setting_delete path
+[ -z "${is_public:-}" ] || ynh_app_setting_delete is_public
+[ -z "${install_dir:-}" ] || ynh_app_setting_delete install_dir
 
 if [ -e "/etc/sudoers.d/${app}_ynh" ]; then
-  ynh_secure_remove "/etc/sudoers.d/${app}_ynh"
+  ynh_safe_rm "/etc/sudoers.d/${app}_ynh"
 fi
 
 if [ -e "/etc/yunohost/hooks.d/90-vpnclient.tpl" ]; then
-  ynh_secure_remove "/etc/yunohost/hooks.d/90-vpnclient.tpl"
+  ynh_safe_rm "/etc/yunohost/hooks.d/90-vpnclient.tpl"
 fi
 
 if [ -e "/etc/openvpn/client.conf.tpl" ]; then
-  ynh_secure_remove "/etc/openvpn/client.conf.tpl"
+  ynh_safe_rm "/etc/openvpn/client.conf.tpl"
 fi
 
 # New stuff
 
 if [ -z "${dns_method:-}" ]; then
-    ynh_app_setting_set --app=$app --key=dns_method --value=custom
+    ynh_app_setting_set --key="dns_method" --value="custom"
 fi
+# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=nameservers --value="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
 if [ -z "${nameservers:-}" ]; then
     nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
-    ynh_app_setting_set --app=$app --key=nameservers --value="$nameservers"
+    ynh_app_setting_set --key="nameservers" --value="$nameservers"
 fi
 if [ -z "${service_enabled:-}" ]; then
-    ynh_app_setting_set --app=$app --key=service_enabled --value=0
+    ynh_app_setting_set --key="service_enabled" --value="0"
 fi
 if [ -z "${ip6_addr:-}" ]; then
-    ynh_app_setting_set --app=$app --key=ip6_addr --value=""
+    ynh_app_setting_set --key="ip6_addr" --value=""
 fi
 if [ -z "${ip6_net:-}" ]; then
-    ynh_app_setting_set --app=$app --key=ip6_net --value=""
+    ynh_app_setting_set --key="ip6_net" --value=""
 fi
 if [ -z "${ip6_send_over_tun_enabled:-}" ]; then
-    ynh_app_setting_set --app=$app --key=ip6_send_over_tun_enabled --value=0
+    ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value="0"
 fi
 
 #=================================================
@@ -71,16 +72,16 @@ fi
 #=================================================
 
 if [ -e "/etc/systemd/system/openvpn@.service" ]; then
-  ynh_secure_remove "/etc/systemd/system/openvpn@.service"
+  ynh_safe_rm "/etc/systemd/system/openvpn@.service"
 fi
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
 #=================================================
 
-ynh_print_info --message="Stopping VPN client to apply config changes..."
+ynh_print_info "Stopping VPN client to apply config changes..."
 
-ynh_systemd_action --action="stop" --service_name="$service_checker_name.timer"
+ynh_systemctl --action="stop" --service="$service_checker_name.timer"
 yunohost service stop $service_name
 
 # Keep a copy of existing config files before overwriting them
@@ -116,7 +117,7 @@ for config_file in ${tmp_dir}/client.{conf,cube,ovpn}; do
     cp "${config_file}" /etc/openvpn/
   fi
 done
-ynh_secure_remove ${tmp_dir}
+ynh_safe_rm "${tmp_dir}"
 
 #=================================================
 # SERVICE INTEGRATION IN YUNOHOST
@@ -128,11 +129,11 @@ ynh_print_info "Configuring VPN client services..."
 # main service
 yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
 
-ynh_use_logrotate --logfile="/var/log/ynh-vpnclient.log"
-ynh_use_logrotate --logfile="/var/log/openvpn-client.log"
+ynh_config_add_logrotate "/var/log/ynh-vpnclient.log"
+ynh_config_add_logrotate "/var/log/openvpn-client.log"
 
 # checker service (this service was previously integrated in yunohost but we do not do this anymore)
-if ynh_exec_warn_less yunohost service status $service_checker_name >/dev/null
+if ynh_hide_warnings yunohost service status $service_checker_name >/dev/null
 then
     yunohost service remove $service_checker_name
 fi
@@ -144,7 +145,7 @@ ynh_print_info "Restart services..."
 
 # this is meant to propagate the new files and configs
 yunohost service start $service_name
-ynh_systemd_action --action="start" --service_name="$service_checker_name.timer"
+ynh_systemctl --action="start" --service="$service_checker_name.timer"
 
 #=================================================
 # END OF SCRIPT

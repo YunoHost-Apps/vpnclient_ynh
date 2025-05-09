@@ -13,13 +13,13 @@ systemctl disable $service_checker_name.timer --quiet
 systemctl stop $service_checker_name
 systemctl disable $service_checker_name --quiet
 
-if ynh_exec_warn_less yunohost service status $service_name >/dev/null; then
+if ynh_hide_warnings yunohost service status $service_name >/dev/null; then
     yunohost service remove $service_name
 fi
-ynh_remove_logrotate
+ynh_config_remove_logrotate
 
 for FILE in $(ls /etc/systemd/system/$service_name* /usr/local/bin/ynh-vpnclient* /tmp/.ynh-vpnclient-*); do
-    ynh_secure_remove "$FILE"
+    ynh_safe_rm "$FILE"
 done
 
 #=================================================
@@ -28,22 +28,22 @@ done
 ynh_print_info "Removing openvpn configuration"
 
 # Remove openvpn configurations
-ynh_secure_remove /etc/openvpn/client.conf
-ynh_secure_remove /etc/openvpn/client.cube
-ynh_secure_remove /etc/openvpn/client.ovpn
+ynh_safe_rm /etc/openvpn/client.conf
+ynh_safe_rm /etc/openvpn/client.cube
+ynh_safe_rm /etc/openvpn/client.ovpn
 
 # Remove openvpn script
-ynh_secure_remove /etc/openvpn/scripts/run-parts.sh
+ynh_safe_rm /etc/openvpn/scripts/run-parts.sh
 
 for FILE in $(ls /etc/openvpn/scripts/route-up.d/*-vpnclient-* /etc/openvpn/scripts/route-down.d/*-vpnclient-*); do
-    ynh_secure_remove "$FILE"
+    ynh_safe_rm "$FILE"
 done
 
 # Remove openvpn service
-ynh_secure_remove /etc/systemd/system/openvpn@.service.d/override.conf
+ynh_safe_rm /etc/systemd/system/openvpn@.service.d/override.conf
 
 # Remove openvpn certificates
-ynh_secure_remove /etc/openvpn/keys
+ynh_safe_rm /etc/openvpn/keys
 
 # Reload systemd configuration
 systemctl daemon-reload
