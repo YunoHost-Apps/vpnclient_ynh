@@ -189,6 +189,20 @@ function convert_ovpn_file()
   sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
   sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user_ta.key 1@g' ${config_file}
 
+  status="status /var/log/openvpn-client.status"
+  if grep -q '^\s*status\s.*$' ${config_file}; then
+    sed -i "s@^\s*status\s.*\$@$status@g" ${config_file}
+  else
+    echo "$status" >> ${config_file}
+  fi
+
+  log_append="log-append /var/log/openvpn-client.log"
+  if grep -E -q '^\s*log(-append)?\s.*$' ${config_file}; then
+    sed -E -i "s@^\s*log(-append)?\s.*\$@$log_append@g" ${config_file}
+  else
+    echo "$log_append" >> ${config_file}
+  fi
+
   script_security="script-security 2"
   if grep -q '^\s*script-security\s.*$' ${config_file}; then
     sed -i "s@^\s*script-security\s.*\$@$script_security@g" ${config_file}
