@@ -71,6 +71,22 @@ ynh_print_info "Stopping VPN client to apply config changes..."
 ynh_systemctl --action="stop" --service="$service_checker_name.timer"
 yunohost service stop $service_name
 
+# Moving log files from legacy location
+if [[ -e "/var/log/openvpn-client.log" ]]; then
+  mkdir -p "/var/log/$app"
+  mv "/var/log/openvpn-client.log" "/var/log/$app/"
+fi
+if [[ -e "/var/log/ynh-vpnclient.log" ]]; then
+  mkdir -p "/var/log/$app"
+  mv "/var/log/ynh-vpnclient.log" "/var/log/$app/"
+fi
+# Fixing incorrect logrotate config
+if grep -q -e "/var/log/ynh-vpnclient.log" -e "/var/log/openvpn-client.log" "/etc/logrotate.d/$app"; then
+  ynh_config_rm_logrotate
+  chmod 0755 /var/log
+  chown root:root /var/log
+fi
+
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
 for config_file in /etc/openvpn/client.{conf,cube,ovpn}; do
@@ -114,10 +130,9 @@ ynh_safe_rm "${tmp_dir}"
 ynh_print_info "Configuring VPN client services..."
 
 # main service
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/$app/ynh-vpnclient.log"
 
-ynh_config_add_logrotate "/var/log/ynh-vpnclient.log"
-ynh_config_add_logrotate "/var/log/openvpn-client.log"
+ynh_config_add_logrotate
 
 # checker service (this service was previously integrated in yunohost but we do not do this anymore)
 if ynh_hide_warnings yunohost service status $service_checker_name >/dev/null

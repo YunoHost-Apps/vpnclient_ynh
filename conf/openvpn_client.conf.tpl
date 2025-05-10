@@ -34,8 +34,8 @@ __CERT_COMMENT__key /etc/openvpn/keys/user.key
 # Logs
 verb 3
 mute 5
-status /var/log/openvpn-client.status
-log-append /var/log/openvpn-client.log
+status /var/log/vpnclient/openvpn-client.status
+log-append /var/log/vpnclient/openvpn-client.log
 
 # Routing
 route-ipv6 2000::/3
