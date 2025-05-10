@@ -76,6 +76,10 @@ if [[ -e "/var/log/openvpn-client.log" ]]; then
   mkdir -p "/var/log/$app"
   mv "/var/log/openvpn-client.log" "/var/log/$app/"
 fi
+if [[ -e "/var/log/openvpn-client.status" ]]; then
+  mkdir -p "/var/log/$app"
+  mv "/var/log/openvpn-client.status" "/var/log/$app/"
+fi
 if [[ -e "/var/log/ynh-vpnclient.log" ]]; then
   mkdir -p "/var/log/$app"
   mv "/var/log/ynh-vpnclient.log" "/var/log/$app/"
