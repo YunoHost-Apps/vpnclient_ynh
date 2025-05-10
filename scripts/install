@@ -31,11 +31,10 @@ systemctl stop openvpn
 
 # main service
 
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/ynh-vpnclient.log"
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/vpnclient/ynh-vpnclient.log"
 yunohost service enable $service_name
 
-ynh_config_add_logrotate "/var/log/ynh-vpnclient.log"
-ynh_config_add_logrotate "/var/log/openvpn-client.log"
+ynh_config_add_logrotate
 
 # checker service
 
