@@ -82,7 +82,7 @@ if [[ -e "/var/log/ynh-vpnclient.log" ]]; then
 fi
 # Fixing incorrect logrotate config
 if grep -q -e "/var/log/ynh-vpnclient.log" -e "/var/log/openvpn-client.log" "/etc/logrotate.d/$app"; then
-  ynh_config_rm_logrotate
+  ynh_config_remove_logrotate
   chmod 0755 /var/log
   chown root:root /var/log
 fi
