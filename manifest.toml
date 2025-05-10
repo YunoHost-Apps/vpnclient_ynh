@@ -7,7 +7,7 @@ name = "VPN Client"
 description.en = "Tunnel the internet traffic through a VPN"
 description.fr = "Fait passer le trafic internet à travers un VPN"
 
-version = "2.3~ynh1"
+version = "2.3~ynh2"
 
 maintainers = []
 
@@ -16,11 +16,14 @@ license = "AGPL-3.0"
 website = "https://labriqueinter.net"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.0.9"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
+
 ldap = "not_relevant"
 sso = "not_relevant"
+
 disk = "50M"
 ram.build = "50M"
 ram.runtime = "50M"

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 service_name="ynh-vpnclient"
-service_checker_name=$service_name"-checker"
-
+service_checker_name="$service_name-checker"
 
 # Operations needed by both 'install' and 'upgrade' scripts
 function vpnclient_deploy_files_and_services()
@@ -45,11 +44,11 @@ function vpnclient_deploy_files_and_services()
   #=================================================
   # SETUP SYSTEMD
   #=================================================
-  ynh_print_info "Configuring a systemd service..."
+  ynh_print_info "Configuring $app's systemd service..."
 
-  ynh_add_systemd_config $service_name "$service_name.service"
+  ynh_config_add_systemd --service="$service_name" --template="$service_name.service"
 
-  ynh_add_systemd_config $service_checker_name "$service_checker_name.service"
+  ynh_config_add_systemd --service="$service_checker_name" --template="$service_checker_name.service"
 }
 
 function read_cube() {
@@ -79,8 +78,8 @@ function convert_cube_file()
 {
   local config_file="$1"
   local tmp_dir=$(dirname "$config_file")
-  
-  ynh_print_info --message="Transforming .cube into OVPN file"
+
+  ynh_print_info "Transforming .cube into OVPN file"
   server_name="$(read_cube $config_file server_name)"
   server_port="$(read_cube $config_file server_port)"
   server_proto="$(read_cube $config_file server_proto)"
@@ -102,7 +101,7 @@ function convert_cube_file()
     dns_method="custom"
     nameservers="$dns0,$dns1"
   fi
-  
+
   # Build specific OVPN template
   config_template="$tmp_dir/client.conf.tpl"
   cp -f /etc/yunohost/apps/vpnclient/conf/openvpn_client.conf.tpl "$config_template"
@@ -130,7 +129,7 @@ function convert_cube_file()
   [ -n "$login_user" ] && login_comment="" || login_comment="#"
 
   # Actually generate/hydrate the final configuration
-  ynh_add_config --template="$config_template" --destination="$config_file"
+  ynh_config_add --template="$config_template" --destination="$config_file"
 
   if [ "$server_proto" == tcp-client ]; then
     server_proto=tcp
@@ -142,7 +141,7 @@ function convert_ovpn_file()
   local config_file="$1"
   local tmp_dir=$(dirname "$config_file")
 
-  ynh_print_info --message="Extracting TLS keys from .ovpn file"
+  ynh_print_info "Extracting TLS keys from .ovpn file"
   if grep -q '^\s*<ca>' ${config_file}
   then
     grep -Poz '(?<=<ca>)(.*\n)*.*(?=</ca>)' ${config_file} | sed '/^$/d'  > $tmp_dir/crt_server_ca
@@ -188,6 +187,20 @@ function convert_ovpn_file()
   sed -i 's@^\s*cert\s.*$@cert /etc/openvpn/keys/user.crt@g' ${config_file}
   sed -i 's@^\s*key\s.*$@key /etc/openvpn/keys/user.key@g' ${config_file}
   sed -i 's@^\s*tls-auth\s.*$@tls-auth /etc/openvpn/keys/user_ta.key 1@g' ${config_file}
+
+  status="status /var/log/openvpn-client.status"
+  if grep -q '^\s*status\s.*$' ${config_file}; then
+    sed -i "s@^\s*status\s.*\$@$status@g" ${config_file}
+  else
+    echo "$status" >> ${config_file}
+  fi
+
+  log_append="log-append /var/log/openvpn-client.log"
+  if grep -E -q '^\s*log(-append)?\s.*$' ${config_file}; then
+    sed -E -i "s@^\s*log(-append)?\s.*\$@$log_append@g" ${config_file}
+  else
+    echo "$log_append" >> ${config_file}
+  fi
 
   script_security="script-security 2"
   if grep -q '^\s*script-security\s.*$' ${config_file}; then

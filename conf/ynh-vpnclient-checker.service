@@ -4,6 +4,7 @@ After=ynh-vpnclient.service
 
 [Service]
 Type=simple
+User=root
 ExecStart=/usr/local/bin/ynh-vpnclient-checker.sh
 
 [Install]
