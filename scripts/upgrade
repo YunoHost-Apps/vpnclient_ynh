@@ -46,26 +46,13 @@ fi
 
 # New stuff
 
-if [ -z "${dns_method:-}" ]; then
-    ynh_app_setting_set --key="dns_method" --value="custom"
-fi
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=nameservers --value="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
-if [ -z "${nameservers:-}" ]; then
-    nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
-    ynh_app_setting_set --key="nameservers" --value="$nameservers"
-fi
-if [ -z "${service_enabled:-}" ]; then
-    ynh_app_setting_set --key="service_enabled" --value="0"
-fi
-if [ -z "${ip6_addr:-}" ]; then
-    ynh_app_setting_set --key="ip6_addr" --value=""
-fi
-if [ -z "${ip6_net:-}" ]; then
-    ynh_app_setting_set --key="ip6_net" --value=""
-fi
-if [ -z "${ip6_send_over_tun_enabled:-}" ]; then
-    ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value="0"
-fi
+ynh_app_setting_set_default --key="dns_method" --value="custom"
+default_nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
+ynh_app_setting_set_default --key="nameservers" --value="$default_nameservers"
+ynh_app_setting_set_default --key="service_enabled" --value="0"
+ynh_app_setting_set_default --key="ip6_addr" --value=""
+ynh_app_setting_set_default --key="ip6_net" --value=""
+ynh_app_setting_set_default --key="ip6_send_over_tun_enabled" --value="0"
 
 #=================================================
 # UPGRADE FROM BUSTER TO BULLSEYE
