@@ -5,6 +5,7 @@ After=network.target
 
 [Service]
 Type=oneshot
+User=root
 ExecStart=/usr/local/bin/ynh-vpnclient start
 ExecStop=/usr/local/bin/ynh-vpnclient stop
 RemainAfterExit=yes
