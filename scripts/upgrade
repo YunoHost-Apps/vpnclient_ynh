@@ -93,6 +93,8 @@ vpnclient_deploy_files_and_services
 if [[ -f "$tmp_dir/client.cube" ]]
 then
     cp -f "$tmp_dir/client.cube" "$tmp_dir/client.conf"
+    # We copy the config template because it will be modified later
+    cp -f "../conf/openvpn_client.conf.tpl" "$tmp_dir/client.conf.tpl"
     convert_cube_file "$tmp_dir/client.conf"
 elif [[ -f "$tmp_dir/client.ovpn" ]]
 then

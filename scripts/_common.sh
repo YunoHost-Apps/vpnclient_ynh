@@ -104,7 +104,6 @@ function convert_cube_file()
 
   # Build specific OVPN template
   config_template="$tmp_dir/client.conf.tpl"
-  cp -f /etc/yunohost/apps/vpnclient/conf/openvpn_client.conf.tpl "$config_template"
   # Remove some lines
   jq --raw-output '.openvpn_rm[]' "${config_file}" | while read -r rm_regex
   do
