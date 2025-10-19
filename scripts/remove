@@ -14,6 +14,7 @@ systemctl stop $service_checker_name
 systemctl disable $service_checker_name --quiet
 
 if ynh_hide_warnings yunohost service status $service_name >/dev/null; then
+    yunohost service stop $service_name
     yunohost service remove $service_name
 fi
 ynh_config_remove_logrotate
@@ -44,6 +45,9 @@ ynh_safe_rm /etc/systemd/system/openvpn@.service.d/override.conf
 
 # Remove openvpn certificates
 ynh_safe_rm /etc/openvpn/keys
+
+# Remove firewall config
+ynh_safe_rm /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
 # Reload systemd configuration
 systemctl daemon-reload
