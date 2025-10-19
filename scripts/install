@@ -5,6 +5,9 @@ source /usr/share/yunohost/helpers
 
 # Default values for config panel
 ynh_app_setting_set --key="service_enabled" --value="0"
+ynh_app_setting_set --key="config_file" --value=""
+ynh_app_setting_set --key="cube_file" --value=""
+ynh_app_setting_set --key="ovpn_file" --value=""
 ynh_app_setting_set --key="dns_method" --value="yunohost"
 ynh_app_setting_set --key="nameservers" --value=""
 ynh_app_setting_set --key="ip6_addr" --value=""
@@ -31,7 +34,7 @@ systemctl stop openvpn
 
 # main service
 
-yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/vpnclient/ynh-vpnclient.log"
+yunohost service add $service_name --description "Tunnels the internet traffic through a VPN" --need_lock --test_status="systemctl is-active openvpn@client.service" --log "/var/log/$app/ynh-vpnclient.log"
 yunohost service enable $service_name
 
 ynh_config_add_logrotate

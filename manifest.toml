@@ -7,7 +7,7 @@ name = "VPN Client"
 description.en = "Tunnel the internet traffic through a VPN"
 description.fr = "Fait passer le trafic internet à travers un VPN"
 
-version = "2.3~ynh4"
+version = "2.3~ynh5"
 
 maintainers = []
 

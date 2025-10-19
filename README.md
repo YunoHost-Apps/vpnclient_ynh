@@ -11,18 +11,20 @@ It shall NOT be edited by hand.
 Tunnel the internet traffic through a VPN
 
 [![🌐 Official app website](https://img.shields.io/badge/Official_app_website-darkgreen?style=for-the-badge)](https://labriqueinter.net)
-[![Version: 2.3~ynh4](https://img.shields.io/badge/Version-2.3~ynh4-rgba(0,150,0,1)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
+[![Version: 2.3~ynh5](https://img.shields.io/badge/Version-2.3~ynh5-rgb(18,138,11)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
 
 <div align="center">
 <a href="https://apps.yunohost.org/app/vpnclient"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_more_info_on_the_appstore.svg"/></a>
 <a href="https://github.com/YunoHost-Apps/vpnclient_ynh/issues"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_report_an_issue.svg"/></a>
 </div>
 
+
+## Screenshots
+![Screenshot of VPN Client](./doc/screenshots/vpnclient.png)
+
 ## 📦 Developer info
 
 [![Automatic tests level](https://apps.yunohost.org/badge/cilevel/vpnclient)](https://ci-apps.yunohost.org/ci/apps/vpnclient/)
-
-🛠️ Upstream VPN Client repository: <>
 
 Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/vpnclient_ynh/tree/testing).
 
