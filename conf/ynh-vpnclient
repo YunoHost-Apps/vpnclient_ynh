@@ -180,6 +180,12 @@ case "$action" in
       exit 0
     fi
 
+    # In case firewall rules weren't deleted during last run 
+    # (for instance after a crash or power loss)
+    # This could be improved by just removing the vpnclient firewall hook,
+    # but yunohost firewall reload doesn't seem to work currently
+    /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall
+
     sync_time
     check_config
 
