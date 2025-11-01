@@ -5,5 +5,5 @@ if [[ -e /tmp/.ynh-vpnclient-started ]] || ip route get 1.2.3.4 | grep -q tun0; 
   exit 0
 else
   echo "[INFO] Restarting VPN client service"
-  yunohost service restart ynh-vpnclient &> /dev/null
+  systemctl restart ynh-vpnclient &> /dev/null
 fi
