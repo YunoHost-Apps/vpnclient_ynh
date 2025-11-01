@@ -19,13 +19,13 @@ function vpnclient_deploy_files_and_services()
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/openvpn@.service.d/override.conf
 
   # Create certificates directory
-  mkdir -pm 0770 /etc/openvpn/keys/
-  chown root:${app} /etc/openvpn/keys/
+  mkdir -pm 0700 /etc/openvpn/keys/
+  chown ${app}:${app} /etc/openvpn/keys/
 
   # Create scripts directory
-  mkdir -pm 0775 /etc/openvpn/scripts
-  mkdir -pm 0775 /etc/openvpn/scripts/route-up.d
-  mkdir -pm 0775 /etc/openvpn/scripts/route-down.d
+  mkdir -pm 0755 /etc/openvpn/scripts
+  mkdir -pm 0755 /etc/openvpn/scripts/route-up.d
+  mkdir -pm 0755 /etc/openvpn/scripts/route-down.d
   install -b -o root -g root -m 0755 ../conf/scripts/run-parts.sh /etc/openvpn/scripts/run-parts.sh
   install -b -o root -g root -m 0755 ../conf/scripts/route-up.d/* /etc/openvpn/scripts/route-up.d/
   install -b -o root -g root -m 0755 ../conf/scripts/route-down.d/* /etc/openvpn/scripts/route-down.d/
