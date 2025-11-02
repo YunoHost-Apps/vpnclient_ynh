@@ -17,6 +17,14 @@ mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 chmod 0755 /etc/systemd/system/openvpn@.service.d/
 chmod 0644 /etc/systemd/system/openvpn@.service.d/override.conf
 
+# Fix config file permissions
+for config_file in /etc/openvpn/client.{cube,ovpn,conf}; do
+  if [[ -f "${config_file}" ]]; then
+    chmod 0600 "${config_file}"
+    chown ${app}:${app} "${config_file}"
+  fi
+done
+
 # Fix file permissions in certificates directory
 chmod 0700 /etc/openvpn/keys/
 chown ${app}:${app} /etc/openvpn/keys/
