@@ -3,9 +3,10 @@ Description=YunoHost VPN Client Checker.
 After=ynh-vpnclient.service
 
 [Service]
-Type=simple
+Type=oneshot
 User=root
 ExecStart=/usr/local/bin/ynh-vpnclient-checker.sh
+Restart=no
 
 [Install]
 WantedBy=default.target
