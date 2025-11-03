@@ -9,6 +9,33 @@ source /usr/share/yunohost/helpers
 ynh_print_info "Restoring the app files..."
 
 ynh_restore_everything
+
+# Fix file permissions
+chmod 0775 /etc/openvpn/
+chown root:${app} /etc/openvpn/
+mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
+chmod 0755 /etc/systemd/system/openvpn@.service.d/
+chmod 0644 /etc/systemd/system/openvpn@.service.d/override.conf
+
+# Fix config file permissions
+for config_file in /etc/openvpn/client.{cube,ovpn,conf}; do
+  if [[ -f "${config_file}" ]]; then
+    chmod 0600 "${config_file}"
+    chown ${app}:${app} "${config_file}"
+  fi
+done
+
+# Fix file permissions in certificates directory
+chmod 0700 /etc/openvpn/keys/
+chown ${app}:${app} /etc/openvpn/keys/
+find /etc/openvpn/keys -type f -exec chmod 0600 {} \;
+
+# Ensure scripts are executable
+chmod 0755 -R /etc/openvpn/scripts
+chmod 0755 /usr/local/bin/$service_name
+chmod 0755 /usr/local/bin/$service_checker_name.sh
+chmod 0755 /usr/local/bin/$service_name-loadcubefile.sh
+
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
