@@ -85,7 +85,7 @@ function read_cube_secretly() {
     secret_value="$default_value"
   elif [[ "$secret_value" == "true" ]]; then
     secret_value=1
-  elif [[ "$setting_value" == "false" ]]; then
+  elif [[ "$secret_value" == "false" ]]; then
     secret_value=0
   # Save file in tmp dir
   elif [[ "$key" == "crt_"* ]]; then
