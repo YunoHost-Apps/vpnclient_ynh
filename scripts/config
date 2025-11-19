@@ -75,7 +75,8 @@ EOF
 get__login_user() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        echo "$(sed -n 1p /etc/openvpn/keys/credentials)"
+        login_user_secret="$(sed -n 1p /etc/openvpn/keys/credentials)"
+        echo "$login_user_secret"
     else
         echo ""
     fi
@@ -84,7 +85,8 @@ get__login_user() {
 get__login_passphrase() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        echo "$(sed -n 2p /etc/openvpn/keys/credentials)"
+        login_passphrase_secret="$(sed -n 2p /etc/openvpn/keys/credentials)"
+        echo "$login_passphrase_secret"
     else
         echo ""
     fi

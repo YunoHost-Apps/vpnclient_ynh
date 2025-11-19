@@ -71,7 +71,30 @@ function read_cube() {
       setting_value="$tmp_dir/$key"
     fi
   fi
-  echo $setting_value
+  echo "$setting_value"
+}
+
+function read_cube_secretly() {
+  local config_file="$1"
+  local key="$2"
+  local tmp_dir=$(dirname "$config_file")
+  local default_value="${3:-}"
+
+  secret_value="$(jq --raw-output ".$key" "$config_file")"
+  if [[ "$secret_value" == "null" ]]; then
+    secret_value="$default_value"
+  elif [[ "$secret_value" == "true" ]]; then
+    secret_value=1
+  elif [[ "$setting_value" == "false" ]]; then
+    secret_value=0
+  # Save file in tmp dir
+  elif [[ "$key" == "crt_"* ]]; then
+    if [ -n "${secret_value}" ]; then
+      echo "${secret_value}" | sed 's/|/\n/g' > "$tmp_dir/$key"
+      secret_value="$tmp_dir/$key"
+    fi
+  fi
+  echo "$secret_value"
 }
 
 function convert_cube_file()
@@ -86,14 +109,14 @@ function convert_cube_file()
   ip6_net="$(read_cube $config_file ip6_net)"
   ip6_addr="$(read_cube $config_file ip6_addr)"
   ip6_send_over_tun_enabled="$(read_cube $config_file ip6_send_over_tun 0)"
-  login_user="$(read_cube $config_file login_user)"
-  login_passphrase="$(read_cube $config_file login_passphrase)"
+  login_user="$(read_cube_secretly $config_file login_user)"
+  login_passphrase="$(read_cube_secretly $config_file login_passphrase)"
   dns0="$(read_cube $config_file dns0)"
   dns1="$(read_cube $config_file dns1)"
   crt_server_ca="$(read_cube $config_file crt_server_ca)"
   crt_client="$(read_cube $config_file crt_client)"
-  crt_client_key="$(read_cube $config_file crt_client_key)"
-  crt_client_ta="$(read_cube $config_file crt_client_ta)"
+  crt_client_key="$(read_cube_secretly $config_file crt_client_key)"
+  crt_client_ta="$(read_cube_secretly $config_file crt_client_ta)"
 
   if [[ -z "$dns0" && -z "$dns1" ]]; then
     dns_method="yunohost"
