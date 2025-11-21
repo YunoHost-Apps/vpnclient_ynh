@@ -75,7 +75,8 @@ EOF
 get__login_user() {
     if [ -s /etc/openvpn/keys/credentials ]
     then
-        login_user_secret="$(sed -n 1p /etc/openvpn/keys/credentials)"
+        # NB: This intermediate variable is here and called _secret to be caught by YunoHost's autorefact mechanism
+        local login_user_secret="$(sed -n 1p /etc/openvpn/keys/credentials)"
         echo "$login_user_secret"
     else
         echo ""
