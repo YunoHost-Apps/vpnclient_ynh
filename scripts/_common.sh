@@ -80,7 +80,8 @@ function read_cube_secretly() {
   local tmp_dir=$(dirname "$config_file")
   local default_value="${3:-}"
 
-  secret_value="$(jq --raw-output ".$key" "$config_file")"
+  # NB: This intermediate variable is here and called secret_ to be caught by YunoHost's autorefact mechanism
+  local secret_value="$(jq --raw-output ".$key" "$config_file")"
   if [[ "$secret_value" == "null" ]]; then
     secret_value="$default_value"
   elif [[ "$secret_value" == "true" ]]; then
