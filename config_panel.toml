@@ -77,11 +77,13 @@ name = "Configuration"
         pattern.regexp = '^[a-zA-Z0-9_\-\\\.@]+$'
         pattern.error = "OpenVPN accept only alphabetic chars and -_\\.@"
         visible = 'config_file && match(config_file,"^\s*auth-user-pass\s")'
+        redact = true
 
         [main.auth.login_passphrase]
         ask = "Password"
         type = "password"
         visible = 'config_file && match(config_file,"^\s*auth-user-pass(\s.*)?$")'
+        redact = true
 
         [main.auth.crt_client_ta]
         ask = "TLS Auth shared secret"
