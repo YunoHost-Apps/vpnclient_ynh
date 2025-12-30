@@ -132,10 +132,12 @@ find_last_line_number() {
   local pattern=$1
   local path=$2
 
+  local file_length=$(wc -l "${path}" | cut -d' ' -f 1)
   local match
   # Search in the file from the end until the pattern matches
-  if match=$(tac "${path}" 2>/dev/null | grep -n "${pattern}" -m 1 --line-buffered); then
-    sed 's/:.*//' <<< $match
+  if match=$(tac "${path}" 2>/dev/null | grep -n "${pattern}" -m 1 --line-buffered -a); then
+    line_number=$(sed 's/:.*//' <<< $match)
+    echo $(($file_length-$line_number))
   else
     echo 0
   fi
@@ -198,8 +200,9 @@ case "$action" in
     fi
 
     info "Waiting for tun0 interface to show up"
+    # Get the line number in the log of the last time openvpn-client exited
     openvpn_log_start=$(find_last_line_number "process exiting" /var/log/vpnclient/openvpn-client.log)
-    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/vpnclient/openvpn-client.log 2>/dev/null | grep -q "TUN/TAP device tun0 opened"; then
+    if ! timeout 180 tail -n+${openvpn_log_start} -f /var/log/vpnclient/openvpn-client.log 2>/dev/null | grep -q "TUN/TAP device tun0 opened"; then
       error "The VPN client didn't open tun0 interface"
       tail -n 20 /var/log/vpnclient/openvpn-client.log | tee -a $LOGFILE
       critical "Failed to start OpenVPN client"
@@ -214,7 +217,7 @@ case "$action" in
     fi
 
     info "Waiting for VPN client to be ready..."
-    if ! timeout 180 tail -n-${openvpn_log_start} -f /var/log/vpnclient/openvpn-client.log 2>/dev/null | grep -q "Initialization Sequence Completed"; then
+    if ! timeout 180 tail -n+${openvpn_log_start} -f /var/log/vpnclient/openvpn-client.log 2>/dev/null | grep -q "Initialization Sequence Completed"; then
       error "The VPN client didn't complete initiliasation"
       tail -n 20 /var/log/vpnclient/openvpn-client.log | tee -a $LOGFILE
       critical "Failed to start OpenVPN client"
