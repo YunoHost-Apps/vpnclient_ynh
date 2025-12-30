@@ -191,6 +191,9 @@ case "$action" in
     sync_time
     check_config
 
+    # Get the line number in the log of the last time openvpn-client exited
+    openvpn_log_start=$(find_last_line_number "process exiting" /var/log/vpnclient/openvpn-client.log)
+
     info "Now actually starting OpenVPN client..."
     if systemctl start openvpn@client.service; then
       success "OpenVPN client started!"
@@ -200,8 +203,6 @@ case "$action" in
     fi
 
     info "Waiting for tun0 interface to show up"
-    # Get the line number in the log of the last time openvpn-client exited
-    openvpn_log_start=$(find_last_line_number "process exiting" /var/log/vpnclient/openvpn-client.log)
     if ! timeout 180 tail -n+${openvpn_log_start} -f /var/log/vpnclient/openvpn-client.log 2>/dev/null | grep -q "TUN/TAP device tun0 opened"; then
       error "The VPN client didn't open tun0 interface"
       tail -n 20 /var/log/vpnclient/openvpn-client.log | tee -a $LOGFILE
