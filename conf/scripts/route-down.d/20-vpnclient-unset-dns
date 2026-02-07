@@ -1,10 +1,6 @@
 #!/bin/bash
 
 is_dns_set() {
-  if [[ "$ynh_dns_method" != "custom" ]]; then
-    return 0
-  fi
-
   current_dns=$(grep -o -P '^\s*nameserver\s+\K[abcdefABCDEF\d.:]+$' /etc/resolv.dnsmasq.conf | sort | uniq)
   wanted_dns=$(echo "${ynh_dns}" | sed 's/,/\n/g'  | sort | uniq)
   [[ -e /etc/dhcp/dhclient-exit-hooks.d/ynh-vpnclient ]] \
@@ -12,6 +8,11 @@ is_dns_set() {
 }
 
 ynh_dns_method=$(yunohost app setting vpnclient dns_method)
+if [[ "$ynh_dns_method" != "custom" ]]; then
+  echo "[ OK ] No custom DNS to unset"
+  exit 0
+fi
+
 ynh_dns=$(yunohost app setting vpnclient nameservers)
 
 if is_dns_set; then
@@ -28,4 +29,14 @@ if is_dns_set; then
     # This is the main line from yunohost's dnsmasq hook generating the resolv.dnsmasq.conf
     cat /usr/share/yunohost/conf/dnsmasq/plain/resolv.dnsmasq.conf | grep "^nameserver" | shuf >${resolvconf}
   fi
+
+  if ! is_dns_set(); then
+    echo "[ OK ] Custom DNS correctly unset"
+  else
+    echo "[FAIL] Custom DNS are still set" >&2
+    exit 1
+  fi
+else
+  echo "[ OK ] No custom DNS set"
 fi
+
