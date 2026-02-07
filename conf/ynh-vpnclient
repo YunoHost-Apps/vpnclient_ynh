@@ -184,11 +184,11 @@ case "$action" in
     # (for instance after a crash or power loss)
     # This could be improved by just removing the vpnclient firewall hook,
     # but yunohost firewall reload doesn't seem to work currently
-    /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall
+    /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall | tee -a $LOGFILE
 
     # In case custom DNS weren't deleted during last run
     # (for instance after a crash or power loss)
-    /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-dns
+    /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-dns | tee -a $LOGFILE
 
     sync_time
     check_config
