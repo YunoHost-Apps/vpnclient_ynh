@@ -53,12 +53,21 @@ fi
 
 # New stuff
 
-ynh_app_setting_set_default --key="dns_method" --value="custom"
-default_nameservers="$(grep -o -P '\s*nameserver\s+\K[abcdefabcdef\d.:]+' /etc/resolv.dnsmasq.conf | sort | uniq | paste -s -d, -)"
-ynh_app_setting_set_default --key="nameservers" --value="$default_nameservers"
+config_file=""
+cube_file=""
+ovpn_file=""
+nameservers=""
+ip6_addr=""
+ip6_net=""
+
 ynh_app_setting_set_default --key="service_enabled" --value="0"
-ynh_app_setting_set_default --key="ip6_addr" --value=""
-ynh_app_setting_set_default --key="ip6_net" --value=""
+ynh_app_setting_set_default --key="config_file" --value="$config_file"
+ynh_app_setting_set_default --key="cube_file" --value="$cube_file"
+ynh_app_setting_set_default --key="ovpn_file" --value="$ovpn_file"
+ynh_app_setting_set_default --key="dns_method" --value="yunohost"
+ynh_app_setting_set_default --key="nameservers" --value="$nameservers"
+ynh_app_setting_set_default --key="ip6_addr" --value="$ip6_addr"
+ynh_app_setting_set_default --key="ip6_net" --value="$ip6_net"
 ynh_app_setting_set_default --key="ip6_send_over_tun_enabled" --value="0"
 
 #=================================================
