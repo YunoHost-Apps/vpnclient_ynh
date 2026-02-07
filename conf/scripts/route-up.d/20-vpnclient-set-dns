@@ -28,8 +28,8 @@ EOF
 fi
 
 if is_dns_set; then
-  echo "[ OK ] Host DNS correctly set"
+  echo "[ OK ] Custom DNS correctly set"
 else
-  echo "[FAIL] No host DNS set" >&2
+  echo "[FAIL] No custom DNS set" >&2
   exit 1
 fi
