@@ -186,6 +186,10 @@ case "$action" in
     # but yunohost firewall reload doesn't seem to work currently
     /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall
 
+    # In case custom DNS weren't deleted during last run
+    # (for instance after a crash or power loss)
+    /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-dns
+
     sync_time
     check_config
 

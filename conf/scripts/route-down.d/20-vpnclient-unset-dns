@@ -11,6 +11,9 @@ is_dns_set() {
   && [[ "$current_dns" == "$wanted_dns" ]]
 }
 
+ynh_dns_method=$(yunohost app setting vpnclient dns_method)
+ynh_dns=$(yunohost app setting vpnclient nameservers)
+
 if is_dns_set; then
   resolvconf=/etc/resolv.dnsmasq.conf
   
