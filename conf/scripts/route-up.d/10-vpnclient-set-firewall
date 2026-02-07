@@ -13,7 +13,7 @@ fi
 cp /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
 if is_firewall_set; then
-  echo "[ OK ] Firewall rules set"
+  echo "[ OK ] Firewall rules correctly set"
 else
   echo "[FAIL] No firewall rules set" >&2
   exit 1
