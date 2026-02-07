@@ -30,7 +30,7 @@ if is_dns_set; then
     cat /usr/share/yunohost/conf/dnsmasq/plain/resolv.dnsmasq.conf | grep "^nameserver" | shuf >${resolvconf}
   fi
 
-  if ! is_dns_set(); then
+  if ! is_dns_set; then
     echo "[ OK ] Custom DNS correctly unset"
   else
     echo "[FAIL] Custom DNS are still set" >&2
