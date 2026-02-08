@@ -36,4 +36,13 @@ if is_firewall_set; then
   ip6tables -w -X vpnclient_in
   ip6tables -w -X vpnclient_out
   ip6tables -w -X vpnclient_fwd
+
+  if ! is_firewall_set; then
+    echo "[ OK ] Firewall rules correctly unset"
+  else
+    echo "[FAIL] Firewall rules are still set" >&2
+    exit 1
+  fi
+else
+  echo "[ OK ] No firewall rules set"
 fi
