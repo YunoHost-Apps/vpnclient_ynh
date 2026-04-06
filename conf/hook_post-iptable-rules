@@ -1,105 +1,123 @@
 #!/bin/bash
 
+function join_by() {
+  local delimiter="$1"
+  shift
+  sed "s/ /${delimiter}/g" <<< $@
+}
+
+ip4_servers=""
+ip6_servers=""
 if [[ -z "${trusted_ip}" && -z "${trusted_ip6}" ]]; then
-  server_names=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
+  servers=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
 
   # In case an ip has been provided in ovpn conf
-  host4=""
-  host6=""
-  for i in ${server_names}; do
-    if [[ "${i}" =~ : ]]; then
-      host6+=" ${i}"
-    elif [[ "${i}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      host4+=" ${i}"
+  for server in ${servers}; do
+    if [[ "${server}" =~ ':' ]]; then
+      ip6_servers+=" ${server}"
+    elif [[ "${server}" =~ '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' ]]; then
+      ip4_servers+=" ${server}"
     else
-      host6+=" $(dig AAAA +short "${i}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out")"
-      host4+=" $(dig A +short "${i}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out")"
+      ip6_server=$(dig AAAA +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
+      if [[ -n "${ip6_server}" ]]; then
+        ip6_servers+=" ${ip6_server}"
+      fi
+
+      ip4_server=$(dig A +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
+      if [[ -n "${ip4_server}" ]]; then
+        ip4_servers+=" ${ip4_server}"
+      fi
     fi
   done
 else
   if [[ -n "${trusted_ip6}" ]]; then
-    host6=${trusted_ip6}
+    ip6_servers="${trusted_ip6}"
   fi
 
   if [[ -n "${trusted_ip}" ]]; then
-    host4=${trusted_ip}
+    ip4_servers="${trusted_ip}"
   fi
 fi
+
+ip6_servers=$(join_by ', ' ${ip6_servers})
+ip4_servers=$(join_by ', ' ${ip4_servers})
 
 wired_device=$(ip route | awk '/default via/ { print $5; }')
-dns=$(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.conf | sort | uniq)
+
+ip6_dns=""
+ip4_dns=""
+for dns in $(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.conf | sort -u); do
+  if [[ "${dns}" =~ ':' ]]; then
+    ip6_dns+=" ${dns}"
+  else
+    ip4_dns+=" ${dns}"
+  fi
+done
+
+ip6_dns=$(join_by ', ' ${ip6_dns})
+ip4_dns=$(join_by ', ' ${ip4_dns})
 
 # IPv6
+nft -f - << EOF
+define ip6_dns = { ${ip6_dns} }
+define ip4_dns = { ${ip4_dns} }
+define ip6_local = { fd00::/8, fe80::/10 }
+define ip4_local = { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16 }
 
-ip6tables -w -N vpnclient_in
-ip6tables -w -N vpnclient_out
-ip6tables -w -N vpnclient_fwd
+table inet filter {
+  chain vpnclient_in {
+    ip6 saddr \$ip6_local counter accept comment "accept traffic from local ipv6"
+    ip saddr \$ip4_local counter accept comment "accept traffic from local ipv4"
 
-ip6tables -w -A vpnclient_in -p icmpv6 -j ACCEPT
-ip6tables -w -A vpnclient_in -s fd00::/8,fe80::/10 -j ACCEPT
-ip6tables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
-ip6tables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
-ip6tables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-ip6tables -w -A vpnclient_in -j DROP
+    tcp dport ssh counter accept comment "accept traffic to ssh port"
+    tcp dport https counter accept comment "accept traffic to https port"
 
-if [[ ! -z "${host6}" ]]; then
-  for i in ${host6}; do
-    ip6tables -w -A vpnclient_out -d "${i}" -j ACCEPT
-  done
-fi
+    ip6 nexthdr icmpv6 counter accept
+    ip protocol icmp counter accept
+    ct state related,established counter accept
 
-for i in ${dns}; do
-  if [[ "${i}" =~ : ]]; then
-    ip6tables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
-  fi
-done
+    counter drop
+  }
 
-ip6tables -w -A vpnclient_out -d fd00::/8,fe80::/10 -j ACCEPT
-ip6tables -w -A vpnclient_out -p icmpv6 -j ACCEPT
-ip6tables -w -A vpnclient_out -p udp --dport 5353 -d ff02::fb -j ACCEPT
-ip6tables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-ip6tables -w -A vpnclient_out -j DROP
+  chain vpnclient_out {
+    ip6 daddr { $ip6_servers } counter accept
+    ip daddr { $ip4_servers } counter accept
 
-ip6tables -w -A vpnclient_fwd -j DROP
+    ip6 daddr \$ip6_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
+    ip daddr \$ip4_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
 
-ip6tables -w -I INPUT 1 -i $wired_device -j vpnclient_in
-ip6tables -w -I OUTPUT 1 -o $wired_device -j vpnclient_out
-ip6tables -w -I FORWARD 1 -o $wired_device -j vpnclient_fwd
+    ip6 daddr \$ip6_local counter accept comment "accept traffic to local ipv6"
+    ip daddr \$ip4_local counter accept comment "accept traffic to local ipv4"
 
-# IPv4
+    ip6 daddr ff02::fb udp dport 5353 counter accept
+    ip daddr 224.0.0.251 udp dport 5353 counter accept
 
-iptables -w -N vpnclient_in
-iptables -w -N vpnclient_out
-iptables -w -N vpnclient_fwd
+    ip6 nexthdr icmpv6 counter accept
+    ip protocol icmp counter accept
+    ct state related,established counter accept
 
-iptables -w -A vpnclient_in -p icmp -j ACCEPT
-iptables -w -A vpnclient_in -s 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
-iptables -w -A vpnclient_in -p tcp --dport 22 -j ACCEPT
-iptables -w -A vpnclient_in -p tcp --dport 443 -j ACCEPT
-iptables -w -A vpnclient_in -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -w -A vpnclient_in -j DROP
+    counter drop
+  }
 
-if [[ ! -z "${host4}" ]]; then
-  for i in ${host4}; do
-    iptables -w -A vpnclient_out -d "${i}" -j ACCEPT
-  done
-fi
+  chain vpnclient_fwd {
+    counter drop
+  }
 
-for i in ${dns}; do
-  if [[ "${i}" =~ \. ]]; then
-    iptables -w -A vpnclient_out -p udp -d "${i}" --dport 53 -j ACCEPT
-  fi
-done
+  chain input {
+    type filter hook input priority 0; policy accept
+    iifname "$wired_device" counter jump vpnclient_in
+  }
 
-iptables -w -A vpnclient_out -d 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16 -j ACCEPT
-iptables -w -A vpnclient_out -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
-iptables -w -A vpnclient_out -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -w -A vpnclient_out -j DROP
+  chain output {
+    type filter hook output priority 0; policy accept
+    oifname "$wired_device" counter jump vpnclient_out
+  }
 
-iptables -w -A vpnclient_fwd -j DROP
-
-iptables -w -I INPUT 1 -i $wired_device -j vpnclient_in
-iptables -w -I OUTPUT 1 -o $wired_device -j vpnclient_out
-iptables -w -I FORWARD 1 -o  $wired_device -j vpnclient_fwd
+  chain forward {
+    type filter hook forward priority 0; policy accept
+    oifname "$wired_device" counter jump vpnclient_fwd
+  }
+}
+EOF
 
 exit 0
