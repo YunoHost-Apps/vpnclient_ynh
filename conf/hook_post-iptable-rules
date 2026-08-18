@@ -89,8 +89,8 @@ table inet filter {
     ip6 daddr \$ip6_local counter accept comment "accept traffic to local ipv6"
     ip daddr \$ip4_local counter accept comment "accept traffic to local ipv4"
 
-    ip6 daddr ff02::fb udp dport 5353 counter accept
-    ip daddr 224.0.0.251 udp dport 5353 counter accept
+    ip6 daddr ff02::fb udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv6"
+    ip daddr 224.0.0.251 udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv4"
 
     ip6 nexthdr icmpv6 counter accept
     ip protocol icmp counter accept
