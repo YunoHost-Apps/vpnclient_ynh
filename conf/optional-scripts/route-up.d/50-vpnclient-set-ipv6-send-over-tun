@@ -23,8 +23,6 @@ if [[ -n "${net_gateway_ipv6}" ]]; then
 
   echo "[INFO] Found IPv6 address: ${ip6_addr}"
 
-  mkdir -p /etc/iproute2/rt_tables.d
-  
   echo "1 send_over_tun" > /etc/iproute2/rt_tables.d/vpnclient_ynh.conf
   ip -6 route flush table send_over_tun || true
   ip -6 route add default via "${ip6_gw}" dev "${gateway_interface}" table send_over_tun proto static

@@ -22,6 +22,9 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0700 /etc/openvpn/keys/
   chown ${app}:${app} /etc/openvpn/keys/
 
+  # Create iproute2 directory
+  mkdir -p /etc/iproute2/rt_tables.d
+
   # Create scripts directory
   mkdir -pm 0755 /etc/openvpn/scripts
   mkdir -pm 0755 /etc/openvpn/scripts/route-up.d
