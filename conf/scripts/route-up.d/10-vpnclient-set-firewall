@@ -1,10 +1,9 @@
 #!/bin/bash
 
 is_firewall_set() {
-  local wired_device=$(ip route | awk '/default via/ { print $5; }')
+  local wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
-  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
-  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+  nft list chain inet filter output | grep vpnclient_out | grep -q "${wired_device}"
 }
 
 if ! is_firewall_set; then

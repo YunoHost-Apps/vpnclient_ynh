@@ -42,7 +42,7 @@ fi
 ip6_servers=$(join_by ', ' ${ip6_servers})
 ip4_servers=$(join_by ', ' ${ip4_servers})
 
-wired_device=$(ip route | awk '/default via/ { print $5; }')
+wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
 ip6_dns=""
 ip4_dns=""
