@@ -42,6 +42,15 @@ fi
 ip6_servers=$(join_by ', ' ${ip6_servers})
 ip4_servers=$(join_by ', ' ${ip4_servers})
 
+ip6_servers_rule=""
+if [[ -n $ip6_servers ]]; then
+  ip6_servers_rule="ip6 daddr { $ip6_servers } counter accept"
+fi
+ip4_servers_rule=""
+if [[ -n $ip4_servers ]]; then
+  ip4_servers_rule="ip daddr { $ip4_servers } counter accept"
+fi
+
 wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
 ip6_dns=""
@@ -80,8 +89,8 @@ table inet filter {
   }
 
   chain vpnclient_out {
-    ip6 daddr { $ip6_servers } counter accept
-    ip daddr { $ip4_servers } counter accept
+    $ip6_servers_rule
+    $ip4_servers_rule
 
     ip6 daddr \$ip6_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
     ip daddr \$ip4_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
