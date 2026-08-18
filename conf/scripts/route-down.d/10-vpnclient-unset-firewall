@@ -23,8 +23,8 @@ wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 if is_firewall_set; then  
   delete_nft_rule "input" "iifname \"${wired_device}\" jump vpnclient_in"
-  delete_nft_rule "output" "iifname \"${wired_device}\" jump vpnclient_out"
-  delete_nft_rule "forward" "iifname \"${wired_device}\" jump vpnclient_fwd"
+  delete_nft_rule "output" "oifname \"${wired_device}\" jump vpnclient_out"
+  delete_nft_rule "forward" "oifname \"${wired_device}\" jump vpnclient_fwd"
 
   nft flush chain inet filter vpnclient_in
   nft flush chain inet filter vpnclient_out
