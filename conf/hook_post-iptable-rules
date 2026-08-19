@@ -66,7 +66,6 @@ done
 ip6_dns=$(join_by ', ' ${ip6_dns})
 ip4_dns=$(join_by ', ' ${ip4_dns})
 
-# IPv6
 nft -f - << EOF
 define ip6_dns = { ${ip6_dns} }
 define ip4_dns = { ${ip4_dns} }
