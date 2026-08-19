@@ -3,6 +3,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ip6_send_over_tun_enabled=0
+
 # Default values for config panel
 ynh_app_setting_set --key="service_enabled" --value="0"
 ynh_app_setting_set --key="config_file" --value=""
@@ -12,7 +14,7 @@ ynh_app_setting_set --key="dns_method" --value="yunohost"
 ynh_app_setting_set --key="nameservers" --value=""
 ynh_app_setting_set --key="ip6_addr" --value=""
 ynh_app_setting_set --key="ip6_net" --value=""
-ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value="0"
+ynh_app_setting_set --key="ip6_send_over_tun_enabled" --value="${ip6_send_over_tun_enabled}"
 
 #=================================================
 # DEPLOY FILES FROM PACKAGE
