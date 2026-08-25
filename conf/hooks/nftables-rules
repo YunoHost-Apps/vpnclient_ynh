@@ -1,0 +1,62 @@
+#!/bin/bash
+
+render_jinja_template() {
+    local template_path=$1
+    local destination=$2
+
+    (
+      # Taken from https://github.com/YunoHost/yunohost/blob/dev/helpers/helpers.v2.1.d/templating
+      export $(compgen -v)
+      j2 "${template_path}" -f env -o "${destination}"
+    )
+}
+
+ip4_servers=""
+ip6_servers=""
+if [[ -z "${trusted_ip-}" && -z "${trusted_ip6-}" ]]; then
+  servers=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
+
+  # In case an ip has been provided in ovpn conf
+  for server in ${servers}; do
+    if [[ "${server}" =~ ':' ]]; then
+      ip6_servers+=" ${server}"
+    elif [[ "${server}" =~ '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' ]]; then
+      ip4_servers+=" ${server}"
+    else
+      ip6_server=$(dig AAAA +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
+      if [[ -n "${ip6_server}" ]]; then
+        ip6_servers+=" ${ip6_server}"
+      fi
+
+      ip4_server=$(dig A +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
+      if [[ -n "${ip4_server}" ]]; then
+        ip4_servers+=" ${ip4_server}"
+      fi
+    fi
+  done
+else
+  if [[ -n "${trusted_ip6-}" ]]; then
+    ip6_servers="${trusted_ip6}"
+  fi
+
+  if [[ -n "${trusted_ip-}" ]]; then
+    ip4_servers="${trusted_ip}"
+  fi
+fi
+
+wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
+
+ip6_dns=""
+ip4_dns=""
+for dns in $(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.conf | sort -u); do
+  if [[ "${dns}" =~ ':' ]]; then
+    ip6_dns+=" ${dns}"
+  else
+    ip4_dns+=" ${dns}"
+  fi
+done
+
+render_jinja_template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 /etc/nftables.d/vpnclient.conf
+nft -f /etc/nftables.d/vpnclient.conf
+
+exit 0

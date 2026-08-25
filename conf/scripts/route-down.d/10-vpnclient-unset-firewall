@@ -1,41 +1,21 @@
 #!/bin/bash
 
 is_firewall_set() {
-  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
-  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+  nft list chain inet vpnclient output 2>/dev/null | grep vpnclient_out | grep -q "${wired_device}"
 }
 
-wired_device=$(ip route | awk '/default via/ { print $5; }')
+wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
-rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+rm -f /etc/nftables.d/vpnclient.conf
+
 if is_firewall_set; then  
-  # IPv4
+  nft delete chain inet vpnclient input
+  nft delete chain inet vpnclient output
+  nft delete chain inet vpnclient forward
 
-  iptables -w -D INPUT -i "${wired_device}" -j vpnclient_in
-  iptables -w -D OUTPUT -o "${wired_device}" -j vpnclient_out
-  iptables -w -D FORWARD -o "${wired_device}" -j vpnclient_fwd
-
-  iptables -w -F vpnclient_in
-  iptables -w -F vpnclient_out
-  iptables -w -F vpnclient_fwd
-
-  iptables -w -X vpnclient_in
-  iptables -w -X vpnclient_out
-  iptables -w -X vpnclient_fwd
-
-  # IPv6
-  
-  ip6tables -w -D INPUT -i "${wired_device}" -j vpnclient_in
-  ip6tables -w -D OUTPUT -o "${wired_device}" -j vpnclient_out
-  ip6tables -w -D FORWARD -o "${wired_device}" -j vpnclient_fwd
-
-  ip6tables -w -F vpnclient_in
-  ip6tables -w -F vpnclient_out
-  ip6tables -w -F vpnclient_fwd
-
-  ip6tables -w -X vpnclient_in
-  ip6tables -w -X vpnclient_out
-  ip6tables -w -X vpnclient_fwd
+  nft delete chain inet vpnclient vpnclient_in
+  nft delete chain inet vpnclient vpnclient_out
+  nft delete chain inet vpnclient vpnclient_fwd
 
   if ! is_firewall_set; then
     echo "[ OK ] Firewall rules correctly unset"

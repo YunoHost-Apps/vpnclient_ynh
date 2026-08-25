@@ -22,6 +22,9 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0700 /etc/openvpn/keys/
   chown ${app}:${app} /etc/openvpn/keys/
 
+  # Create iproute2 directory
+  mkdir -p /etc/iproute2/rt_tables.d
+
   # Create scripts directory
   mkdir -pm 0755 /etc/openvpn/scripts
   mkdir -pm 0755 /etc/openvpn/scripts/route-up.d
@@ -29,6 +32,11 @@ function vpnclient_deploy_files_and_services()
   install -b -o root -g root -m 0755 ../conf/scripts/run-parts.sh /etc/openvpn/scripts/run-parts.sh
   install -b -o root -g root -m 0755 ../conf/scripts/route-up.d/* /etc/openvpn/scripts/route-up.d/
   install -b -o root -g root -m 0755 ../conf/scripts/route-down.d/* /etc/openvpn/scripts/route-down.d/
+
+  if [[ ${ip6_send_over_tun_enabled} -eq 1 ]]; then
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun /etc/openvpn/scripts/route-up.d/
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
+  fi
 
   #=================================================
 

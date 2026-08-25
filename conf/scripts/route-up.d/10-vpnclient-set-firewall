@@ -1,16 +1,14 @@
 #!/bin/bash
 
 is_firewall_set() {
-  local wired_device=$(ip route | awk '/default via/ { print $5; }')
-
-  ip6tables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}" \
-  && iptables -w -nvL OUTPUT | grep vpnclient_out | grep -q "${wired_device}"
+  nft list chain inet vpnclient output 2>/dev/null | grep vpnclient_out | grep -q "${wired_device}"
 }
 
+wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
+
 if ! is_firewall_set; then
-  bash /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules
+  bash /etc/yunohost/apps/vpnclient/conf/hooks/nftables-rules
 fi
-cp /etc/yunohost/apps/vpnclient/conf/hook_post-iptable-rules /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
 
 if is_firewall_set; then
   echo "[ OK ] Firewall rules correctly set"

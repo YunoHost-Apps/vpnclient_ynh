@@ -7,6 +7,10 @@ source /usr/share/yunohost/helpers
 # SPECIAL UPGRADE FOR VERSIONS < 2.0
 #=================================================
 
+if [[ -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient ]]; then
+  ynh_safe_rm /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+fi
+
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
 if [ -d /var/www/vpnadmin ]; then
   ynh_safe_rm /var/www/vpnadmin
