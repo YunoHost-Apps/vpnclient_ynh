@@ -1,10 +1,19 @@
 #!/bin/bash
 
-source /usr/share/yunohost/helpers
+render_jinja_template() {
+    local template_path=$1
+    local destination=$2
+
+    (
+      # Taken from https://github.com/YunoHost/yunohost/blob/dev/helpers/helpers.v2.1.d/templating
+      export $(compgen -v)
+      j2 "${template_path}" -f env -o "${destination}"
+    )
+}
 
 ip4_servers=""
 ip6_servers=""
-if [[ -z "${trusted_ip}" && -z "${trusted_ip6}" ]]; then
+if [[ -z "${trusted_ip-}" && -z "${trusted_ip6-}" ]]; then
   servers=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
 
   # In case an ip has been provided in ovpn conf
@@ -26,11 +35,11 @@ if [[ -z "${trusted_ip}" && -z "${trusted_ip6}" ]]; then
     fi
   done
 else
-  if [[ -n "${trusted_ip6}" ]]; then
+  if [[ -n "${trusted_ip6-}" ]]; then
     ip6_servers="${trusted_ip6}"
   fi
 
-  if [[ -n "${trusted_ip}" ]]; then
+  if [[ -n "${trusted_ip-}" ]]; then
     ip4_servers="${trusted_ip}"
   fi
 fi
@@ -47,6 +56,7 @@ for dns in $(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.
   fi
 done
 
-ynh_config_add --template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 --destination /etc/nftables.d/vpnclient.conf --jinja
+render_jinja_template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 /etc/nftables.d/vpnclient.conf
+nft -f /etc/nftables.d/vpnclient.conf
 
 exit 0

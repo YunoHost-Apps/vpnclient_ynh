@@ -1,17 +1,17 @@
 #!/usr/sbin/nft -f
 
-{% if ip6_dns %}
-define ip6_dns = { {{ ip6_dns.split(' ') | join(', ') }} }
+{% if ip6_dns.strip() %}
+define ip6_dns = { {{ ip6_dns.strip().split(' ') | join(', ') }} }
 {% endif %}
-{% if ip4_dns %}
-define ip4_dns = { {{ ip4_dns.split(' ') | join(', ') }} }
+{% if ip4_dns.strip() %}
+define ip4_dns = { {{ ip4_dns.strip().split(' ') | join(', ') }} }
 {% endif %}
 
-{% if ip6_servers %}
-define ip6_servers = { {{ ip6_servers.split(' ') | join(', ') }} }
+{% if ip6_servers.strip() %}
+define ip6_servers = { {{ ip6_servers.strip().split(' ') | join(', ') }} }
 {% endif %}
-{% if ip4_servers %}
-define ip4_servers = { {{ ip4_servers.split(' ') | join(', ') }} }
+{% if ip4_servers.strip() %}
+define ip4_servers = { {{ ip4_servers.strip().split(' ') | join(', ') }} }
 {% endif %}
 
 define ip6_local = { fd00::/8, fe80::/10 }
@@ -33,17 +33,17 @@ table inet vpnclient {
   }
 
   chain vpnclient_out {
-{% if ip6_servers %}
+{% if ip6_servers.strip() %}
     ip6 daddr { $ip6_servers } counter accept comment "accept traffic to VPN server"
 {% endif %}
-{% if ip4_servers %}
+{% if ip4_servers.strip() %}
     ip daddr { $ip4_servers } counter accept comment "accept traffic to VPN server"
 {% endif %}
 
-{% if ip6_dns %}
+{% if ip6_dns.strip() %}
     ip6 daddr $ip6_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
 {% endif %}
-{% if ip4_dns %}
+{% if ip4_dns.strip() %}
     ip daddr $ip4_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
 {% endif %}
 
