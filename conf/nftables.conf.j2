@@ -1,0 +1,81 @@
+#!/usr/sbin/nft -f
+
+{% if ip6_dns %}
+define ip6_dns = { {{ ip6_dns.split(' ') | join(', ') }} }
+{% endif %}
+{% if ip4_dns %}
+define ip4_dns = { {{ ip4_dns.split(' ') | join(', ') }} }
+{% endif %}
+
+{% if ip6_servers %}
+define ip6_servers = { {{ ip6_servers.split(' ') | join(', ') }} }
+{% endif %}
+{% if ip4_servers %}
+define ip4_servers = { {{ ip4_servers.split(' ') | join(', ') }} }
+{% endif %}
+
+define ip6_local = { fd00::/8, fe80::/10 }
+define ip4_local = { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16 }
+
+table inet vpnclient {
+  chain vpnclient_in {
+    ip6 saddr $ip6_local counter accept comment "accept traffic from local ipv6"
+    ip saddr $ip4_local counter accept comment "accept traffic from local ipv4"
+
+    tcp dport ssh counter accept comment "accept traffic to ssh port"
+    tcp dport https counter accept comment "accept traffic to https port"
+
+    ip6 nexthdr icmpv6 counter accept
+    ip protocol icmp counter accept
+    ct state related,established counter accept
+
+    counter drop
+  }
+
+  chain vpnclient_out {
+{% if ip6_servers %}
+    ip6 daddr { $ip6_servers } counter accept comment "accept traffic to VPN server"
+{% endif %}
+{% if ip4_servers %}
+    ip daddr { $ip4_servers } counter accept comment "accept traffic to VPN server"
+{% endif %}
+
+{% if ip6_dns %}
+    ip6 daddr $ip6_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
+{% endif %}
+{% if ip4_dns %}
+    ip daddr $ip4_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
+{% endif %}
+
+    ip6 daddr $ip6_local counter accept comment "accept traffic to local ipv6"
+    ip daddr $ip4_local counter accept comment "accept traffic to local ipv4"
+
+    ip6 daddr ff02::fb udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv6"
+    ip daddr 224.0.0.251 udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv4"
+
+    ip6 nexthdr icmpv6 counter accept
+    ip protocol icmp counter accept
+    ct state related,established counter accept
+
+    counter drop
+  }
+
+  chain vpnclient_fwd {
+    counter drop
+  }
+
+  chain input {
+    type filter hook input priority 0; policy accept
+    iifname {{ wired_device }} counter jump vpnclient_in
+  }
+
+  chain output {
+    type filter hook output priority 0; policy accept
+    oifname {{ wired_device }} counter jump vpnclient_out
+  }
+
+  chain forward {
+    type filter hook forward priority 0; policy accept
+    oifname {{ wired_device }} counter jump vpnclient_fwd
+  }
+}

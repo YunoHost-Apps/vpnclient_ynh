@@ -47,12 +47,12 @@ ynh_safe_rm /etc/systemd/system/openvpn@.service.d/override.conf
 ynh_safe_rm /etc/openvpn/keys
 
 # Remove firewall config
-ynh_safe_rm /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+ynh_safe_rm /etc/nftables.d/vpnclient.conf
 
 # Reload systemd configuration
 systemctl daemon-reload
 
-# Make sure to reload the firewall now that the post_iptables_rules ain't there anymore
+# Make sure to reload the firewall now that the nftables config ain't there anymore
 ynh_print_info "Reloading firewall"
 yunohost firewall reload
 

@@ -1,38 +1,21 @@
 #!/bin/bash
 
 is_firewall_set() {
-  nft list chain inet filter output | grep vpnclient_out | grep -q "${wired_device}"
-}
-
-delete_nft_rule() {
-  local chain=$1
-  shift
-  local rule=$@
-
-  handle=$(nft -a list chain inet filter "${chain}" | sed -E 's/\s*counter packets [0-9]+ bytes [0-9]+\s*/ /g' | grep "${rule}" | grep -Po 'handle \K\d+')
-  if [[ -n "${handle}" ]]; then
-    nft delete rule inet filter "${chain}" handle "$handle"
-  else
-    >&2 echo "Cannot remove rule in chain ${chain}: ${rule} doesn't exist"
-    return 1
-  fi
+  nft list chain inet vpnclient output 2>/dev/null | grep vpnclient_out | grep -q "${wired_device}"
 }
 
 wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
-rm -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+rm -f /etc/nftables.d/vpnclient.conf
+
 if is_firewall_set; then  
-  delete_nft_rule "input" "iifname \"${wired_device}\" jump vpnclient_in"
-  delete_nft_rule "output" "oifname \"${wired_device}\" jump vpnclient_out"
-  delete_nft_rule "forward" "oifname \"${wired_device}\" jump vpnclient_fwd"
+  nft delete chain inet vpnclient input
+  nft delete chain inet vpnclient output
+  nft delete chain inet vpnclient forward
 
-  nft flush chain inet filter vpnclient_in
-  nft flush chain inet filter vpnclient_out
-  nft flush chain inet filter vpnclient_fwd
-
-  nft delete chain inet filter vpnclient_in
-  nft delete chain inet filter vpnclient_out
-  nft delete chain inet filter vpnclient_fwd
+  nft delete chain inet vpnclient vpnclient_in
+  nft delete chain inet vpnclient vpnclient_out
+  nft delete chain inet vpnclient vpnclient_fwd
 
   if ! is_firewall_set; then
     echo "[ OK ] Firewall rules correctly unset"
