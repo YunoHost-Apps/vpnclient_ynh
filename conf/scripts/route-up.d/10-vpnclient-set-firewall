@@ -7,6 +7,7 @@ is_firewall_set() {
 wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
 if ! is_firewall_set; then
+  export trusted_ip trusted_ip6
   bash /etc/yunohost/apps/vpnclient/conf/hooks/nftables-rules
   nft -f /etc/nftables.d/vpnclient.conf
 fi
