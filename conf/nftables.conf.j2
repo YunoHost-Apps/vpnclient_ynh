@@ -1,21 +1,11 @@
 #!/usr/sbin/nft -f
 
-{% if ip6_dns.strip() %}
-define ip6_dns = { {{ ip6_dns.strip().split(' ') | join(', ') }} }
-{% endif %}
-{% if ip4_dns.strip() %}
-define ip4_dns = { {{ ip4_dns.strip().split(' ') | join(', ') }} }
-{% endif %}
-
-{% if ip6_servers.strip() %}
-define ip6_servers = { {{ ip6_servers.strip().split(' ') | join(', ') }} }
-{% endif %}
-{% if ip4_servers.strip() %}
-define ip4_servers = { {{ ip4_servers.strip().split(' ') | join(', ') }} }
-{% endif %}
-
 define ip6_local = { fd00::/8, fe80::/10 }
 define ip4_local = { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16 }
+
+# Delete the table first, so that reloading this file replaces the rules
+table inet vpnclient
+delete table inet vpnclient
 
 table inet vpnclient {
   chain vpnclient_in {
@@ -25,26 +15,26 @@ table inet vpnclient {
     tcp dport ssh counter accept comment "accept traffic to ssh port"
     tcp dport https counter accept comment "accept traffic to https port"
 
-    ip6 nexthdr icmpv6 counter accept
-    ip protocol icmp counter accept
+    meta l4proto ipv6-icmp counter accept
+    meta l4proto icmp counter accept
     ct state related,established counter accept
 
     counter drop
   }
 
   chain vpnclient_out {
-{% if ip6_servers.strip() %}
-    ip6 daddr { $ip6_servers } counter accept comment "accept traffic to VPN server"
+{% if trusted_ip6 %}
+    ip6 daddr {{ trusted_ip6 }} counter accept comment "accept traffic to VPN server"
 {% endif %}
-{% if ip4_servers.strip() %}
-    ip daddr { $ip4_servers } counter accept comment "accept traffic to VPN server"
+{% if trusted_ip %}
+    ip daddr {{ trusted_ip }} counter accept comment "accept traffic to VPN server"
 {% endif %}
 
-{% if ip6_dns.strip() %}
-    ip6 daddr $ip6_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
+{% if ip6_dns.split() %}
+    ip6 daddr { {{ ip6_dns.split() | join(', ') }} } udp dport 53 counter accept comment "accept traffic to DNS nameservers"
 {% endif %}
-{% if ip4_dns.strip() %}
-    ip daddr $ip4_dns udp dport 53 counter accept comment "accept traffic to DNS nameservers"
+{% if ip4_dns.split() %}
+    ip daddr { {{ ip4_dns.split() | join(', ') }} } udp dport 53 counter accept comment "accept traffic to DNS nameservers"
 {% endif %}
 
     ip6 daddr $ip6_local counter accept comment "accept traffic to local ipv6"
@@ -53,8 +43,7 @@ table inet vpnclient {
     ip6 daddr ff02::fb udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv6"
     ip daddr 224.0.0.251 udp dport 5353 counter accept comment "accept traffic to bonjour protocol ipv4"
 
-    ip6 nexthdr icmpv6 counter accept
-    ip protocol icmp counter accept
+    meta l4proto ipv6-icmp counter accept
     ct state related,established counter accept
 
     counter drop
@@ -66,16 +55,16 @@ table inet vpnclient {
 
   chain input {
     type filter hook input priority 0; policy accept
-    iifname {{ wired_device }} counter jump vpnclient_in
+    iifname "{{ wired_device }}" counter jump vpnclient_in
   }
 
   chain output {
     type filter hook output priority 0; policy accept
-    oifname {{ wired_device }} counter jump vpnclient_out
+    oifname "{{ wired_device }}" counter jump vpnclient_out
   }
 
   chain forward {
     type filter hook forward priority 0; policy accept
-    oifname {{ wired_device }} counter jump vpnclient_fwd
+    oifname "{{ wired_device }}" counter jump vpnclient_fwd
   }
 }

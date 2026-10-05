@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 render_jinja_template() {
     local template_path=$1
     local destination=$2
@@ -11,40 +13,19 @@ render_jinja_template() {
     )
 }
 
-ip4_servers=""
-ip6_servers=""
+# OpenVPN provides the IP of the VPN server it is connected to
 if [[ -z "${trusted_ip-}" && -z "${trusted_ip6-}" ]]; then
-  servers=$(grep -o -P '^\s*remote\s+\K([^\s]+)' /etc/openvpn/client.conf | sort | uniq)
-
-  # In case an ip has been provided in ovpn conf
-  for server in ${servers}; do
-    if [[ "${server}" =~ ':' ]]; then
-      ip6_servers+=" ${server}"
-    elif [[ "${server}" =~ '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' ]]; then
-      ip4_servers+=" ${server}"
-    else
-      ip6_server=$(dig AAAA +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
-      if [[ -n "${ip6_server}" ]]; then
-        ip6_servers+=" ${ip6_server}"
-      fi
-
-      ip4_server=$(dig A +short "${server}" @127.0.0.1 | grep -v '\.$' | grep -v "timed out" | tr '\n' ' ')
-      if [[ -n "${ip4_server}" ]]; then
-        ip4_servers+=" ${ip4_server}"
-      fi
-    fi
-  done
-else
-  if [[ -n "${trusted_ip6-}" ]]; then
-    ip6_servers="${trusted_ip6}"
-  fi
-
-  if [[ -n "${trusted_ip-}" ]]; then
-    ip4_servers="${trusted_ip}"
-  fi
+  echo "[FAIL] VPN server IP is unknown, this script must be run by OpenVPN" >&2
+  exit 1
 fi
+trusted_ip="${trusted_ip-}"
+trusted_ip6="${trusted_ip6-}"
 
 wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
+if [[ -z "${wired_device}" ]]; then
+  echo "[FAIL] Cannot find the wired device (no default route)" >&2
+  exit 1
+fi
 
 ip6_dns=""
 ip4_dns=""
@@ -56,7 +37,11 @@ for dns in $(grep -o -P '^\s*nameserver\s+\K[a-fA-F\d.:]+$' /etc/resolv.dnsmasq.
   fi
 done
 
-render_jinja_template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 /etc/nftables.d/vpnclient.conf
-nft -f /etc/nftables.d/vpnclient.conf
+tmp_conf=$(mktemp /tmp/vpnclient-nftables-XXXXXX.conf)
+trap 'rm -f "${tmp_conf}"' EXIT
 
-exit 0
+render_jinja_template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 "${tmp_conf}"
+
+# Apply before installing, so that invalid rules never break the YunoHost firewall
+nft -f "${tmp_conf}"
+install -o root -g root -m 0644 "${tmp_conf}" /etc/nftables.d/vpnclient.conf
