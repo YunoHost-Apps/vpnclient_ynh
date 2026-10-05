@@ -13,7 +13,6 @@ function vpnclient_deploy_files_and_services()
   # Copy confs
   chown root:${app} /etc/openvpn/
   chmod 775 /etc/openvpn/
-  mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
   mkdir -pm 0755 /etc/systemd/system/openvpn@.service.d/
 
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/openvpn@.service.d/override.conf
