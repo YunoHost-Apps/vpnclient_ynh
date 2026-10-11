@@ -13,7 +13,6 @@ ynh_restore_everything
 # Fix file permissions
 chmod 0775 /etc/openvpn/
 chown root:${app} /etc/openvpn/
-mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
 chmod 0755 /etc/systemd/system/openvpn@.service.d/
 chmod 0644 /etc/systemd/system/openvpn@.service.d/override.conf
 

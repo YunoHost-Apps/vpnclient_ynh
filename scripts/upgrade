@@ -7,10 +7,6 @@ source /usr/share/yunohost/helpers
 # SPECIAL UPGRADE FOR VERSIONS < 2.0
 #=================================================
 
-if [[ -f /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient ]]; then
-  ynh_safe_rm /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
-fi
-
 # Removing configuration files with naming that occured in versions < 1.2.0 ("vpnadmin" instead off "$app")
 if [ -d /var/www/vpnadmin ]; then
   ynh_safe_rm /var/www/vpnadmin
@@ -74,13 +70,38 @@ if [ -e "/etc/systemd/system/openvpn@.service" ]; then
 fi
 
 #=================================================
-# DEPLOY FILES FROM PACKAGE
+# STOP SERVICES
 #=================================================
 
 ynh_print_info "Stopping VPN client to apply config changes..."
 
 ynh_systemctl --action="stop" --service="$service_checker_name.timer"
 yunohost service stop $service_name
+
+#=================================================
+# MIGRATE FIREWALL RULES FROM IPTABLES TO NFTABLES
+#=================================================
+
+if [ -e /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient ]; then
+  ynh_safe_rm /etc/yunohost/hooks.d/post_iptable_rules/90-vpnclient
+fi
+if [ -d /etc/yunohost/hooks.d/post_iptable_rules ]; then
+  rmdir --ignore-fail-on-non-empty /etc/yunohost/hooks.d/post_iptable_rules
+fi
+
+# DNS scripts now run before firewall scripts
+for old_script in /etc/openvpn/scripts/route-up.d/10-vpnclient-set-firewall \
+                  /etc/openvpn/scripts/route-up.d/20-vpnclient-set-dns \
+                  /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall \
+                  /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-dns; do
+  if [ -e "${old_script}" ]; then
+    ynh_safe_rm "${old_script}"
+  fi
+done
+
+#=================================================
+# DEPLOY FILES FROM PACKAGE
+#=================================================
 
 # Keep a copy of existing config files before overwriting them
 tmp_dir=$(mktemp -d /tmp/vpnclient-upgrade-XXX)
