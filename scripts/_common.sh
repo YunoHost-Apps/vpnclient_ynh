@@ -13,7 +13,6 @@ function vpnclient_deploy_files_and_services()
   # Copy confs
   chown root:${app} /etc/openvpn/
   chmod 775 /etc/openvpn/
-  mkdir -pm 0755 /etc/yunohost/hooks.d/post_iptable_rules/
   mkdir -pm 0755 /etc/systemd/system/openvpn@.service.d/
 
   install -b -o root -g root -m 0644 ../conf/openvpn@.service /etc/systemd/system/openvpn@.service.d/override.conf
@@ -22,6 +21,9 @@ function vpnclient_deploy_files_and_services()
   mkdir -pm 0700 /etc/openvpn/keys/
   chown ${app}:${app} /etc/openvpn/keys/
 
+  # Create iproute2 directory
+  mkdir -p /etc/iproute2/rt_tables.d
+
   # Create scripts directory
   mkdir -pm 0755 /etc/openvpn/scripts
   mkdir -pm 0755 /etc/openvpn/scripts/route-up.d
@@ -29,6 +31,16 @@ function vpnclient_deploy_files_and_services()
   install -b -o root -g root -m 0755 ../conf/scripts/run-parts.sh /etc/openvpn/scripts/run-parts.sh
   install -b -o root -g root -m 0755 ../conf/scripts/route-up.d/* /etc/openvpn/scripts/route-up.d/
   install -b -o root -g root -m 0755 ../conf/scripts/route-down.d/* /etc/openvpn/scripts/route-down.d/
+
+  if [[ ${ip6_send_over_tun_enabled} -eq 1 ]]; then
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-up.d/50-vpnclient-set-ipv6-send-over-tun /etc/openvpn/scripts/route-up.d/
+    install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
+  fi
+
+  # Create nftables directory
+  mkdir -pm 0755 /etc/openvpn/nftables
+  install -b -o root -g root -m 0755 ../conf/nftables/generate-nftables-rules /etc/openvpn/nftables/generate-nftables-rules
+  install -b -o root -g root -m 0755 ../conf/nftables/nftables.conf.j2 /etc/openvpn/nftables/nftables.conf.j2
 
   #=================================================
 

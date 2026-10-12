@@ -21,6 +21,9 @@ done
 ynh_backup "/etc/openvpn/keys/"
 ynh_backup "/etc/openvpn/scripts/run-parts.sh"
 
+ynh_backup "/etc/openvpn/nftables/generate-nftables-rules"
+ynh_backup "/etc/openvpn/nftables/nftables.conf.j2"
+
 ynh_backup "/usr/local/bin/$service_name"
 ynh_backup "/usr/local/bin/$service_checker_name.sh"
 

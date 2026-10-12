@@ -20,7 +20,7 @@ unset_serverip6route() {
   ip route delete "${server_ip6}/128" via "${ip6_gw}" dev "${wired_device}"
 }
 
-wired_device=$(ip route | awk '/default via/ { print $5; }')
+wired_device=$(ip route | awk '/default via/ { print $5; exit; }')
 
 # See https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/#environmental-variables
 # to have a list of variables provided by OpenVPN, i.e:

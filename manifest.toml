@@ -7,7 +7,7 @@ name = "VPN Client"
 description.en = "Tunnel the internet traffic through a VPN"
 description.fr = "Fait passer le trafic internet à travers un VPN"
 
-version = "2.3~ynh8"
+version = "2.4~ynh1"
 
 maintainers = []
 
@@ -16,7 +16,7 @@ license = "AGPL-3.0"
 website = "https://labriqueinter.net"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.0"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -37,4 +37,4 @@ ram.runtime = "50M"
     [resources.permissions]
 
     [resources.apt]
-    packages = "sipcalc, dnsutils, openvpn, curl, fake-hwclock"
+    packages = "sipcalc, openvpn, curl, fake-hwclock"

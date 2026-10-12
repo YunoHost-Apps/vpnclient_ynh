@@ -168,10 +168,16 @@ case "$action" in
     info "[vpnclient] Starting..."
 
     if [[ "${ynh_service_enabled}" -eq 0 ]]; then
+      # Remove firewall rules left over by a crash, as nftables would reload them
+      if ! systemctl is-active -q openvpn@client.service; then
+        if [[ -e /etc/nftables.d/vpnclient.conf ]]; then
+          /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-firewall | tee -a $LOGFILE
+        fi
+      fi
       warn "Service is disabled, not starting it"
       exit 0
     fi
-    
+
     if ! lockfile -r 0 /tmp/.ynh-vpnclient-started &>/dev/null; then
       info "Service is already running"
       exit 0
@@ -182,15 +188,11 @@ case "$action" in
       exit 0
     fi
 
-    # In case firewall rules weren't deleted during last run 
-    # (for instance after a crash or power loss)
-    # This could be improved by just removing the vpnclient firewall hook,
-    # but yunohost firewall reload doesn't seem to work currently
-    /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-firewall | tee -a $LOGFILE
+    # In case firewall rules weren't deleted during last run
+    /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-firewall | tee -a $LOGFILE
 
     # In case custom DNS weren't deleted during last run
-    # (for instance after a crash or power loss)
-    /etc/openvpn/scripts/route-down.d/20-vpnclient-unset-dns | tee -a $LOGFILE
+    /etc/openvpn/scripts/route-down.d/10-vpnclient-unset-dns | tee -a $LOGFILE
 
     sync_time
     check_config
@@ -228,6 +230,11 @@ case "$action" in
       critical "Failed to start OpenVPN client"
     fi
 
+    # Only warn, since the VPN is what makes the server reachable from the internet
+    if ! nft list chain inet vpnclient output 2>/dev/null | grep -q vpnclient_out; then
+      error "Firewall rules are not set, outgoing traffic may not go through the VPN"
+    fi
+
     info "Validating that VPN is up and the server is connected to internet..."
 
     if ! ip route get 1.2.3.4 | grep -q tun0; then
@@ -239,7 +246,7 @@ case "$action" in
     if [[ -z "${ipv4}" && -z "${ipv6}" ]]; then
       critical "The VPN is up but yunohost.org cannot be reached, indicating that something is probably misconfigured/blocked."
     fi
-    
+
     success "YunoHost VPN client started!"
     info "IPv4 address is $ipv4"
     info "IPv6 address is $ipv6"
@@ -263,7 +270,7 @@ case "$action" in
         fi
       done
     fi
-    
+
     rm -f /tmp/.ynh-vpnclient-started
   ;;
 
