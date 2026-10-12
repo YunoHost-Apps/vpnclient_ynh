@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Always apply the rules, since the VPN server IP may have changed
-if bash /etc/yunohost/apps/vpnclient/conf/hooks/nftables-rules; then
+if bash /etc/openvpn/nftables/generate-nftables-rules; then
   echo "[ OK ] Firewall rules correctly set"
 else
   echo "[FAIL] No firewall rules set" >&2

@@ -47,6 +47,8 @@ ynh_safe_rm /etc/systemd/system/openvpn@.service.d/override.conf
 ynh_safe_rm /etc/openvpn/keys
 
 # Remove firewall config
+ynh_safe_rm /etc/openvpn/nftables
+
 ynh_safe_rm /etc/nftables.d/vpnclient.conf
 if nft list table inet vpnclient &>/dev/null; then
   nft delete table inet vpnclient

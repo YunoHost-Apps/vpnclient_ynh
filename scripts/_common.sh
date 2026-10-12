@@ -37,6 +37,11 @@ function vpnclient_deploy_files_and_services()
     install -b -o root -g root -m 0755 ../conf/optional-scripts/route-down.d/50-vpnclient-unset-ipv6-send-over-tun /etc/openvpn/scripts/route-down.d/
   fi
 
+  # Create nftables directory
+  mkdir -pm 0755 /etc/openvpn/nftables
+  install -b -o root -g root -m 0755 ../conf/nftables/generate-nftables-rules /etc/openvpn/nftables/generate-nftables-rules
+  install -b -o root -g root -m 0755 ../conf/nftables/nftables.conf.j2 /etc/openvpn/nftables/nftables.conf.j2
+
   #=================================================
 
   # Copy init script

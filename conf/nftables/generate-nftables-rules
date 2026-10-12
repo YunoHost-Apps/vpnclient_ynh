@@ -40,7 +40,7 @@ done
 tmp_conf=$(mktemp /tmp/vpnclient-nftables-XXXXXX.conf)
 trap 'rm -f "${tmp_conf}"' EXIT
 
-render_jinja_template /etc/yunohost/apps/vpnclient/conf/nftables.conf.j2 "${tmp_conf}"
+render_jinja_template /etc/openvpn/nftables/nftables.conf.j2 "${tmp_conf}"
 
 # Apply before installing, so that invalid rules never break the YunoHost firewall
 nft -f "${tmp_conf}"

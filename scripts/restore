@@ -31,6 +31,7 @@ find /etc/openvpn/keys -type f -exec chmod 0600 {} \;
 
 # Ensure scripts are executable
 chmod 0755 -R /etc/openvpn/scripts
+chmod 0755 /etc/openvpn/nftables/generate-nftables-rules
 chmod 0755 /usr/local/bin/$service_name
 chmod 0755 /usr/local/bin/$service_checker_name.sh
 chmod 0755 /usr/local/bin/$service_name-loadcubefile.sh
